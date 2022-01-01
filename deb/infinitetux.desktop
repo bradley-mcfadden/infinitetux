@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+StartupNotify=false
+Categories=Game;ArcadeGame;
+Keywords=game;arcade;platform;
+Icon=infinitetux
+Exec=infinitetux
+Name=Infinitetux
+Comment=2D platformer game inspired by Infinite Mario
