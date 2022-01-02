@@ -30,7 +30,7 @@ public class LevelScene extends Scene implements SpriteContext
     private LevelRenderer layer;
     private BgRenderer[] bgLayer = new BgRenderer[2];
 
-    private GraphicsConfiguration graphicsConfiguration;
+    public GraphicsConfiguration graphicsConfiguration;
     private Color translucent = new Color(0, 0, 0, 0);
 
     public boolean paused = false;
@@ -46,7 +46,7 @@ public class LevelScene extends Scene implements SpriteContext
     //    private Replayer replayer = null;
     
     private long levelSeed;
-    private MarioComponent renderer;
+    public MarioComponent renderer;
     private int levelType;
     private int musicType;
     private int levelDifficulty;
@@ -62,26 +62,33 @@ public class LevelScene extends Scene implements SpriteContext
 
     public void init()
     {
-        
+        loadTileData();
+        level = LevelGenerator.createLevel(640, 15, levelSeed, levelDifficulty, levelType);
+        setupMusic();
+        finishInit();
+    }
+
+    protected void loadTileData() {
         // crete default dirs if they don't exist
-        
+                
         tilesDir = new File(System.getProperty("user.home") + File.separatorChar + ".infinitetux");
         try {
             levelsDir = new File(tilesDir.getCanonicalPath().toString() + File.separator + "levels");
-    
+
         } catch (IOException ex) {
             ex.printStackTrace();
 
         }
 
+        // start load tiles.dat
         try {
             tilesDataFilePath = tilesDir.getCanonicalPath().toString() + File.separator + "tiles.dat";
 
         } catch (IOException ex) {
             ex.printStackTrace();
         }   
-        
-        
+
+
         // try and load tiles.dat from default data dir. If not create it and copy tiles.dat over
         try {
             System.out.println("Loading " + tilesDataFilePath);
@@ -111,45 +118,26 @@ public class LevelScene extends Scene implements SpriteContext
             }
             
             try{
-				    if (!levelsDir.exists()) {
+                    if (!levelsDir.exists()) {
                     System.out.println("creating " + levelsDir.getName());
                     levelsDir.mkdirs();
                 }
-				
-			}
-			catch(Exception e3){
-				e3.printStackTrace();
-				
-				}
+                
+            }
+            catch(Exception e3){
+                e3.printStackTrace();
+                
+                }
             
             
             //JOptionPane.showMessageDialog(this, e.toString(), "Failed to load tile behaviors", JOptionPane.ERROR_MESSAGE);
             //JOptionPane.showMessageDialog(this, e.toString(), "Failed to load tile behaviors", JOptionPane.ERROR_MESSAGE);
-        }        
-//        try
-//        {
-//            Level.loadBehaviors(new DataInputStream(LevelScene.class.getResourceAsStream("/tiles.dat")));
-//        }
-//        catch (IOException e)
-//        {
-//            e.printStackTrace();
-//            System.exit(0);
-//        }
-        /*        if (replayer!=null)
-         {
-         level = LevelGenerator.createLevel(2048, 15, replayer.nextLong());
-         }
-         else
-         {*/
-//        level = LevelGenerator.createLevel(320, 15, levelSeed);
-        level = LevelGenerator.createLevel(640, 15, levelSeed, levelDifficulty, levelType);
-        //        }
+        }    
+        // end load tiles.dat    
+    }
 
-        /*        if (recorder != null)
-         {
-         recorder.addLong(LevelGenerator.lastSeed);
-         }*/
-
+    protected void setupMusic() {
+        // start setup music
         if (levelType == LevelGenerator.TYPE_OVERGROUND) {
             Art.startMusic(1);
             musicType = 1;
@@ -160,8 +148,10 @@ public class LevelScene extends Scene implements SpriteContext
             Art.startMusic(3);
             musicType = 3;
         }
+        // end setup music
+    }
 
-
+    protected void finishInit() {
         paused = false;
         Sprite.spriteContext = this;
         sprites.clear();

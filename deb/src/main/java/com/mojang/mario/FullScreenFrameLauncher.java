@@ -14,6 +14,7 @@ public class FullScreenFrameLauncher
         GraphicsDevice device = env.getDefaultScreenDevice();
         device.setFullScreenWindow(frame);  
         MarioComponent mario = new MarioComponent(320*frame.getHeight()/240, frame.getHeight());
+        
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         //frame.setUndecorated(true);
         frame.setLayout( new GridBagLayout() );

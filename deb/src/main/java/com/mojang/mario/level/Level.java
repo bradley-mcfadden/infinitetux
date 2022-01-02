@@ -78,6 +78,20 @@ public class Level
             dis.readFully(level.map[i]);
             dis.readFully(level.data[i]);
         }
+
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                byte tmpByte = level.map[i][j];
+                if (tmpByte == -1)
+                {
+                    level.map[i][j] = 0x00;
+                    level.setLevelExit(tmpByte / 16, tmpByte % 16);
+                }
+            }
+        }
+
         return level;
     }
 
@@ -89,11 +103,17 @@ public class Level
         dos.writeShort((short) width);
         dos.writeShort((short) height);
 
+        byte tmpByte = map[xExit][yExit];
+        map[xExit][yExit] = -1;
         for (int i = 0; i < width; i++)
         {
             dos.write(map[i]);
             dos.write(data[i]);
         }
+        map[xExit][yExit] = tmpByte;
+
+        dos.close();
+        
     }
 
     public void tick()
@@ -131,7 +151,15 @@ public class Level
         if (y < 0) return;
         if (x >= width) return;
         if (y >= height) return;
-        map[x][y] = b;
+        if (b != -1)
+        {
+            map[x][y] = b;
+        }
+        else
+        {
+            map[x][y] = b;
+            setLevelExit(x, y);
+        }
     }
 
     public void setBlockData(int x, int y, byte b)
@@ -169,5 +197,11 @@ public class Level
         if (x >= width) return;
         if (y >= height) return;
         spriteTemplates[x][y] = spriteTemplate;
+    }
+
+    public void setLevelExit(int x, int y)
+    {
+        xExit = x;
+        yExit = y + 1;
     }
 }
