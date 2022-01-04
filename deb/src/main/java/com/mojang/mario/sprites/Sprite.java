@@ -36,7 +36,7 @@ public class Sprite implements SoundSource
     
     public void render(Graphics og, float alpha)
     {
-        if (!visible) return;
+        if (!visible || xPic > sheet.length || yPic > sheet.length) return;
         
         int xPixel = (int)(xOld+(x-xOld)*alpha)-xPicO;
         int yPixel = (int)(yOld+(y-yOld)*alpha)-yPicO;

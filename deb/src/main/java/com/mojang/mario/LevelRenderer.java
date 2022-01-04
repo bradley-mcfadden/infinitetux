@@ -3,10 +3,12 @@ package com.mojang.mario;
 import java.awt.*;
 import java.util.Random;
 import com.mojang.mario.level.*;
+import com.mojang.mario.sprites.Enemy;
 
 
 public class LevelRenderer
 {
+    private boolean isLevelEditor;
     private int xCam;
     private int yCam;
     private Image image;
@@ -32,6 +34,11 @@ public class LevelRenderer
         g.setComposite(AlphaComposite.Src);
 
         updateArea(0, 0, width, height);
+    }
+
+    public void setIsLevelEditor(boolean isLevelEditor)
+    {
+        this.isLevelEditor = isLevelEditor;
     }
 
     public void setCam(int xCam, int yCam)
@@ -83,6 +90,14 @@ public class LevelRenderer
                 if (((Level.TILE_BEHAVIORS[b]) & Level.BIT_ANIMATED) == 0)
                 {
                     g.drawImage(Art.level[b % 16][b / 16], (x << 4) - xCam, (y << 4) - yCam,translucent, null);
+                }
+                SpriteTemplate t =  level.getSpriteTemplate(x, y);
+                if (t != null && isLevelEditor)
+                {
+                    if ((t.getCode() & 0x7F) != (byte)Enemy.ENEMY_NULL)
+                    {
+                        t.render(g, x, y, -1);
+                    }
                 }
             }
         }

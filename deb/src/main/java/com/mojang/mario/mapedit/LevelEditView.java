@@ -22,6 +22,9 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
     private int xTile = -1;
     private int yTile = -1;
     private TilePicker tilePicker;
+    private EnemyPicker enemyPicker;
+    private int editingMode = LevelEditor.MODE_TILE;
+
 
     public LevelEditView(TilePicker tilePicker)
     {
@@ -48,6 +51,20 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         addMouseListener(this);
         addMouseMotionListener(this);
     }    
+
+    public LevelEditView(EnemyPicker enemyPicker, TilePicker tilePicker)
+    {
+        this.enemyPicker = enemyPicker;
+        this.tilePicker = tilePicker;
+        level = new Level(256, 15);
+        Dimension size = new Dimension(level.width * 16, level.height * 16);
+        setPreferredSize(size);
+        setMinimumSize(size);
+        setMaximumSize(size);
+
+        addMouseListener(this);
+        addMouseMotionListener(this);
+    }
     
     public void setLevel(Level level)
     {
@@ -71,6 +88,7 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         Art.init(getGraphicsConfiguration(), null);
         levelRenderer = new LevelRenderer(level, getGraphicsConfiguration(), level.width * 16, level.height * 16);
         levelRenderer.renderBehaviors = true;
+        levelRenderer.setIsLevelEditor(true);
     }
 
     public void paintComponent(Graphics g)
@@ -102,16 +120,32 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         xTile = e.getX() / 16;
         yTile = e.getY() / 16;
 
-        if (e.getButton() == 3)
+        if (editingMode == LevelEditor.MODE_TILE)
         {
-            tilePicker.setPickedTile(level.getBlock(xTile, yTile));
-        }
-        else
+            if (e.getButton() == 3)
+            {
+                tilePicker.setPickedTile(level.getBlock(xTile, yTile));
+            }
+            else
+            {
+                level.setBlock(xTile, yTile, tilePicker.pickedTile);
+                levelRenderer.repaint(xTile - 1, yTile - 1, 3, 3);
+
+                repaint();
+            }
+        } 
+        else if (editingMode == LevelEditor.MODE_ENEMY)
         {
-            level.setBlock(xTile, yTile, tilePicker.pickedTile);
-            levelRenderer.repaint(xTile - 1, yTile - 1, 3, 3);
+            System.out.println("Placed enemy at " + xTile + "," + yTile);
+            level.setSpriteTemplate(xTile, yTile, enemyPicker.pickedEnemy);
+            levelRenderer.repaint(xTile - 2, yTile - 2, 5, 5);
 
             repaint();
+
+        }
+        else if (editingMode == LevelEditor.MODE_HAZARD)
+        {
+
         }
     }
 
@@ -138,5 +172,10 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
        
        
         repaint();
+    }
+
+    public void setEditingMode(int mode)
+    {
+        editingMode = mode;
     }
 }

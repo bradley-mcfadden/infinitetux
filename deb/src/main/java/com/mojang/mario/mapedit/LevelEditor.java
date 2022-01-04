@@ -26,12 +26,17 @@ public class LevelEditor extends JFrame implements ActionListener
     private JTextField nameField;
     private LevelEditView levelEditView;
     private TilePicker tilePicker;
+    private EnemyPicker enemyPicker;
     private JLabel coordinates;
     private String coordinateText="X=P , Y=Q";
     private TestLevelFrameLauncher levelTester;
     private JCheckBox[] bitmapCheckboxes = new JCheckBox[8];
 
     private String workingDirectory;
+
+    public static final int MODE_TILE = 1;
+    public static final int MODE_ENEMY = 2;
+    public static final int MODE_HAZARD = 3;
 
     public LevelEditor()
     {
@@ -58,11 +63,19 @@ public class LevelEditor extends JFrame implements ActionListener
         tilePickerPanel.add(BorderLayout.CENTER, buildBitmapPanel());
         tilePickerPanel.setBorder(new TitledBorder(new EtchedBorder(), "Tile picker"));
 
+        enemyPicker = new EnemyPicker(this);
+
+        /*
         JPanel lowerPanel = new JPanel(new BorderLayout());
         lowerPanel.add(BorderLayout.WEST, tilePickerPanel);
+        lowerPanel.add(BorderLayout.CENTER, enemyPicker);
+        */
+        JPanel lowerPanel = new JPanel(new GridLayout(1, 3));
+        lowerPanel.add(tilePickerPanel);
+        lowerPanel.add(enemyPicker);
 
         JPanel borderPanel = new JPanel(new BorderLayout());
-        levelEditView = new LevelEditView(tilePicker);
+        levelEditView = new LevelEditView(enemyPicker, tilePicker);
         borderPanel.add(BorderLayout.CENTER, new JScrollPane(levelEditView));
         borderPanel.add(BorderLayout.SOUTH, lowerPanel);
         borderPanel.add(BorderLayout.NORTH, buildButtonPanel());
@@ -79,6 +92,11 @@ public class LevelEditor extends JFrame implements ActionListener
         levelTester = new TestLevelFrameLauncher();
 
         tilePicker.addTilePickChangedListener(this);
+    }
+
+    public void setEditingMode(int mode)
+    {
+        levelEditView.setEditingMode(mode);
     }
 
     public JPanel buildBitmapPanel()

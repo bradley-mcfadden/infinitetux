@@ -279,6 +279,11 @@ public class Level
         if (b != -1)
         {
             map[x][y] = b;
+            if (xExit == x && yExit == y + 1)
+            {
+                xExit = 10;
+                yExit = 10;
+            }
         }
         else
         {
