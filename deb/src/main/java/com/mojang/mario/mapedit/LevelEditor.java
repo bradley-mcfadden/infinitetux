@@ -13,6 +13,7 @@ import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
 
 
+
 public class LevelEditor extends JFrame implements ActionListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
@@ -127,7 +128,7 @@ public class LevelEditor extends JFrame implements ActionListener
         levelDirectory.mkdirs();
         workingDirectory = levelDirectory.getAbsolutePath();
         
-        nameField = new JTextField("test.lvl", 10);
+        nameField = new JTextField("test", 10);
         
         coordinates = new JLabel(coordinateText,10);
         loadButton.addActionListener(this);
@@ -151,21 +152,42 @@ public class LevelEditor extends JFrame implements ActionListener
         {
             if (e.getSource() == loadButton)
             {
-                levelEditView.setLevel(Level.load(new DataInputStream(new FileInputStream(workingDirectory + "/" + nameField.getText().trim()))));
+                // levelEditView.setLevel(Level.load(new DataInputStream(new FileInputStream(workingDirectory + "/" + nameField.getText().trim()))));
+                String saveLocation = getLevelDirectory();
+                if (saveLocation != null)
+                {
+                    levelEditView.setLevel(Level.load(new File(saveLocation)));
+                }
             }
             if (e.getSource() == saveButton)
             {
-                levelEditView.getLevel().save(new DataOutputStream(new FileOutputStream(workingDirectory + "/" + nameField.getText().trim())));
+                // levelEditView.getLevel().save(new DataOutputStream(new FileOutputStream(workingDirectory + "/" + nameField.getText().trim())));
+                String saveLocation = getLevelDirectory();
+                if (saveLocation != null)
+                {
+                    levelEditView.getLevel().save(new File(saveLocation));
+                }
             }
             if (e.getSource() == newButton)
             {
-                levelEditView.getLevel().save(new DataOutputStream(new FileOutputStream(workingDirectory + "/" + nameField.getText().trim())));
+                // levelEditView.getLevel().save(new DataOutputStream(new FileOutputStream(workingDirectory + "/" + nameField.getText().trim())));
+                String saveLocation = getLevelDirectory();
+                if (saveLocation != null)
+                {
+                    levelEditView.getLevel().save(new File(saveLocation));
+                    nameField.setText("");
+                    levelEditView.setLevel(new Level(256, 15));
+                    JOptionPane.showMessageDialog(null, "Previous level saved to: " + saveLocation);
+                }
             }     
             if (e.getSource() == testButton) 
             {
-                Level level = levelEditView.getLevel();
-                level.save(new DataOutputStream(new FileOutputStream(nameField.getText().trim())));
-                levelTester.testLevel(level);
+                String saveLocation = getLevelDirectory();
+                {
+                    Level level = levelEditView.getLevel();
+                    level.save(new File(saveLocation));
+                    levelTester.testLevel(level);
+                }
             }       
             if (e.getSource() == changeDirectory)
             {
@@ -177,7 +199,7 @@ public class LevelEditor extends JFrame implements ActionListener
 
                     @Override
                     public String getDescription() {
-                        return "Existing, writeable folders";
+                        return "Folders";
                     }
                 });
                 int returnValue = chooser.showOpenDialog(null);
@@ -193,17 +215,26 @@ public class LevelEditor extends JFrame implements ActionListener
             JOptionPane.showMessageDialog(this, ex.toString(), "Failed to load/save", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
+
+    private String getLevelDirectory()
+    {
+        if (nameField.getText().trim().isEmpty())
+        {
+            JOptionPane.showMessageDialog(null, "No level name specified", "Please enter a level name", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        File levelDirectory = new File(workingDirectory + "/" + nameField.getText().trim());
+        if (!levelDirectory.exists()) {
+            levelDirectory.mkdirs();
+        }
+        return levelDirectory.getPath();
+    }
+
     
     public void setCoordinates(int x , int y)
     {
         coordinateText="X=" + x +" , " +"Y="+y;
         coordinates.setText(coordinateText);    
-    }
-    
-    public static void main(String[] args)
-    {
-        new LevelEditor().setVisible(true);
     }
 
     public void setPickedTile(byte pickedTile)
@@ -228,5 +259,10 @@ public class LevelEditor extends JFrame implements ActionListener
             JOptionPane.showMessageDialog(editor, ie.getMessage(), "Error reloading level", JOptionPane.ERROR_MESSAGE);
             ie.printStackTrace();
         }
+    }
+
+    public static void main(String[] args)
+    {
+        new LevelEditor().setVisible(true);
     }
 }

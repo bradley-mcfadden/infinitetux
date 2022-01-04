@@ -2,6 +2,8 @@ package com.mojang.mario.level;
 
 import java.io.*;
 
+import com.mojang.mario.sprites.Enemy;
+
 
 public class Level
 {
@@ -28,6 +30,11 @@ public class Level
     public static final int BIT_ANIMATED = 1 << 7;
 
     private static final int FILE_HEADER = 0x271c4178;
+    
+    private static final String MAP_FILE = "map.lvl";
+    private static final String ENEMY_FILE = "enemy.lvl";
+    private static final String HAZARD_FILE = "hazard.lvl";
+
     public int width;
     public int height;
 
@@ -95,6 +102,21 @@ public class Level
         return level;
     }
 
+    public static Level load(File levelDirectory) throws IOException
+    {
+        Level level = loadMap(new DataInputStream(new FileInputStream(levelDirectory + "/" + MAP_FILE)));
+        loadEnemy(level, new DataInputStream(new FileInputStream(levelDirectory + "/" + ENEMY_FILE)));
+        loadHazard(level, new DataInputStream(new FileInputStream(levelDirectory + "/" + HAZARD_FILE)));
+        return level;
+    }
+
+    public void save(File levelDirectory) throws IOException
+    {
+        saveMap(new DataOutputStream(new FileOutputStream(levelDirectory + "/" + MAP_FILE)));
+        saveEnemy(new DataOutputStream(new FileOutputStream(levelDirectory + "/" + ENEMY_FILE)));
+        saveHazard(new DataOutputStream(new FileOutputStream(levelDirectory + "/" + HAZARD_FILE)));
+    }
+
     public void save(DataOutputStream dos) throws IOException
     {
         dos.writeLong(Level.FILE_HEADER);
@@ -114,6 +136,109 @@ public class Level
 
         dos.close();
         
+    }
+
+    public static Level loadMap(DataInputStream dis) throws IOException
+    {
+        long header = dis.readLong();
+        if (header != Level.FILE_HEADER) throw new IOException("Bad level header");
+        @SuppressWarnings("unused")
+		int version = dis.read() & 0xff;
+
+        int width = dis.readShort() & 0xffff;
+        int height = dis.readShort() & 0xffff;
+        
+        Level level = new Level(width, height);
+        level.map = new byte[width][height];
+        level.data = new byte[width][height];
+        for (int i = 0; i < width; i++)
+        {
+            dis.readFully(level.map[i]);
+            dis.readFully(level.data[i]);
+        }
+
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                byte tmpByte = level.map[i][j];
+                if (tmpByte == -1)
+                {
+                    level.map[i][j] = 0x00;
+                    level.setLevelExit(tmpByte / 16, tmpByte % 16);
+                }
+            }
+        }
+
+        return level;
+    }
+
+    public static void loadEnemy(Level level, DataInputStream dis) throws IOException
+    {
+        long header = dis.readLong();
+        if (header != Level.FILE_HEADER) throw new IOException("Bad level header");
+        @SuppressWarnings("unused")
+        int version = dis.read() & 0xff;
+        
+        level.spriteTemplates = new SpriteTemplate[level.width][level.height];
+        byte[] buffer = new byte[level.height];
+        for (int i = 0; i < level.width; i++)
+        {
+            dis.readFully(buffer);
+            for (int j = 0; j < level.height; j++)
+            {
+                if (buffer[j] != Enemy.ENEMY_NULL)
+                {
+                    level.setSpriteTemplate(i, j, new SpriteTemplate(buffer[j]));
+                }
+            }
+        }
+    }
+
+    public static void loadHazard(Level level, DataInputStream dis) throws IOException
+    {
+
+    }
+
+    public void saveMap(DataOutputStream dos) throws IOException
+    {
+        dos.writeLong(Level.FILE_HEADER);
+        dos.write((byte) 0);
+
+        dos.writeShort((short) width);
+        dos.writeShort((short) height);
+
+        byte tmpByte = map[xExit][yExit];
+        map[xExit][yExit] = -1;
+        for (int i = 0; i < width; i++)
+        {
+            dos.write(map[i]);
+            dos.write(data[i]);
+        }
+        map[xExit][yExit] = tmpByte;
+
+        dos.close();
+    }
+
+    public void saveEnemy(DataOutputStream dos) throws IOException
+    {
+        dos.writeLong(Level.FILE_HEADER);
+        dos.write((byte) 0);
+
+        for (int i = 0; i < width; i++)
+        {
+            byte[] buffer = new byte[height];
+            for (int j = 0; j < height; j++)
+            {
+                buffer[j] = SpriteTemplate.getCode(spriteTemplates[i][j]);
+            }
+        }
+        dos.close();
+    }
+
+    public void saveHazard(DataOutputStream dos) throws IOException
+    {
+
     }
 
     public void tick()
@@ -203,5 +328,17 @@ public class Level
     {
         xExit = x;
         yExit = y + 1;
+    }
+
+    // TODO: int x, int y, Hazard hazard
+    public void setHazard()
+    {
+
+    }
+
+    // TODO: int x, int y returns Hazard
+    public void getHazard()
+    {
+
     }
 }

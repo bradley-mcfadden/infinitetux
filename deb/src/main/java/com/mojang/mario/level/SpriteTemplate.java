@@ -17,6 +17,12 @@ public class SpriteTemplate
         this.type = type;
         this.winged = winged;
     }
+
+    public SpriteTemplate(byte code)
+    {
+        this.type = code ^ 0x80;
+        this.winged = (code >> 7) == 1;
+    }
     
     public void spawn(LevelScene world, int x, int y, int dir)
     {
@@ -32,5 +38,16 @@ public class SpriteTemplate
         }
         sprite.spriteTemplate = this;
         world.addSprite(sprite);
+    }
+
+    public byte getCode()
+    {
+        return (byte)((this.winged?1:0 << 7) + this.type);
+    }
+
+    public static byte getCode(SpriteTemplate sprite)
+    {
+        if (sprite == null) return Enemy.ENEMY_NULL;
+        else return (byte)sprite.type;
     }
 }

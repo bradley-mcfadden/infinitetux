@@ -4,9 +4,10 @@ import com.mojang.mario.level.*;
 
 import java.awt.*;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import javax.swing.*;
 
-public class TestLevelFrameLauncher implements LevelEndListener {
+public class TestLevelFrameLauncher implements LevelEndListener, WindowListener {
     private JFrame frame;
     private MarioComponent mario;
 
@@ -28,11 +29,51 @@ public class TestLevelFrameLauncher implements LevelEndListener {
         mario.start();
         frame.addKeyListener(mario);
         frame.addFocusListener(mario);
+        frame.addWindowListener(this);
     }
 
     public void onLevelEnd() 
     {
         frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {}
+
+    @Override
+    public void windowClosing(WindowEvent e)
+    {
+        Art.stopMusic();
         mario.stop();
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) 
+    {
+
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) 
+    {
+        
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) 
+    {
+        
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) 
+    {
+        
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) 
+    {
+       
     }
 }
