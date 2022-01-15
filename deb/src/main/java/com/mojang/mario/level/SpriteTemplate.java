@@ -54,7 +54,7 @@ public class SpriteTemplate
         }
         else if (type == Enemy.ENEMY_THWOMP)
         {
-            sprite = new Thwomp(null, x*16+8, y*16+8);
+            sprite = new Thwomp(null, x*16+8, y*16+15);
         }
         else
         {
