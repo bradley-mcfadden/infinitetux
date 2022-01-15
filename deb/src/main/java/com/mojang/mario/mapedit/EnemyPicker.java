@@ -14,6 +14,7 @@ public class EnemyPicker extends JPanel implements ActionListener{
     private static final String GOOMBA = "Goomba";
     private static final String SPIKY = "Spiky";
     private static final String FLOWER = "Flower";
+    private static final String THWOMP = "Thwomp";
     private static final String NONE = "None";
 
     private JRadioButton redKoopaButton;
@@ -21,6 +22,7 @@ public class EnemyPicker extends JPanel implements ActionListener{
     private JRadioButton goombaButton;
     private JRadioButton spikyButton;
     private JRadioButton flowerButton;
+    private JRadioButton thwompButton;
     private JRadioButton noneButton;
 
     private JCheckBox wingedButton;
@@ -49,6 +51,7 @@ public class EnemyPicker extends JPanel implements ActionListener{
         goombaButton = new JRadioButton(GOOMBA);
         spikyButton = new JRadioButton(SPIKY);
         flowerButton = new JRadioButton(FLOWER);
+        thwompButton = new JRadioButton(THWOMP);
         noneButton = new JRadioButton(NONE);
 
         redKoopaButton.setVerticalAlignment(SwingConstants.TOP);
@@ -56,6 +59,7 @@ public class EnemyPicker extends JPanel implements ActionListener{
         goombaButton.setVerticalAlignment(SwingConstants.TOP);
         spikyButton.setVerticalAlignment(SwingConstants.TOP);
         flowerButton.setVerticalAlignment(SwingConstants.TOP);
+        thwompButton.setVerticalAlignment(SwingConstants.TOP);
         noneButton.setVerticalAlignment(SwingConstants.TOP);
 
         enemyPanel.add(redKoopaButton);
@@ -63,6 +67,7 @@ public class EnemyPicker extends JPanel implements ActionListener{
         enemyPanel.add(goombaButton);
         enemyPanel.add(spikyButton);
         enemyPanel.add(flowerButton);
+        enemyPanel.add(thwompButton);
         enemyPanel.add(noneButton);
         
         ButtonGroup buttonGroup = new ButtonGroup();
@@ -71,6 +76,7 @@ public class EnemyPicker extends JPanel implements ActionListener{
         buttonGroup.add(goombaButton);
         buttonGroup.add(spikyButton);
         buttonGroup.add(flowerButton);
+        buttonGroup.add(thwompButton);
         buttonGroup.add(noneButton);
 
         redKoopaButton.addActionListener(this);
@@ -78,6 +84,7 @@ public class EnemyPicker extends JPanel implements ActionListener{
         goombaButton.addActionListener(this);
         spikyButton.addActionListener(this);
         flowerButton.addActionListener(this);
+        thwompButton.addActionListener(this);
         noneButton.addActionListener(this);
 
         noneButton.setSelected(true);
@@ -122,6 +129,10 @@ public class EnemyPicker extends JPanel implements ActionListener{
         else if (e.getSource() == flowerButton)
         {
             pickedEnemy = new SpriteTemplate(Enemy.ENEMY_FLOWER, winged);
+        }
+        else if (e.getSource() == thwompButton)
+        {
+            pickedEnemy = new SpriteTemplate(Enemy.ENEMY_THWOMP, winged);
         }
         else if (e.getSource() == noneButton)
         {

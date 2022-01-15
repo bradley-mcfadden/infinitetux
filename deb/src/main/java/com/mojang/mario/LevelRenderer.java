@@ -1,6 +1,8 @@
 package com.mojang.mario;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import com.mojang.mario.level.*;
 import com.mojang.mario.sprites.Enemy;
@@ -82,6 +84,8 @@ public class LevelRenderer
         int yTileStart = (y0 + yCam) / 16;
         int xTileEnd = (x0 + xCam + w) / 16;
         int yTileEnd = (y0 + yCam + h) / 16;
+        List<SpriteTemplate> renderLast = new ArrayList<>();
+        List<Integer> renderCoords = new ArrayList<>();
         for (int x = xTileStart; x <= xTileEnd; x++)
         {
             for (int y = yTileStart; y <= yTileEnd; y++)
@@ -94,12 +98,28 @@ public class LevelRenderer
                 SpriteTemplate t =  level.getSpriteTemplate(x, y);
                 if (t != null && isLevelEditor)
                 {
-                    if ((t.getCode() & 0x7F) != (byte)Enemy.ENEMY_NULL)
+                    byte enemyCode = (byte)(t.getCode() & (byte)0x7F);
+                    if (enemyCode == (byte)Enemy.ENEMY_NULL)
+                    {
+
+                    }
+                    else if (enemyCode == (byte)Enemy.ENEMY_THWOMP)
+                    {
+                        renderLast.add(t);
+                        renderCoords.add(x * 16 + y);
+                    }
+                    else
                     {
                         t.render(g, x, y, -1);
                     }
                 }
             }
+        }
+        for (int i = 0; i < renderLast.size(); i++)
+        {
+            SpriteTemplate t = renderLast.get(0);
+            int xy = renderCoords.get(0);
+            t.render(g, xy / 16, xy % 16, -1);
         }
     }
 

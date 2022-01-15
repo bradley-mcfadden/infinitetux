@@ -33,7 +33,11 @@ public class SpriteTemplate
         if (type==Enemy.ENEMY_FLOWER)
         {
             sprite = new FlowerEnemy(world, x*16+15, y*16+24);
-        }
+        } 
+        else if (type == Enemy.ENEMY_THWOMP)
+        {
+            sprite = new Thwomp(world, x*16+8, y*16+15);
+        } 
         else
         {
             sprite = new Enemy(world, x*16+8, y*16+15, dir, type, winged);
@@ -47,6 +51,10 @@ public class SpriteTemplate
         if (type==Enemy.ENEMY_FLOWER)
         {
             sprite = new FlowerEnemy(null, x*16+15, y*16+24);
+        }
+        else if (type == Enemy.ENEMY_THWOMP)
+        {
+            sprite = new Thwomp(null, x*16+8, y*16+8);
         }
         else
         {
