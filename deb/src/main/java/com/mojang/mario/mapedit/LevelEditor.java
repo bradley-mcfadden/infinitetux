@@ -27,6 +27,7 @@ public class LevelEditor extends JFrame implements ActionListener
     private LevelEditView levelEditView;
     private TilePicker tilePicker;
     private EnemyPicker enemyPicker;
+    private HazardPicker hazardPicker;
     private JLabel coordinates;
     private String coordinateText="X=P , Y=Q";
     private TestLevelFrameLauncher levelTester;
@@ -64,6 +65,7 @@ public class LevelEditor extends JFrame implements ActionListener
         tilePickerPanel.setBorder(new TitledBorder(new EtchedBorder(), "Tile picker"));
 
         enemyPicker = new EnemyPicker(this);
+        hazardPicker = new HazardPicker(this);
 
         /*
         JPanel lowerPanel = new JPanel(new BorderLayout());
@@ -73,9 +75,10 @@ public class LevelEditor extends JFrame implements ActionListener
         JPanel lowerPanel = new JPanel(new GridLayout(1, 3));
         lowerPanel.add(tilePickerPanel);
         lowerPanel.add(enemyPicker);
+        lowerPanel.add(hazardPicker);
 
         JPanel borderPanel = new JPanel(new BorderLayout());
-        levelEditView = new LevelEditView(enemyPicker, tilePicker);
+        levelEditView = new LevelEditView(enemyPicker, tilePicker, hazardPicker);
         borderPanel.add(BorderLayout.CENTER, new JScrollPane(levelEditView));
         borderPanel.add(BorderLayout.SOUTH, lowerPanel);
         borderPanel.add(BorderLayout.NORTH, buildButtonPanel());

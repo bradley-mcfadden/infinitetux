@@ -1,8 +1,8 @@
 package com.mojang.mario.level;
 
 import java.io.*;
-
-import com.mojang.mario.sprites.Enemy;
+import java.util.*;
+import com.mojang.mario.sprites.*;
 
 
 public class Level
@@ -42,6 +42,7 @@ public class Level
     public byte[][] data;
 
     public SpriteTemplate[][] spriteTemplates;
+    public List<SpriteTemplate> hazards;
 
     public int xExit;
     public int yExit;
@@ -56,6 +57,7 @@ public class Level
         map = new byte[width][height];
         data = new byte[width][height];
         spriteTemplates = new SpriteTemplate[width][height];
+        hazards = new ArrayList<>();
     }
 
     public static void loadBehaviors(DataInputStream dis) throws IOException
@@ -197,7 +199,42 @@ public class Level
 
     public static void loadHazard(Level level, DataInputStream dis) throws IOException
     {
+        long header = dis.readLong();
+        if (header != Level.FILE_HEADER) throw new IOException("Bad level header");
+        @SuppressWarnings("unused")
+        int version = dis.read() & 0xff;
 
+        level.hazards = new ArrayList<>();
+
+        
+        byte[] rep = new byte[5];
+        while(dis.read(rep, 0, 5) > 0)
+        {
+            int type = rep[0] & 0x0F;
+            if (type == Hazard.HAZARD_PLATFORM)
+            {
+                boolean ori = ((rep[0] >> (byte)4) & (byte)0x01) == 1;
+                int startPos = (rep[0] >> (byte)5) & (byte)0x11;
+                int x = rep[1];
+                int y = rep[2];
+                int width = rep[3];
+                int trackLength = rep[4];
+                
+                Platform platform;
+                if (ori)
+                {
+                    platform = new PlatformH(x, y, width, trackLength);
+                    platform.setStartPosition(startPos);
+                }
+                else
+                {
+                    platform = new PlatformV(x, y, width, trackLength);
+                    platform.setStartPosition(startPos);
+                }
+                level.hazards.add(new SpriteTemplate(platform));
+            }
+        }
+        dis.close();
     }
 
     public void saveMap(DataOutputStream dos) throws IOException
@@ -232,13 +269,47 @@ public class Level
             {
                 buffer[j] = SpriteTemplate.getCode(spriteTemplates[i][j]);
             }
+            dos.write(buffer);
         }
         dos.close();
     }
 
     public void saveHazard(DataOutputStream dos) throws IOException
     {
+        dos.writeLong(Level.FILE_HEADER);
+        dos.write((byte)0);
 
+        byte[] rep = new byte[5];
+        for (SpriteTemplate st : hazards)
+        {
+            if (st.sprite instanceof Platform)
+            {
+                Platform plat = (Platform)st.sprite;
+                rep[0] = (byte) Hazard.HAZARD_PLATFORM & 0x0F;
+                rep[0] |= plat instanceof PlatformH?1<<4:0;
+                int startPosCode = 0;
+                if (plat.startPos == PlatformH.START_LEFT || plat.startPos == PlatformV.START_TOP)
+                {
+                    startPosCode = 1;
+                }
+                else if (plat.startPos == PlatformH.START_CENTER || plat.startPos == PlatformV.START_CENTER)
+                {
+                    startPosCode = 2;
+                }
+                else if (plat.startPos == PlatformH.START_RIGHT || plat.startPos == PlatformV.START_BOTTOM)
+                {
+                    startPosCode = 3;
+                }
+                rep[0] |= (byte)startPosCode<<5;
+                rep[1] = (byte)plat.x;
+                rep[2] = (byte)plat.y;
+                rep[3] = (byte)plat.width;
+                rep[4] = (byte)plat.trackLength;
+
+                dos.write(rep);
+            }
+        }
+        dos.close();
     }
 
     public void tick()
@@ -335,15 +406,8 @@ public class Level
         yExit = y + 1;
     }
 
-    // TODO: int x, int y, Hazard hazard
-    public void setHazard()
+    public void addHazard(SpriteTemplate hazard)
     {
-
-    }
-
-    // TODO: int x, int y returns Hazard
-    public void getHazard()
-    {
-
+        hazards.add(hazard);
     }
 }

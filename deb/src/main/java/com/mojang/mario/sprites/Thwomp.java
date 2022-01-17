@@ -100,6 +100,7 @@ public class Thwomp extends Sprite {
         }
     }
 
+    @Override
     public void collideCheck()
     {
         float leftBound = x - 16;
@@ -132,6 +133,7 @@ public class Thwomp extends Sprite {
         return blocking;
     }
 
+    @Override
     public void render(Graphics og, float alpha)
     {
         Color oldColor = og.getColor();

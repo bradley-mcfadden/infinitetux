@@ -10,6 +10,8 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.*;
 import com.mojang.mario.*;
 import com.mojang.mario.level.*;
+import com.mojang.mario.sprites.Platform;
+import com.mojang.mario.sprites.Sprite;
 
 
 public class LevelEditView extends JComponent implements MouseListener, MouseMotionListener
@@ -23,6 +25,7 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
     private int yTile = -1;
     private TilePicker tilePicker;
     private EnemyPicker enemyPicker;
+    private HazardPicker hazardPicker;
     private int editingMode = LevelEditor.MODE_TILE;
 
 
@@ -52,10 +55,11 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         addMouseMotionListener(this);
     }    
 
-    public LevelEditView(EnemyPicker enemyPicker, TilePicker tilePicker)
+    public LevelEditView(EnemyPicker enemyPicker, TilePicker tilePicker, HazardPicker hazardPicker)
     {
         this.enemyPicker = enemyPicker;
         this.tilePicker = tilePicker;
+        this.hazardPicker = hazardPicker;
         level = new Level(256, 15);
         Dimension size = new Dimension(level.width * 16, level.height * 16);
         setPreferredSize(size);
@@ -145,7 +149,24 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         }
         else if (editingMode == LevelEditor.MODE_HAZARD)
         {
+            System.out.println("Placed hazard at " + xTile + "," + yTile);
+            Sprite hazard = hazardPicker.pickedHazard.sprite;
+            
+            if (hazard instanceof Platform) 
+            {
+                Platform platform = (Platform)hazard;
+                platform.setPosition(xTile * 16, yTile * 16);
+                SpriteTemplate hazardTemplate = new SpriteTemplate(platform.copy());
+                level.addHazard(hazardTemplate);
+            }
+            else
+            {
 
+            }
+
+            levelRenderer.repaint(0, 0, level.width, level.height);
+
+            repaint();
         }
     }
 

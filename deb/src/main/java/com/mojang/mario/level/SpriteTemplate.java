@@ -25,6 +25,12 @@ public class SpriteTemplate
         this.type = code ^ 0x80;
         this.winged = (code >> 7) == 1;
     }
+
+    public SpriteTemplate(Platform platform)
+    {
+        this.type = Hazard.HAZARD_PLATFORM;
+        this.sprite = platform;
+    }
     
     public void spawn(LevelScene world, int x, int y, int dir)
     {
@@ -38,6 +44,10 @@ public class SpriteTemplate
         {
             sprite = new Thwomp(world, x*16+8, y*16+15);
         } 
+        else if (type == Hazard.HAZARD_PLATFORM)
+        {
+            ((Platform)sprite).world = world;
+        }
         else
         {
             sprite = new Enemy(world, x*16+8, y*16+15, dir, type, winged);
@@ -48,13 +58,17 @@ public class SpriteTemplate
 
     public void render(Graphics g, int x, int y, int dir)
     {
-        if (type==Enemy.ENEMY_FLOWER)
+        if (type == Enemy.ENEMY_FLOWER)
         {
             sprite = new FlowerEnemy(null, x*16+15, y*16+24);
         }
         else if (type == Enemy.ENEMY_THWOMP)
         {
             sprite = new Thwomp(null, x*16+8, y*16+15);
+        }
+        else if (type == Hazard.HAZARD_PLATFORM)
+        {
+
         }
         else
         {
@@ -72,7 +86,7 @@ public class SpriteTemplate
     public static byte getCode(SpriteTemplate sprite)
     {
         if (sprite == null) return Enemy.ENEMY_NULL;
-        else return (byte)sprite.type;
+        else return sprite.getCode();
     }
 
     public int getType()

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import com.mojang.mario.level.*;
-import com.mojang.mario.sprites.Enemy;
+import com.mojang.mario.sprites.*;
 
 
 public class LevelRenderer
@@ -120,6 +120,14 @@ public class LevelRenderer
             SpriteTemplate t = renderLast.get(0);
             int xy = renderCoords.get(0);
             t.render(g, xy / 16, xy % 16, -1);
+        }
+        for (SpriteTemplate hazard : level.hazards)
+        {
+            if (hazard.sprite instanceof Platform)
+            {
+               hazard.render(g, 0, 0, -1);
+               ((Platform)hazard.sprite).print();
+            }
         }
     }
 
