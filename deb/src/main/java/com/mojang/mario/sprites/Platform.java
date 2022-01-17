@@ -13,7 +13,7 @@ public abstract class Platform extends Sprite {
 
     public LevelScene world;
     public int direction = -1;
-    public int speed = 4;
+    public int speed = 1;
     public int startPos;
     public float px, py;
     
@@ -29,29 +29,11 @@ public abstract class Platform extends Sprite {
         this.px = x;
         this.py = y;
     }
-    
+
     @Override
     public void move()
     {
-        ya = speed * direction;
-        if (direction == -1)
-        {
-            if (px - width*16/2 + ya < start)
-            {
-                direction = -1;
-            }
-            else
-            {
-                
-            }
-        }
-        else if (direction == 1)
-        {
-            if (px - width*16/2 + ya > end)
-            {
-                direction = 1;
-            }
-        }
+        
     }
 
     public boolean move(float xa, float ya)

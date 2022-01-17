@@ -28,7 +28,31 @@ public class PlatformV extends Platform {
     @Override
     public void move()
     {
-
+        ya = speed * direction;
+        if (direction == -1)
+        {
+            if (py + ya < start)
+            {
+                direction = 1;
+                py = start;
+            }
+            else
+            {
+                py += ya;
+            }
+        }
+        else if (direction == 1)
+        {
+            if (py + height + ya > end)
+            {
+                direction = -1;
+                py = end - height;
+            }
+            else
+            {
+                py += ya;
+            }
+        }
     }
 
     public boolean move(float xa, float ya)
@@ -46,6 +70,7 @@ public class PlatformV extends Platform {
     public void render(Graphics og, float alpha)
     {
         Color oldColor = og.getColor();
+        og.setColor(Color.BLACK);
         og.drawLine((int)x, (int)start, (int)x, (int)end);
         og.drawLine((int)x - 8, (int)start, (int)x + 8, (int)start);
         og.drawLine((int)x - 8, (int)end, (int)x + 8, (int)end);

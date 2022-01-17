@@ -244,6 +244,16 @@ public class LevelScene extends Scene implements SpriteContext
 
         for (Sprite sprite : sprites)
         {
+            if (sprite instanceof Platform)
+            {
+                Platform platform = (Platform)sprite;
+                if ((platform.start < xCam - 64 && platform.end < xCam -64) || (platform.end > xCam + layer.width + 64 && platform.start > xCam + layer.width + 64))
+                {
+                    System.out.println("Removed platform");
+                    removeSprite(sprite);
+                    continue;
+                }
+            }
             if (sprite != mario)
             {
                 float xd = sprite.x - xCam;
@@ -328,6 +338,22 @@ public class LevelScene extends Scene implements SpriteContext
                         }
                     }
                 }
+
+            for (SpriteTemplate st : level.hazards)
+            {
+                if (st.sprite == null || !sprites.contains(st.sprite))
+                {
+                    if (st.sprite instanceof Platform)
+                    {
+                        Platform platform = (Platform)st.sprite;
+                        if ((platform.start > xCam && platform.start < xCam + layer.width) || (platform.end > xCam && platform.end < xCam + layer.width))
+                        {
+                            System.out.println("Spawned platform");
+                            st.spawn(this, 0, 0, 0);
+                        }
+                    }
+                }
+            }
 
             if (hasShotCannon)
             {
@@ -421,7 +447,10 @@ public class LevelScene extends Scene implements SpriteContext
         g.translate(-xCam, -yCam);
         for (Sprite sprite : sprites)
         {
-            if (sprite.layer == 1) sprite.render(g, alpha);
+            if (sprite.layer == 1)
+            {
+                sprite.render(g, alpha);
+            }
         }
         g.translate(xCam, yCam);
         g.setColor(Color.BLACK);

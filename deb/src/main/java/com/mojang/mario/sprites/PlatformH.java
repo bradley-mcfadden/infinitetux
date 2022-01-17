@@ -42,7 +42,7 @@ public class PlatformH extends Platform {
         }
         else if (direction == 1)
         {
-            if (px - width*16/2 + ya > end)
+            if (px + width*16/2 + ya > end)
             {
                 direction = -1;
                 px = end - width*16/2;
@@ -70,11 +70,12 @@ public class PlatformH extends Platform {
     public void render(Graphics og, float alpha)
     {
         Color oldColor = og.getColor();
+        og.setColor(Color.BLACK);
         og.drawLine((int)start, (int)y + 8, (int)end, (int)y + 8);
         og.drawLine((int)start, (int)y, (int)start, (int)y + 16);
         og.drawLine((int)end, (int)y, (int)end, (int)y + 16);
         og.setColor(oldColor);
-
+        
         super.render(og, alpha);
     }
     

@@ -121,12 +121,15 @@ public class LevelRenderer
             int xy = renderCoords.get(0);
             t.render(g, xy / 16, xy % 16, -1);
         }
-        for (SpriteTemplate hazard : level.hazards)
+        if (isLevelEditor)
         {
-            if (hazard.sprite instanceof Platform)
+            for (SpriteTemplate hazard : level.hazards)
             {
-               hazard.render(g, 0, 0, -1);
-               ((Platform)hazard.sprite).print();
+                if (hazard.sprite instanceof Platform)
+                {
+                    hazard.render(g, 0, 0, -1);
+                    //((Platform)hazard.sprite).print();
+                }
             }
         }
     }
