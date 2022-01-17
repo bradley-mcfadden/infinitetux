@@ -13,13 +13,34 @@ public class PlatformV extends Platform {
     {
         super(x, y, width, trackLength);
 
+        this.start = y - trackLength*16/2;
+        this.end = y + trackLength*16/2;
     }
 
     public PlatformV(Platform platform)
     {
         super((int)platform.x, (int)platform.y, (int)platform.width, (int)platform.trackLength);
+    
+        this.start = platform.y - platform.trackLength * 16 / 2;
+        this.end = platform.y + platform.trackLength * 16 / 2;
     }
 
+    @Override
+    public void move()
+    {
+
+    }
+
+    public boolean move(float xa, float ya)
+    {
+        return true;
+    }
+
+    @Override
+    public void collideCheck()
+    {
+
+    }
 
     @Override
     public void render(Graphics og, float alpha)
@@ -67,7 +88,7 @@ public class PlatformV extends Platform {
 
     @Override
     public Platform copy() {
-        Platform platform = new PlatformH(this);
+        Platform platform = new PlatformV(this);
         platform.setPosition((int)this.x, (int)this.y);
         return platform;
     

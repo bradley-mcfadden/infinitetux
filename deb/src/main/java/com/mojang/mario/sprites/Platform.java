@@ -12,8 +12,8 @@ public abstract class Platform extends Sprite {
     public float end;
 
     public LevelScene world;
-    public int direction;
-    public int speed;
+    public int direction = -1;
+    public int speed = 4;
     public int startPos;
     public float px, py;
     
@@ -33,10 +33,28 @@ public abstract class Platform extends Sprite {
     @Override
     public void move()
     {
-
+        ya = speed * direction;
+        if (direction == -1)
+        {
+            if (px - width*16/2 + ya < start)
+            {
+                direction = -1;
+            }
+            else
+            {
+                
+            }
+        }
+        else if (direction == 1)
+        {
+            if (px - width*16/2 + ya > end)
+            {
+                direction = 1;
+            }
+        }
     }
 
-    private boolean move(float xa, float ya)
+    public boolean move(float xa, float ya)
     {
         return true;
     }
@@ -66,7 +84,7 @@ public abstract class Platform extends Sprite {
     {
         Color oldColor = og.getColor();
         og.setColor(Color.ORANGE);
-        og.fillRect((int)px - width*16/2, (int)py - height/2, width*16, height);
+        og.fillRect((int)px - width*16/2, (int)py - height/2 + 8, width*16, height);
         og.setColor(oldColor);
     }
 

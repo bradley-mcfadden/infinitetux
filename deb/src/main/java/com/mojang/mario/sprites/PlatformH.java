@@ -25,12 +25,54 @@ public class PlatformH extends Platform {
     }
 
     @Override
+    public void move()
+    {
+        xa = speed * direction;
+        if (direction == -1)
+        {
+            if (px - width*16/2 + xa < start)
+            {
+                direction = 1;
+                px = start + width*16/2;
+            }
+            else
+            {
+                px += xa;
+            }
+        }
+        else if (direction == 1)
+        {
+            if (px - width*16/2 + ya > end)
+            {
+                direction = -1;
+                px = end - width*16/2;
+            }
+            else
+            {
+                px += xa;
+            }
+        }
+    }
+
+    @Override
+    public boolean move(float xa, float ya)
+    {
+        return true;
+    }
+
+    @Override
+    public void collideCheck()
+    {
+
+    }
+
+    @Override
     public void render(Graphics og, float alpha)
     {
         Color oldColor = og.getColor();
-        og.drawLine((int)start, (int)y, (int)end, (int)y);
-        og.drawLine((int)start, (int)y - 8, (int)start, (int)y + 8);
-        og.drawLine((int)end, (int)y - 8, (int)end, (int)y + 8);
+        og.drawLine((int)start, (int)y + 8, (int)end, (int)y + 8);
+        og.drawLine((int)start, (int)y, (int)start, (int)y + 16);
+        og.drawLine((int)end, (int)y, (int)end, (int)y + 16);
         og.setColor(oldColor);
 
         super.render(og, alpha);
