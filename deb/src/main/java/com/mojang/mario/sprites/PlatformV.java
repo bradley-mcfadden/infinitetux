@@ -63,7 +63,56 @@ public class PlatformV extends Platform {
     @Override
     public void collideCheck()
     {
+        float mx = world.mario.x;
+        float my = world.mario.y;
+        float ex = px + width*16/2;
+        float sx = px - width*16/2;
+        float sy = py + 8 - height/2;
+        float ey = sy + height / 4;
 
+
+        if (mx + 8 + world.mario.xa > sx && mx - 8 + world.mario.xa < ex)
+        {
+            if (world.mario.ya + my - world.mario.height < ey)
+            {
+                if (world.mario.ya + my > sy) 
+                {
+                
+                    world.mario.collidePlatform = true;
+                    if (world.mario.ya < 0)
+                    {
+                        world.mario.jumpTime = 0;
+                        world.mario.ya = 0f;
+                    }
+                    else if (world.mario.ya > 0)
+                    {
+                        /*
+                        world.mario.platformXa = xa;
+                        world.mario.platformYa = ya;
+                        world.mario.ya = 0;
+                        world.mario.onPlatform = true;
+                        world.mario.onGround = true;
+                        world.mario.jumpTime = 0;*/
+                        //world.mario.jumpTime = 0;
+                        world.mario.onGround = true;
+                        world.mario.onPlatform = true;
+                        if (direction == -1)
+                        world.mario.platformYa = ya;
+                        world.mario.y = sy + ya - 1;
+                        world.mario.ya = 0f;
+                        //System.out.println("Avocado " + world.mario.xa + " " + world.mario.ya);
+                    }         
+                } else if (world.mario.ya + my  == sy - 1)
+                {
+                    //System.out.println("Scoop");
+                    world.mario.onGround = true;
+                    world.mario.onPlatform = true;
+                    world.mario.platformYa = ya;
+                    world.mario.ya = ya;
+                    world.mario.y = sy + ya - 1;
+                }
+            } 
+        }
     }
 
     @Override

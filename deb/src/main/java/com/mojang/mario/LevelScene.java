@@ -247,9 +247,17 @@ public class LevelScene extends Scene implements SpriteContext
             if (sprite instanceof Platform)
             {
                 Platform platform = (Platform)sprite;
+                if (platform instanceof PlatformH)
                 if ((platform.start < xCam - 64 && platform.end < xCam -64) || (platform.end > xCam + layer.width + 64 && platform.start > xCam + layer.width + 64))
                 {
-                    System.out.println("Removed platform");
+                    System.out.println("Removed platform: " + xCam + " " + platform.start + " " + platform.end);
+                    removeSprite(sprite);
+                    continue;
+                }
+                else
+                if ((platform.px - platform.width*16/2 < xCam - 64 && platform.px + platform.width*16/2 < xCam -64) || (platform.px - platform.width*16/2 > xCam + layer.width + 64 && platform.px + platform.width*16/2 > xCam + layer.width + 64))
+                {
+                    System.out.println("Removed platform: " + xCam + " " + platform.start + " " + platform.end);
                     removeSprite(sprite);
                     continue;
                 }

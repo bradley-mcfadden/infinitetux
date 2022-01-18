@@ -43,10 +43,16 @@ public class Mario extends Sprite
     private boolean mayJump = false;
     private boolean ducking = false;
     private boolean sliding = false;
-    private int jumpTime = 0;
+    public int jumpTime = 0;
     private float xJumpSpeed;
     private float yJumpSpeed;
     private boolean canShoot = false;
+
+    public boolean collidePlatform = false;
+    public boolean onPlatform = false;
+    public float platformXa = 0;
+    public float platformYa = 0;
+
 
     int width = 4;
     int height = 24;
@@ -295,9 +301,11 @@ public class Mario extends Sprite
             ya *= 0.5f;
         }
 
-        onGround = false;
-        move(xa, 0);
-        move(0, ya);
+        onGround = onPlatform;
+
+        move(xa + platformXa, 0);
+        move(0, ya + platformYa);
+
 
         if (y > world.level.height * 16 + 16)
         {
@@ -346,6 +354,11 @@ public class Mario extends Sprite
                 carried = null;
             }
         }
+
+        collidePlatform = false;
+        onPlatform = false;
+        platformXa = 0f;
+        platformYa = 0f;
     }
 
     private void calcPic()
@@ -462,20 +475,27 @@ public class Mario extends Sprite
             else sliding = false;
         }
 
-        if (collide)
+        if (collide || collidePlatform)
         {
+            
             if (xa < 0)
             {
+                if (!collidePlatform)
+
                 x = (int) ((x - width) / 16) * 16 + width;
+                if (!collidePlatform)
                 this.xa = 0;
             }
             if (xa > 0)
             {
+                if (!collidePlatform)
                 x = (int) ((x + width) / 16 + 1) * 16 - width - 1;
+                if (!collidePlatform)
                 this.xa = 0;
             }
             if (ya < 0)
             {
+                if (!collidePlatform)
                 y = (int) ((y - height) / 16) * 16 + height;
                 jumpTime = 0;
                 this.ya = 0;
@@ -485,7 +505,17 @@ public class Mario extends Sprite
                 y = (int) ((y - 1) / 16 + 1) * 16 - 1;
                 onGround = true;
             }
+        
+            if (collide)
             return false;
+            else
+            {
+                if (platformXa != 0)
+                x += xa;
+                if (platformYa != 0)
+                y += ya;
+                return true;
+            }
         }
         else
         {
