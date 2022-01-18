@@ -497,6 +497,7 @@ public class Mario extends Sprite
             {
                 if (!collidePlatform)
                 y = (int) ((y - height) / 16) * 16 + height;
+                if (!onPlatform)
                 jumpTime = 0;
                 this.ya = 0;
             }
