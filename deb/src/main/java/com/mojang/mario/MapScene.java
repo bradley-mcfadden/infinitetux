@@ -534,7 +534,7 @@ public class MapScene extends Scene
                     if (level[x][y] == TILE_LEVEL && data[x][y] != 0 && data[x][y] > -10)
                     {
                         Mario.levelString = (worldNumber + 1) + "-";
-                        int difficulty = worldNumber+1;
+                        int difficulty = worldNumber;
                         int type = LevelGenerator.TYPE_OVERGROUND;
                         if (data[x][y] > 1 && new Random(seed + x * 313211 + y * 534321).nextInt(3) == 0)
                         {

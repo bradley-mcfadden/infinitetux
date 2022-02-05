@@ -51,6 +51,8 @@ public class LevelGenerator
         odds[ODDS_TUBES] = 2 + 1 * difficulty;
         odds[ODDS_JUMP] = 2 * difficulty;
         odds[ODDS_CANNONS] = -10 + 5 * difficulty;
+        //odds[ODDS_JUMP] = 100;
+        //odds[ODDS_TUBES] = 100;
 
         if (type != LevelGenerator.TYPE_OVERGROUND)
         {
