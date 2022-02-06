@@ -13,6 +13,11 @@ import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
 
 
+/**
+ * LevelEditor does exactly what the name implies.
+ * Allows the user to place tiles, enemies, and hazards in a level, save levels,
+ * and playtest their levels.
+ */
 public class LevelEditor extends JFrame implements ActionListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
@@ -38,6 +43,9 @@ public class LevelEditor extends JFrame implements ActionListener
     public static final int MODE_ENEMY = 2;
     public static final int MODE_HAZARD = 3;
 
+    /**
+     * Constructor.
+     */
     public LevelEditor()
     {
         super("Map Edit");
@@ -49,7 +57,6 @@ public class LevelEditor extends JFrame implements ActionListener
         catch (Exception e)
         {
             e.printStackTrace();
-            // JOptionPane.showMessageDialog(this, e.toString(), "Failed to load tile behaviors", JOptionPane.ERROR_MESSAGE);
         }
         
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -91,11 +98,20 @@ public class LevelEditor extends JFrame implements ActionListener
         tilePicker.addTilePickChangedListener(this);
     }
 
+    /**
+     * Change the editing mode of the editor.
+     * Determines what gets placed when the user clicks on the canvas.
+     * @param mode One of MODE_ENEMY, MODE_HAZARD, MODE_TILE.
+     */
     public void setEditingMode(int mode)
     {
         levelEditView.setEditingMode(mode);
     }
 
+    /**
+     * Panel beside level picker that allows setting tile behviours.
+     * @return Tile behaviour panel.
+     */
     public JPanel buildBitmapPanel()
     {
         JPanel panel = new JPanel(new GridLayout(0, 1));
@@ -130,6 +146,10 @@ public class LevelEditor extends JFrame implements ActionListener
         return panel;
     }
 
+    /**
+     * buildButtonPanel containing file system controls and level meta information.
+     * @return Built panel.
+     */
     public JPanel buildButtonPanel()
     {
         loadButton = new JButton("Load");
@@ -161,6 +181,9 @@ public class LevelEditor extends JFrame implements ActionListener
         return panel;
     }
 
+    /**
+     * Handles user interface events.
+     */
     public void actionPerformed(ActionEvent e)
     {
         try
@@ -252,6 +275,9 @@ public class LevelEditor extends JFrame implements ActionListener
         }
     }
 
+    /*
+     * Gets the level directory, which contains map.lvl, enemy.lvl, hazard.lvl.
+     */
     private String getLevelDirectory()
     {
         if (nameField.getText().trim().isEmpty())
@@ -266,13 +292,22 @@ public class LevelEditor extends JFrame implements ActionListener
         return levelDirectory.getPath();
     }
 
-    
+    /**
+     * Update the coordinate display.
+     * @param x x-value to change coordinate display to.
+     * @param y y-value to change coordinate display to.
+     */
     public void setCoordinates(int x , int y)
     {
         coordinateText="X=" + x +" , " +"Y="+y;
         coordinates.setText(coordinateText);    
     }
 
+    /**
+     * setPickedTile to tile described by pickedTile.
+     * Updates the tile behaviour boxes to match the seleted tile.
+     * @param pickedTile
+     */
     public void setPickedTile(byte pickedTile)
     {
         int bm = Level.TILE_BEHAVIORS[pickedTile&0xff]&0xff;
@@ -283,6 +318,12 @@ public class LevelEditor extends JFrame implements ActionListener
         }
     }
 
+    @Deprecated
+    /**
+     * loadLevel was used by the old level editor to load levels from a string.
+     * It may still work, but needs testing with the new system.
+     * @param levelPath Path to level directory to load.
+     */
     public static void loadLevel(String levelPath)
     {
         LevelEditor editor = new LevelEditor();

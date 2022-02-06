@@ -10,8 +10,11 @@ import com.mojang.mario.sprites.Platform;
 import com.mojang.mario.sprites.PlatformH;
 import com.mojang.mario.sprites.PlatformV;
 
+/**
+ * PlatformPanel contains controls for setting platform properties.
+ */
 public class PlatformPanel extends JPanel 
-implements ActionListener, ChangeListener {
+    implements ActionListener, ChangeListener {
 
     private JSlider widthSlider;
     private JSlider pathLengthSlider;
@@ -24,6 +27,10 @@ implements ActionListener, ChangeListener {
     private Platform pickedPlatform;
     private SpriteTemplate pickedHazard;
 
+    /**
+     * Constructor.
+     * @param hazardPicker Parent HazardPicker.
+     */
     public PlatformPanel(HazardPicker hazardPicker) 
     {
         super(new GridLayout(0, 1));
@@ -94,6 +101,10 @@ implements ActionListener, ChangeListener {
         pickedHazard = new SpriteTemplate(pickedPlatform);
     }
 
+    /**
+     * Handles JSlider values changing to update the pickedPlatform.
+     * @param ChangeEvent e Event that called this method.
+     */
     @Override
     public void stateChanged(ChangeEvent e) 
     {
@@ -115,6 +126,10 @@ implements ActionListener, ChangeListener {
         }
     }
 
+    /**
+     * actionPerformed handles UI events like orientation, start position
+     * from being changed.
+     */
     @Override
     public void actionPerformed(ActionEvent e) 
     {
@@ -185,6 +200,10 @@ implements ActionListener, ChangeListener {
         }
     }
 
+    /**
+     * Returns pickedHazard.
+     * @return spriteTemplate for the hazard.
+     */
     public SpriteTemplate getSpriteTemplate()
     {
         return pickedHazard;

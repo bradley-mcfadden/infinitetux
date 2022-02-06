@@ -8,7 +8,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-
+/**
+ * HazardPicker is a UI element allowing user to place hazards with certain properties onto
+ * the screen.
+ */
 public class HazardPicker extends JPanel implements ActionListener {
 
     public SpriteTemplate pickedHazard;
@@ -23,6 +26,10 @@ public class HazardPicker extends JPanel implements ActionListener {
     private static final String PLATFORM = "Platform";
     private static final String NONE = "None";
 
+    /**
+     * Constructor.
+     * @param editor Reference to parent.
+     */
     public HazardPicker(LevelEditor editor)
     {
         super(new BorderLayout());
@@ -33,6 +40,9 @@ public class HazardPicker extends JPanel implements ActionListener {
         setBorder(new TitledBorder(new EtchedBorder(), "Hazard picker"));
     }
 
+    /*
+     * Hazard panel containing list of hazards to choose from.
+     */
     private JPanel buildHazardPanel()
     {
         JPanel parentPanel = new JPanel(new BorderLayout());
@@ -61,6 +71,9 @@ public class HazardPicker extends JPanel implements ActionListener {
         return parentPanel;
     }
 
+    /*
+     * Properties to set or choose from for each hazard.
+     */
     private JPanel buildPropertiesPanel()
     {
         propertiesPanel = new JPanel(new FlowLayout());
@@ -74,6 +87,10 @@ public class HazardPicker extends JPanel implements ActionListener {
         return propertiesPanel;
     }
 
+    /*
+     * Updates pickedHazard and propertiesPanel depending on chosen
+     * hazard.
+     */
     @Override
     public void actionPerformed(ActionEvent e) 
     {
@@ -93,10 +110,5 @@ public class HazardPicker extends JPanel implements ActionListener {
             nonePanel.setVisible(true);
             pickedHazard = new SpriteTemplate(Enemy.ENEMY_NULL, false);
         }
-    }
-
-    public void updatePickedHazard(SpriteTemplate pickedHazard)
-    {
-
     }
 }

@@ -14,7 +14,11 @@ import com.mojang.mario.sprites.Platform;
 import com.mojang.mario.sprites.Sprite;
 
 
-public class LevelEditView extends JComponent implements MouseListener, MouseMotionListener
+/**
+ * LevelEditView provides a graphic representation of the level being built.
+ */
+public class LevelEditView extends JComponent 
+    implements MouseListener, MouseMotionListener
 {
     private static final long serialVersionUID = -7696446733303717142L;
 
@@ -29,6 +33,10 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
     private int editingMode = LevelEditor.MODE_TILE;
 
 
+    /**
+     * Constructor.
+     * @param tilePicker TilePicker to use with this LevelEditView.
+     */
     public LevelEditView(TilePicker tilePicker)
     {
         this.tilePicker = tilePicker;
@@ -42,6 +50,12 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         addMouseMotionListener(this);
     }
 
+    /**
+     * Constructor.
+     * @param tilePicker TilePicker to use with this LevelEditView
+     * @param levelLength Height of the level to edit.
+     * @param levelWidth Width of the level to edit. 
+     */
     public LevelEditView(TilePicker tilePicker, int levelLength, int levelWidth)
     {
         this.tilePicker = tilePicker;
@@ -55,6 +69,12 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         addMouseMotionListener(this);
     }    
 
+    /**
+     * Constructor.
+     * @param enemyPicker EnemyPicker to use with this LevelEditView.
+     * @param tilePicker TilePicker to use with this LevelEditView.
+     * @param hazardPicker HazardPicker to use with this LevelEditView.
+     */
     public LevelEditView(EnemyPicker enemyPicker, TilePicker tilePicker, HazardPicker hazardPicker)
     {
         this.enemyPicker = enemyPicker;
@@ -70,6 +90,10 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         addMouseMotionListener(this);
     }
     
+    /**
+     * setLevel being displayed by the view.
+     * @param level Level to display in the view. Should not be null.
+     */
     public void setLevel(Level level)
     {
         this.level = level;
@@ -81,6 +105,10 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         levelRenderer.setLevel(level);
     }
     
+    /**
+     * getLevel being displayed.
+     * @return Level being displayed.
+     */
     public Level getLevel()
     {
         return level;
@@ -119,6 +147,9 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         repaint();
     }
 
+    /**
+     * Depending on editing mode, perform some action on mouse press.
+     */
     public void mousePressed(MouseEvent e)
     {
         xTile = e.getX() / 16;
@@ -186,6 +217,9 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
     {
     }
 
+    /**
+     * @note Should probably get rid of this.
+     */
     public void mouseDragged(MouseEvent e)
     {
         xTile = e.getX() / 16;
@@ -203,10 +237,13 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
         yTile = e.getY() / 16;
         ((LevelEditor)this.getRootPane().getParent()).setCoordinates(xTile, yTile);
        
-       
         repaint();
     }
 
+    /**
+     * setEditingMode to change how LevelEditView reacts to user input.
+     * @param mode One of MODE_ENEMY, MODE_TILE, MODE_HAZARD.
+     */
     public void setEditingMode(int mode)
     {
         editingMode = mode;

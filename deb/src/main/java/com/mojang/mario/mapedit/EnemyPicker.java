@@ -8,6 +8,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+/**
+ * EnemyPicker allows the user to pick an enemy to add to the scene.
+ */
 public class EnemyPicker extends JPanel implements ActionListener {
     private static final String RED_KOOPA = "Red Koopa";
     private static final String GREEN_KOOPA = "Green Koopa";
@@ -31,6 +34,10 @@ public class EnemyPicker extends JPanel implements ActionListener {
 
     public SpriteTemplate pickedEnemy;
 
+    /**
+     * Constructor.
+     * @param editor Reference to LevelEditor parent.
+     */
     public EnemyPicker(LevelEditor editor)
     {
         super(new BorderLayout());
@@ -41,9 +48,11 @@ public class EnemyPicker extends JPanel implements ActionListener {
         setBorder(new TitledBorder(new EtchedBorder(), "Enemy picker"));
     }
 
+    /*
+     * Panel containing enemy choices.
+     */
     private JPanel buildEnemyPanel()
     {
-        
         JPanel enemyPanel = new JPanel(new GridLayout(0, 1));
         enemyPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         redKoopaButton = new JRadioButton(RED_KOOPA);
@@ -92,6 +101,9 @@ public class EnemyPicker extends JPanel implements ActionListener {
         return enemyPanel;
     }
 
+    /*
+     * Panel for setting special properties of enemies.
+     */ 
     private JPanel buildPropertyPanel() 
     {
         JPanel propertyPanel = new JPanel(new GridLayout(0, 1));
@@ -105,6 +117,9 @@ public class EnemyPicker extends JPanel implements ActionListener {
         return propertyPanel;
     }
 
+    /*
+     * actionPerformed handles UI events within EnemyPicker.
+     */
     @Override
     public void actionPerformed(ActionEvent e) 
     {
@@ -138,6 +153,5 @@ public class EnemyPicker extends JPanel implements ActionListener {
         {
             pickedEnemy = new SpriteTemplate(Enemy.ENEMY_NULL, winged);
         }
-        
     }
 }

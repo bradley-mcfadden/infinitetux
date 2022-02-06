@@ -8,9 +8,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.*;
+
 import com.mojang.mario.*;
 
-
+/**
+ * TilePicker displays a grid of tiles, and allows the user to choose
+ * from them.
+ */
 public class TilePicker extends JComponent implements MouseListener, MouseMotionListener
 {
     private static final long serialVersionUID = -7696446733303717142L;
@@ -24,6 +28,9 @@ public class TilePicker extends JComponent implements MouseListener, MouseMotion
 	private byte paint = 0;
     private LevelEditor tilePickChangedListener;
 
+    /**
+     * Constructor.
+     */
     public TilePicker()
     {
         Dimension size = new Dimension(256, 256);
@@ -35,12 +42,19 @@ public class TilePicker extends JComponent implements MouseListener, MouseMotion
         addMouseMotionListener(this);
     }
 
+    /**
+     * @see JComponent.addNotify
+     */
     public void addNotify()
     {
         super.addNotify();
         Art.init(getGraphicsConfiguration(), null);
     }
 
+    /**
+     * Paints the component.
+     * Display is a grid of tiles.
+     */
     public void paintComponent(Graphics g)
     {
         g.setColor(new Color(0x8090ff));
@@ -61,6 +75,9 @@ public class TilePicker extends JComponent implements MouseListener, MouseMotion
         g.drawRect(xTile * 16 - 1, yTile * 16 - 1, 17, 17);
     }
 
+    /**
+     * Changes this to be the active picker.
+     */
     public void mouseClicked(MouseEvent e)
     {
         tilePickChangedListener.setEditingMode(LevelEditor.MODE_TILE);
@@ -77,6 +94,9 @@ public class TilePicker extends JComponent implements MouseListener, MouseMotion
         repaint();
     }
 
+    /**
+     * Set picked tile, and update current xTile and yTile.
+     */
     public void mousePressed(MouseEvent e)
     {
         xTile = e.getX() / 16;
@@ -90,6 +110,9 @@ public class TilePicker extends JComponent implements MouseListener, MouseMotion
     {
     }
 
+    /**
+     * Update xTile and yTile on mouse drag.
+     */
     public void mouseDragged(MouseEvent e)
     {
         xTile = e.getX() / 16;
@@ -98,6 +121,9 @@ public class TilePicker extends JComponent implements MouseListener, MouseMotion
         repaint();
     }
 
+    /**
+     * Update xTile and yTile on mouse move.
+     */
     public void mouseMoved(MouseEvent e)
     {
         xTile = e.getX() / 16;
@@ -105,6 +131,10 @@ public class TilePicker extends JComponent implements MouseListener, MouseMotion
         repaint();
     }
 
+    /**
+     * Notify parent that pickedTile was updated.
+     * @param block
+     */
     public void setPickedTile(byte block)
     {
         pickedTile = block;
@@ -113,6 +143,10 @@ public class TilePicker extends JComponent implements MouseListener, MouseMotion
             tilePickChangedListener.setPickedTile(pickedTile);
     }
 
+    /**
+     * Add a listener for pickedTile changes.
+     * @param editor
+     */
     public void addTilePickChangedListener(LevelEditor editor)
     {
         this.tilePickChangedListener = editor;
