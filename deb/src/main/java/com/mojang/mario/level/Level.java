@@ -5,6 +5,10 @@ import java.util.*;
 import com.mojang.mario.sprites.*;
 
 
+/**
+ * Level - representation for a level as used by the level editor and
+ * in game.
+ */
 public class Level
 {
     public static final String[] BIT_DESCRIPTIONS = {//
@@ -47,6 +51,11 @@ public class Level
     public int xExit;
     public int yExit;
 
+    /**
+     * Constructor. 
+     * @param width Width of level
+     * @param height Height of level
+     */
     public Level(int width, int height)
     {
         this.width = width;
@@ -60,6 +69,10 @@ public class Level
         hazards = new ArrayList<>();
     }
 
+    /**
+     * Deep copy constructor.
+     * @param other Level to copy from.
+     */
     public Level(Level other)
     {
         this.width = other.width;
@@ -99,16 +112,33 @@ public class Level
 
     }
 
+    /**
+     * Loads tile behaviours into array. Not sure what this means.
+     * @param dis Stream to load from.
+     * @throws IOException If there is an issue with @param dis
+     */
     public static void loadBehaviors(DataInputStream dis) throws IOException
     {
         dis.readFully(Level.TILE_BEHAVIORS);
     }
 
+    /**
+     * Saves tile behaviours into array. Not sure what this means.
+     * @param dos Stream to load from.
+     * @throws IOException If there is an issue with @param dos
+     */
     public static void saveBehaviors(DataOutputStream dos) throws IOException
     {
         dos.write(Level.TILE_BEHAVIORS);
     }
 
+    /**
+     * This was the old way of loading a level, from a .lvl file.
+     * @Deprecated Currently isn't used, should probably be deleted.
+     * @param dis Stream to load level from
+     * @return Level constructed from @param dis.
+     * @throws IOException If a problem occurs with @param dis
+     */
     public static Level load(DataInputStream dis) throws IOException
     {
         long header = dis.readLong();
@@ -143,21 +173,40 @@ public class Level
         return level;
     }
 
+    /**
+     * Load level from a directory. 
+     * @param levelDirectory File (Folder) where level contents are stored.
+     *                       Should contain hazard.lvl, enemy.lvl, map.lvl
+     * @return Constructed level.
+     * @throws IOException If the level directory is corrupt.
+     */
     public static Level load(File levelDirectory) throws IOException
     {
-        Level level = loadMap(new DataInputStream(new FileInputStream(levelDirectory + File.separator + MAP_FILE + "")));
+        Level level = loadMap(new DataInputStream(new FileInputStream(levelDirectory + File.separator + MAP_FILE)));
         loadEnemy(level, new DataInputStream(new FileInputStream(levelDirectory + File.separator + ENEMY_FILE)));
         loadHazard(level, new DataInputStream(new FileInputStream(levelDirectory + File.separator + HAZARD_FILE)));
         return level;
     }
 
+    /**
+     * Save level to a directory.
+     * Saves level to the directory, with three parts: enemy.lvl, map.lvl, hazard.lvl
+     * @param levelDirectory File (Folder) to save directory at
+     * @throws IOException If there's a problem saving any of the files.
+     */
     public void save(File levelDirectory) throws IOException
     {
-        saveMap(new DataOutputStream(new FileOutputStream(levelDirectory + "/" + MAP_FILE)));
-        saveEnemy(new DataOutputStream(new FileOutputStream(levelDirectory + "/" + ENEMY_FILE)));
-        saveHazard(new DataOutputStream(new FileOutputStream(levelDirectory + "/" + HAZARD_FILE)));
+        saveMap(new DataOutputStream(new FileOutputStream(levelDirectory + File.separator + MAP_FILE)));
+        saveEnemy(new DataOutputStream(new FileOutputStream(levelDirectory + File.separator + ENEMY_FILE)));
+        saveHazard(new DataOutputStream(new FileOutputStream(levelDirectory + File.separator + HAZARD_FILE)));
     }
 
+    /**
+     * Save level to a data output steam.
+     * @Deprecated This was used by the old level editor. Shouldn't be used now.
+     * @param dos Stream pointing to a file to save the level at.
+     * @throws IOException If there is some problem with @param dos
+     */
     public void save(DataOutputStream dos) throws IOException
     {
         dos.writeLong(Level.FILE_HEADER);
@@ -176,13 +225,18 @@ public class Level
         map[xExit][yExit] = tmpByte;
 
         dos.close();
-        
     }
 
+    /**
+     * Construct a level, and load map and block data into it.
+     * @param dis File (map.lvl) to load map information from.
+     * @return Partial level that was constructed.
+     * @throws IOException If there is some problem with the stream, or the file header is bad.
+     */
     public static Level loadMap(DataInputStream dis) throws IOException
     {
         long header = dis.readLong();
-        if (header != Level.FILE_HEADER) throw new IOException("Bad level header");
+        if (header != Level.FILE_HEADER) throw new IOException("Bad file header");
         @SuppressWarnings("unused")
 		int version = dis.read() & 0xff;
 
@@ -214,6 +268,12 @@ public class Level
         return level;
     }
 
+    /**
+     * Load enemies into @param level.
+     * @param level Level object to load enemies into.
+     * @param dis Stream to read file from.
+     * @throws IOException If there is a problem with the stream, or the file header is bad.
+     */
     public static void loadEnemy(Level level, DataInputStream dis) throws IOException
     {
         long header = dis.readLong();
@@ -236,6 +296,12 @@ public class Level
         }
     }
 
+    /**
+     * Load hazards into @param level
+     * @param level Level object ot load hazards into.
+     * @param dis Stream to read file from.
+     * @throws IOException If there is a problem with the stream, or the file header is bad.
+     */
     public static void loadHazard(Level level, DataInputStream dis) throws IOException
     {
         long header = dis.readLong();
@@ -245,7 +311,6 @@ public class Level
 
         level.hazards = new ArrayList<>();
 
-        
         byte[] rep = new byte[5];
         while(dis.read(rep, 0, 5) > 0)
         {
@@ -276,6 +341,11 @@ public class Level
         dis.close();
     }
 
+    /**
+     * Saves the map (blocks and block data) into @param dos.
+     * @param dos Stream that should point to a file name map.lvl.
+     * @throws IOException If there is a problem with the stream.
+     */
     public void saveMap(DataOutputStream dos) throws IOException
     {
         dos.writeLong(Level.FILE_HEADER);
@@ -296,6 +366,11 @@ public class Level
         dos.close();
     }
 
+    /**
+     * Saves enemy data to @param dos.
+     * @param dos Stream that should point to a file named enemy.lvl.
+     * @throws IOException If there is a problem with the stream.
+     */
     public void saveEnemy(DataOutputStream dos) throws IOException
     {
         dos.writeLong(Level.FILE_HEADER);
@@ -313,6 +388,11 @@ public class Level
         dos.close();
     }
 
+    /**
+     * Saves hazard data to @param dos.
+     * @param dos Stream that should point to a file named hazard.lvl.
+     * @throws IOException If there is a problem with the stream.
+     */
     public void saveHazard(DataOutputStream dos) throws IOException
     {
         dos.writeLong(Level.FILE_HEADER);
@@ -351,6 +431,9 @@ public class Level
         dos.close();
     }
 
+    /**
+     * Not sure what the point of this is.
+     */
     public void tick()
     {
         for (int x = 0; x < width; x++)
@@ -362,6 +445,13 @@ public class Level
         }
     }
 
+    /**
+     * Returns the block at x, y.
+     * If x or y are out of range, bound them.
+     * @param x x-value of block to return [0, width)
+     * @param y y-value of block to return [0, height)
+     * @return Block at x, y
+     */
     public byte getBlockCapped(int x, int y)
     {
         if (x < 0) x = 0;
@@ -371,6 +461,13 @@ public class Level
         return map[x][y];
     }
 
+    /**
+     * Returns the block at x, y.
+     * If x or y are out of range, return 0.
+     * @param x x-value of block to return [0, width)
+     * @param y y-value of block to return [o, height)
+     * @return Block at x, y
+     */
     public byte getBlock(int x, int y)
     {
         if (x < 0) x = 0;
@@ -380,6 +477,16 @@ public class Level
         return map[x][y];
     }
 
+    /**
+     * Set the block at @param x, @param y to @param b.
+     * Returns if x or y are out of bounds.
+     * If setting the block as a level exit (code -1),
+     * will also call setLevelExit(x, y).
+     * @param x x-value of block to set.
+     * @param y y-value of block to set.
+     * @param b Code to set the block to.
+     * @see setLevelExit
+     */
     public void setBlock(int x, int y, byte b)
     {
         if (x < 0) return;
@@ -403,6 +510,13 @@ public class Level
         }
     }
 
+    /**
+     * Set block data at x, y.
+     * Returns if out of range.
+     * @param x x-value of block
+     * @param y y-value of block
+     * @param b Data to set for block.
+     */
     public void setBlockData(int x, int y, byte b)
     {
         if (x < 0) return;
@@ -412,6 +526,15 @@ public class Level
         data[x][y] = b;
     }
 
+    /**
+     * Checks if block at x,y should stop sprites from passing through.
+     * A block should stop sprites if it has BIT_BLOCK_ALL, BIT_BLOCK_UPPER, BIT_BLOCK_LOWER
+     * @param x x-value of block to check
+     * @param y y-value of block to check
+     * @param xa x-velocity of sprite
+     * @param ya y-velocity of sprite
+     * @return Returns true if block should stop entity.
+     */
     public boolean isBlocking(int x, int y, float xa, float ya)
     {
         byte block = getBlock(x, y);
@@ -422,6 +545,12 @@ public class Level
         return blocking;
     }
 
+    /**
+     * Returns the @see SpriteTemplate at x, y
+     * @param x x-value of grid
+     * @param y y-value of grid
+     * @return SpriteTemplate at x, y or null if one is not set.
+     */
     public SpriteTemplate getSpriteTemplate(int x, int y)
     {
         if (x < 0) return null;
@@ -431,6 +560,12 @@ public class Level
         return spriteTemplates[x][y];
     }
 
+    /**
+     * Set the @see SpriteTemplate at x, y
+     * @param x x-value of tile to set
+     * @param y y-value of tile to set
+     * @param spriteTemplate SpriteTemplate to set at x, y. May be null.
+     */
     public void setSpriteTemplate(int x, int y, SpriteTemplate spriteTemplate)
     {
         if (x < 0) return;
@@ -440,6 +575,11 @@ public class Level
         spriteTemplates[x][y] = spriteTemplate;
     }
 
+    /**
+     * Move the level exit from xExit, yExit to x, y
+     * @param x x-value to move level exit to.
+     * @param y y-value to move level exit to.
+     */
     public void setLevelExit(int x, int y)
     {
         setBlock(xExit, yExit, (byte)0);
@@ -447,6 +587,10 @@ public class Level
         yExit = y;
     }
 
+    /**
+     * addHazard to the level. Position set within the Sprite itself.
+     * @param hazard SpriteTemplate of a hazard to add to the level.
+     */
     public void addHazard(SpriteTemplate hazard)
     {
         hazards.add(hazard);

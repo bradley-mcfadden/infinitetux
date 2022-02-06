@@ -8,7 +8,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public class EnemyPicker extends JPanel implements ActionListener{
+public class EnemyPicker extends JPanel implements ActionListener {
     private static final String RED_KOOPA = "Red Koopa";
     private static final String GREEN_KOOPA = "Green Koopa";
     private static final String GOOMBA = "Goomba";
