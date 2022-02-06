@@ -35,11 +35,9 @@ public class LevelEditView extends JComponent
 
     /**
      * Constructor.
-     * @param tilePicker TilePicker to use with this LevelEditView.
      */
-    public LevelEditView(TilePicker tilePicker)
+    public LevelEditView()
     {
-        this.tilePicker = tilePicker;
         level = new Level(256, 15);
         Dimension size = new Dimension(level.width * 16, level.height * 16);
         setPreferredSize(size);
@@ -52,42 +50,17 @@ public class LevelEditView extends JComponent
 
     /**
      * Constructor.
-     * @param tilePicker TilePicker to use with this LevelEditView
-     * @param levelLength Height of the level to edit.
-     * @param levelWidth Width of the level to edit. 
-     */
-    public LevelEditView(TilePicker tilePicker, int levelLength, int levelWidth)
-    {
-        this.tilePicker = tilePicker;
-        level = new Level(levelLength, levelWidth);
-        Dimension size = new Dimension(level.width * 16, level.height * 16);
-        setPreferredSize(size);
-        setMinimumSize(size);
-        setMaximumSize(size);
-
-        addMouseListener(this);
-        addMouseMotionListener(this);
-    }    
-
-    /**
-     * Constructor.
      * @param enemyPicker EnemyPicker to use with this LevelEditView.
      * @param tilePicker TilePicker to use with this LevelEditView.
      * @param hazardPicker HazardPicker to use with this LevelEditView.
      */
     public LevelEditView(EnemyPicker enemyPicker, TilePicker tilePicker, HazardPicker hazardPicker)
     {
+        this();
+
         this.enemyPicker = enemyPicker;
         this.tilePicker = tilePicker;
         this.hazardPicker = hazardPicker;
-        level = new Level(256, 15);
-        Dimension size = new Dimension(level.width * 16, level.height * 16);
-        setPreferredSize(size);
-        setMinimumSize(size);
-        setMaximumSize(size);
-
-        addMouseListener(this);
-        addMouseMotionListener(this);
     }
     
     /**
@@ -238,6 +211,30 @@ public class LevelEditView extends JComponent
         ((LevelEditor)this.getRootPane().getParent()).setCoordinates(xTile, yTile);
        
         repaint();
+    }
+
+    /**
+     * setEnemyPicker to argument.
+     * @param enemyPicker
+     */
+    public void setEnemyPicker(EnemyPicker enemyPicker) {
+        this.enemyPicker = enemyPicker;
+    }
+
+    /**
+     * setHazardPicker to argument.
+     * @param hazardPicker
+     */
+    public void setHazardPicker(HazardPicker hazardPicker) {
+        this.hazardPicker = hazardPicker;
+    }
+
+    /**
+     * setTilePicker to argument.
+     * @param tilePicker
+     */
+    public void setTilePicker(TilePicker tilePicker) {
+        this.tilePicker = tilePicker;
     }
 
     /**

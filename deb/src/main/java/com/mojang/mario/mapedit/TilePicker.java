@@ -43,6 +43,16 @@ public class TilePicker extends JComponent implements MouseListener, MouseMotion
     }
 
     /**
+     * Constructor.
+     * @param editor Listener for changed tile selection.
+     */
+    public TilePicker(LevelEditor editor)
+    {
+        this();
+        addTilePickChangedListener(editor);
+    }
+
+    /**
      * @see JComponent.addNotify
      */
     public void addNotify()
