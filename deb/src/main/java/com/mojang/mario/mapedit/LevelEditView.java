@@ -132,9 +132,20 @@ public class LevelEditView extends JComponent implements MouseListener, MouseMot
             }
             else
             {
-                System.out.println("Picked tile " + tilePicker.pickedTile);
-                level.setBlock(xTile, yTile, tilePicker.pickedTile);
-                levelRenderer.repaint(xTile - 1, yTile - 1, 3, 3);
+                System.out.println("Picked tile " + tilePicker.pickedTile + " at " + xTile + " " + yTile);
+                if (tilePicker.pickedTile == (byte)-1) 
+                {
+                    int xExitOld = level.xExit;
+                    int yExitOld = level.yExit;
+                    level.setBlock(xTile, yTile, tilePicker.pickedTile);
+                    levelRenderer.repaint(xTile - 1, yTile - 1, 3, 3);
+                    levelRenderer.repaint(xExitOld - 1, yExitOld - 2, 3, 3);
+                }
+                else
+                {
+                    level.setBlock(xTile, yTile, tilePicker.pickedTile);
+                    levelRenderer.repaint(xTile - 1, yTile - 1, 3, 3);
+                }
 
                 repaint();
             }

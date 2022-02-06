@@ -13,7 +13,6 @@ import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
 
 
-
 public class LevelEditor extends JFrame implements ActionListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
@@ -67,11 +66,6 @@ public class LevelEditor extends JFrame implements ActionListener
         enemyPicker = new EnemyPicker(this);
         hazardPicker = new HazardPicker(this);
 
-        /*
-        JPanel lowerPanel = new JPanel(new BorderLayout());
-        lowerPanel.add(BorderLayout.WEST, tilePickerPanel);
-        lowerPanel.add(BorderLayout.CENTER, enemyPicker);
-        */
         JPanel lowerPanel = new JPanel(new GridLayout(1, 3));
         lowerPanel.add(tilePickerPanel);
         lowerPanel.add(enemyPicker);
@@ -173,16 +167,31 @@ public class LevelEditor extends JFrame implements ActionListener
         {
             if (e.getSource() == loadButton)
             {
-                // levelEditView.setLevel(Level.load(new DataInputStream(new FileInputStream(workingDirectory + "/" + nameField.getText().trim()))));
-                String saveLocation = getLevelDirectory();
-                if (saveLocation != null)
+                JFileChooser chooser = new JFileChooser(workingDirectory);
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                chooser.setAcceptAllFileFilterUsed(false);
+                chooser.setFileFilter(new FileFilter() {
+                    public boolean accept(File file) {
+                        return file.isDirectory();
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Folders";
+                    }
+                });
+                int returnValue = chooser.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) 
                 {
-                    levelEditView.setLevel(Level.load(new File(saveLocation)));
+                    String name = chooser.getSelectedFile().getAbsolutePath();
+                    int directoryIndex = name.lastIndexOf(File.separatorChar);
+                    workingDirectory = name.substring(0, directoryIndex);
+                    nameField.setText(name.substring(directoryIndex + 1, name.length()));
+                    levelEditView.setLevel(Level.load(new File(getLevelDirectory())));
                 }
             }
             if (e.getSource() == saveButton)
             {
-                // levelEditView.getLevel().save(new DataOutputStream(new FileOutputStream(workingDirectory + "/" + nameField.getText().trim())));
                 String saveLocation = getLevelDirectory();
                 if (saveLocation != null)
                 {
@@ -191,7 +200,6 @@ public class LevelEditor extends JFrame implements ActionListener
             }
             if (e.getSource() == newButton)
             {
-                // levelEditView.getLevel().save(new DataOutputStream(new FileOutputStream(workingDirectory + "/" + nameField.getText().trim())));
                 String saveLocation = getLevelDirectory();
                 if (saveLocation != null)
                 {
@@ -204,15 +212,16 @@ public class LevelEditor extends JFrame implements ActionListener
             if (e.getSource() == testButton) 
             {
                 String saveLocation = getLevelDirectory();
-                {
-                    Level level = levelEditView.getLevel();
-                    level.save(new File(saveLocation));
-                    levelTester.testLevel(level);
-                }
+                Level level = levelEditView.getLevel();
+                level.save(new File(saveLocation));
+                levelTester.testLevel(level);
+    
             }       
             if (e.getSource() == changeDirectory)
             {
                 JFileChooser chooser = new JFileChooser(workingDirectory);
+                chooser.setAcceptAllFileFilterUsed(false);
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 chooser.setFileFilter(new FileFilter() {
                     public boolean accept(File file) {
                         return file.exists() && file.isDirectory() && file.canWrite();
@@ -231,9 +240,15 @@ public class LevelEditor extends JFrame implements ActionListener
                 }
             }
         }
+        catch (NullPointerException npe)
+        {
+            npe.printStackTrace();
+        }
         catch (Exception ex)
         {
             JOptionPane.showMessageDialog(this, ex.toString(), "Failed to load/save", JOptionPane.ERROR_MESSAGE);
+            System.err.println(ex.getLocalizedMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -274,7 +289,7 @@ public class LevelEditor extends JFrame implements ActionListener
         editor.setVisible(true);
         try
         {
-            editor.levelEditView.setLevel(Level.load(new DataInputStream(new FileInputStream(editor.workingDirectory + "/" + levelPath))));
+            editor.levelEditView.setLevel(Level.load(new File(levelPath)));
         } catch (IOException ie)
         {
             JOptionPane.showMessageDialog(editor, ie.getMessage(), "Error reloading level", JOptionPane.ERROR_MESSAGE);

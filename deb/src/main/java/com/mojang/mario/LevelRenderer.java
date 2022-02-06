@@ -139,7 +139,7 @@ public class LevelRenderer
         g.drawImage(image, 0, 0, translucent,null);
 
         for (int x = xCam / 16; x <= (xCam + width) / 16; x++)
-            for (int y = yCam / 16; y <= (yCam + height) / 16; y++)
+            for (int y = yCam / 16; y < (yCam + height) / 16; y++)
             {
                 byte b = level.getBlock(x, y);
 
@@ -231,11 +231,11 @@ public class LevelRenderer
 
     public void renderExit0(Graphics g, int tick, float alpha, boolean bar)
     {
-        for (int y = level.yExit - 8; y < level.yExit; y++)
+        for (int y = level.yExit - 7; y <= level.yExit; y++)
         {
-            g.drawImage(Art.level[12][y == level.yExit - 8 ? 4 : 5], (level.xExit << 4) - xCam - 16, (y << 4) - yCam,translucent, null);
+            g.drawImage(Art.level[12][y == level.yExit - 7 ? 4 : 5], (level.xExit << 4) - xCam - 16, (y << 4) - yCam,translucent, null);
         }
-        int yh = level.yExit * 16 - (int) ((Math.sin((tick + alpha) / 20) * 0.5 + 0.5) * 7 * 16) - 8;
+        int yh = (level.yExit + 1) * 16 - (int) ((Math.sin((tick + alpha) / 20) * 0.5 + 0.5) * 7 * 16) - 8;
         if (bar)
         {
             g.drawImage(Art.level[12][3], (level.xExit << 4) - xCam - 16, yh - yCam,translucent, null);
@@ -246,9 +246,9 @@ public class LevelRenderer
 
     public void renderExit1(Graphics g, int tick, float alpha)
     {
-        for (int y = level.yExit - 8; y < level.yExit; y++)
+        for (int y = level.yExit - 7; y <= level.yExit; y++)
         {
-            g.drawImage(Art.level[13][y == level.yExit - 8 ? 4 : 5], (level.xExit << 4) - xCam + 16, (y << 4) - yCam,translucent, null);
+            g.drawImage(Art.level[13][y == level.yExit - 7 ? 4 : 5], (level.xExit << 4) - xCam + 16, (y << 4) - yCam,translucent, null);
         }
     }
 }

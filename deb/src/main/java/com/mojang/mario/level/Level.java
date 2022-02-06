@@ -8,14 +8,14 @@ import com.mojang.mario.sprites.*;
 public class Level
 {
     public static final String[] BIT_DESCRIPTIONS = {//
-    "BLOCK UPPER", //
-            "BLOCK ALL", //
-            "BLOCK LOWER", //
-            "SPECIAL", //
-            "BUMPABLE", //
-            "BREAKABLE", //
-            "PICKUPABLE", //
-            "ANIMATED",//
+        "BLOCK UPPER", //
+        "BLOCK ALL", //
+        "BLOCK LOWER", //
+        "SPECIAL", //
+        "BUMPABLE", //
+        "BREAKABLE", //
+        "PICKUPABLE", //
+        "ANIMATED",//
     };
 
     public static byte[] TILE_BEHAVIORS = new byte[256];
@@ -58,6 +58,45 @@ public class Level
         data = new byte[width][height];
         spriteTemplates = new SpriteTemplate[width][height];
         hazards = new ArrayList<>();
+    }
+
+    public Level(Level other)
+    {
+        this.width = other.width;
+        this.height = other.height;
+        this.xExit = other.xExit;
+        this.yExit = other.yExit;
+        
+        map = new byte[width][height];
+        data = new byte[width][height];
+        spriteTemplates = new SpriteTemplate[width][height];
+        hazards = new ArrayList<>(other.hazards.size());
+        
+        for (int i = 0; i < map.length; i++)
+        {
+            System.arraycopy(other.map[i], 0, map[i], 0, map[i].length);
+        }
+
+        for (int i = 0; i < data.length; i++)
+        {
+            System.arraycopy(other.data[i], 0, data[i], 0, data[i].length);
+        }
+
+        for (int i = 0; i < spriteTemplates.length; i++) {
+            for (int j = 0; j < spriteTemplates[i].length; j++) {
+                SpriteTemplate temp = other.spriteTemplates[i][j];
+                if (temp != null) 
+                {
+                    spriteTemplates[i][j] = new SpriteTemplate(temp);
+                }
+            }
+        }
+
+        int n = other.hazards.size();
+        for (int i = 0; i < n; i++) {
+            hazards.add(new SpriteTemplate((SpriteTemplate)other.hazards.get(i)));
+        }
+
     }
 
     public static void loadBehaviors(DataInputStream dis) throws IOException
@@ -106,9 +145,9 @@ public class Level
 
     public static Level load(File levelDirectory) throws IOException
     {
-        Level level = loadMap(new DataInputStream(new FileInputStream(levelDirectory + "/" + MAP_FILE)));
-        loadEnemy(level, new DataInputStream(new FileInputStream(levelDirectory + "/" + ENEMY_FILE)));
-        loadHazard(level, new DataInputStream(new FileInputStream(levelDirectory + "/" + HAZARD_FILE)));
+        Level level = loadMap(new DataInputStream(new FileInputStream(levelDirectory + File.separator + MAP_FILE + "")));
+        loadEnemy(level, new DataInputStream(new FileInputStream(levelDirectory + File.separator + ENEMY_FILE)));
+        loadHazard(level, new DataInputStream(new FileInputStream(levelDirectory + File.separator + HAZARD_FILE)));
         return level;
     }
 
@@ -350,7 +389,7 @@ public class Level
         if (b != -1)
         {
             map[x][y] = b;
-            if (xExit == x && yExit == y + 1)
+            if (xExit == x && yExit == y)
             {
                 xExit = 10;
                 yExit = 10;
@@ -358,6 +397,7 @@ public class Level
         }
         else
         {
+            map[xExit][yExit] = (byte)0;
             map[x][y] = b;
             setLevelExit(x, y);
         }
@@ -402,8 +442,9 @@ public class Level
 
     public void setLevelExit(int x, int y)
     {
+        setBlock(xExit, yExit, (byte)0);
         xExit = x;
-        yExit = y + 1;
+        yExit = y;
     }
 
     public void addHazard(SpriteTemplate hazard)

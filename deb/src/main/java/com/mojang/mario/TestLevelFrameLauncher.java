@@ -1,6 +1,7 @@
 package com.mojang.mario;
 
 import com.mojang.mario.level.*;
+import com.mojang.mario.sprites.Mario;
 
 import java.awt.*;
 import java.awt.event.WindowEvent;
@@ -10,13 +11,14 @@ import javax.swing.*;
 public class TestLevelFrameLauncher implements LevelEndListener, WindowListener {
     private JFrame frame;
     private MarioComponent mario;
+    private TestScene scene;
 
     public void testLevel(Level level) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
                 
         frame = new JFrame("Infinite Tux Level Tester");
         mario = new MarioComponent(640, 480);
-        TestScene scene = new TestScene(level, mario.getGraphicsConfiguration(), mario, 0, 0, 0);
+        TestScene scene = new TestScene(new Level(level), mario.getGraphicsConfiguration(), mario, 0, 0, 0);
         mario.setTestScene(scene);
         mario.addLevelEndListener(this);
         frame.setLayout( new GridBagLayout() );
@@ -27,6 +29,7 @@ public class TestLevelFrameLauncher implements LevelEndListener, WindowListener 
         frame.setVisible(true);
 
         mario.start();
+        Mario.resetStatic();
         frame.addKeyListener(mario);
         frame.addFocusListener(mario);
         frame.addWindowListener(this);

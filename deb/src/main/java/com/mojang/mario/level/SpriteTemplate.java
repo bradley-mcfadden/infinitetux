@@ -20,6 +20,20 @@ public class SpriteTemplate
         this.winged = winged;
     }
 
+    public SpriteTemplate(SpriteTemplate other)
+    {
+
+        this.lastVisibleTick = -1;
+        this.sprite = null;
+        this.isDead = false;
+
+        if (other != null)
+        {
+            this.winged = other.winged;
+            this.type = other.type;
+        }
+    }
+
     public SpriteTemplate(byte code)
     {
         this.type = code ^ 0x80;
