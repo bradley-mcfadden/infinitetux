@@ -28,6 +28,7 @@ public class LevelEditor extends JFrame implements ActionListener
     private JButton testButton;
     private JButton resizeButton;
     private JButton undoButton;
+    private JButton generateButton;
     private JMenuItem changeDirectory;
     private JTextField nameField;
     private LevelEditView levelEditView;
@@ -159,6 +160,7 @@ public class LevelEditor extends JFrame implements ActionListener
         newButton = new JButton("New");
         testButton = new JButton("Test");
         resizeButton = new JButton("Resize");
+        generateButton = new JButton("Generate");
         String userDir = System.getProperty("user.dir");
         File programDirectory = new File(userDir + "/.infinitetux");
         programDirectory.mkdirs();
@@ -174,6 +176,7 @@ public class LevelEditor extends JFrame implements ActionListener
         newButton.addActionListener(this);
         testButton.addActionListener(this);
         resizeButton.addActionListener(this);
+        generateButton.addActionListener(this);
         
         JPanel panel = new JPanel();
         panel.add(nameField);
@@ -182,6 +185,7 @@ public class LevelEditor extends JFrame implements ActionListener
         panel.add(newButton);
         panel.add(testButton);
         panel.add(resizeButton);
+        panel.add(generateButton);
         panel.add(coordinates);
         return panel;
     }
@@ -291,6 +295,17 @@ public class LevelEditor extends JFrame implements ActionListener
                 levelEditView.repaint();
                 levelEditView.resize();
                 levelEditView.setLevel(level);
+            }
+            if (e.getSource() == generateButton)
+            {
+                GenerateDialog.Results params = GenerateDialog.getDialog();
+                if (params != null)
+                {
+                    Level level = LevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type);
+                    levelEditView.setLevel(level);
+                    levelEditView.resize();
+                    levelEditView.repaint();
+                }
             }
             if (e.getSource() == changeDirectory)
             {

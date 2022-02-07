@@ -51,8 +51,6 @@ public class LevelGenerator
         odds[ODDS_TUBES] = 2 + 1 * difficulty;
         odds[ODDS_JUMP] = 2 * difficulty;
         odds[ODDS_CANNONS] = -10 + 5 * difficulty;
-        //odds[ODDS_JUMP] = 100;
-        //odds[ODDS_TUBES] = 100;
 
         if (type != LevelGenerator.TYPE_OVERGROUND)
         {
@@ -78,9 +76,6 @@ public class LevelGenerator
         }
 
         int floor = height - 1 - random.nextInt(4);
-
-        level.xExit = length + 8;
-        level.yExit = floor;
 
         for (int x = length; x < level.width; x++)
         {
@@ -115,6 +110,8 @@ public class LevelGenerator
         }
 
         fixWalls();
+        
+        level.setBlock(length + 8, floor - 1, (byte)-1);
 
         return level;
     }
