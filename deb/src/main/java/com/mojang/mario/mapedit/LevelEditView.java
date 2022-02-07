@@ -245,4 +245,16 @@ public class LevelEditView extends JComponent
     {
         editingMode = mode;
     }
+
+    /**
+     * Resize to match current level size.
+     */
+    public void resize()
+    {
+        Dimension size = new Dimension(level.width * 16, level.height * 16);
+        setPreferredSize(size);
+        setMinimumSize(size);
+        setMaximumSize(size);
+        repaint();
+    }
 }

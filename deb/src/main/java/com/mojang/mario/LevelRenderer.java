@@ -128,7 +128,6 @@ public class LevelRenderer
                 if (hazard.sprite instanceof Platform)
                 {
                     hazard.render(g, 0, 0, -1);
-                    //((Platform)hazard.sprite).print();
                 }
             }
         }

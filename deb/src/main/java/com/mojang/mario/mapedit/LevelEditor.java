@@ -26,6 +26,8 @@ public class LevelEditor extends JFrame implements ActionListener
     private JButton saveButton;
     private JButton newButton;
     private JButton testButton;
+    private JButton resizeButton;
+    private JButton undoButton;
     private JMenuItem changeDirectory;
     private JTextField nameField;
     private LevelEditView levelEditView;
@@ -156,6 +158,7 @@ public class LevelEditor extends JFrame implements ActionListener
         saveButton = new JButton("Save");
         newButton = new JButton("New");
         testButton = new JButton("Test");
+        resizeButton = new JButton("Resize");
         String userDir = System.getProperty("user.dir");
         File programDirectory = new File(userDir + "/.infinitetux");
         programDirectory.mkdirs();
@@ -170,6 +173,7 @@ public class LevelEditor extends JFrame implements ActionListener
         saveButton.addActionListener(this);
         newButton.addActionListener(this);
         testButton.addActionListener(this);
+        resizeButton.addActionListener(this);
         
         JPanel panel = new JPanel();
         panel.add(nameField);
@@ -177,6 +181,7 @@ public class LevelEditor extends JFrame implements ActionListener
         panel.add(saveButton);
         panel.add(newButton);
         panel.add(testButton);
+        panel.add(resizeButton);
         panel.add(coordinates);
         return panel;
     }
@@ -240,6 +245,53 @@ public class LevelEditor extends JFrame implements ActionListener
                 levelTester.testLevel(level);
     
             }       
+            if (e.getSource() == resizeButton)
+            {
+                Level level = levelEditView.getLevel();
+                String inputWidth = JOptionPane.showInputDialog(null, "Enter new level width", level.width+"");
+                if (inputWidth == null) return;
+                String inputHeight = JOptionPane.showInputDialog(null, "Enter new level height", level.height+"");
+                if (inputHeight == null) return;
+                String inputStart = JOptionPane.showInputDialog(null, "Enter new level start", 0+"");
+                if (inputStart == null) return;
+                int levelWidth = level.width;
+                int levelHeight = level.height;
+                int startX = 0;
+                try
+                {
+                    levelWidth = Integer.parseInt(inputWidth.trim());
+                    if (levelWidth < -1) throw new NumberFormatException();
+                }
+                catch (NumberFormatException ne)
+                {
+                    JOptionPane.showMessageDialog(null, "Invalid input for level width", "Please enter a positive number", JOptionPane.ERROR_MESSAGE);
+                }
+                try
+                {
+                    levelHeight = Integer.parseInt(inputHeight.trim());
+                    if (levelHeight < -1) throw new NumberFormatException();
+                }
+                catch (NumberFormatException ne)
+                {
+                    JOptionPane.showMessageDialog(null, "Invalid input for level height", "Please enter a positive number", JOptionPane.ERROR_MESSAGE);
+                }
+                try
+                {
+                    startX = Integer.parseInt(inputStart.trim());
+                    if (startX < -1) throw new NumberFormatException();
+                }
+                catch (NumberFormatException ne)
+                {
+                    JOptionPane.showMessageDialog(null, "Invalid input for level start", "Please enter a positive number", JOptionPane.ERROR_MESSAGE);
+                }
+
+                if (startX > levelWidth || startX < 0) JOptionPane.showMessageDialog(null, "Invalid input for level start", "Please enter a number between 0 and " + levelWidth, JOptionPane.ERROR_MESSAGE);
+                int startY = 0;
+                level.resize(startX, startY, levelWidth, levelHeight);
+                levelEditView.repaint();
+                levelEditView.resize();
+                levelEditView.setLevel(level);
+            }
             if (e.getSource() == changeDirectory)
             {
                 JFileChooser chooser = new JFileChooser(workingDirectory);

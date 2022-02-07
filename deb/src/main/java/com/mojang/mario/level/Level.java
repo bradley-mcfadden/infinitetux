@@ -595,4 +595,76 @@ public class Level
     {
         hazards.add(hazard);
     }
+
+    /**
+     * resize allows the level width and height to be changed.
+     * The level exit is moved to the default position if it gets clipped.
+     * Sprites and hazards are moved as well.
+     */
+    public void resize(int startX, int startY, int newWidth, int newHeight) {
+        if (newWidth == width && newHeight == height) return;
+        // allocate new arrays for blocks, sprites
+        int endX = startX + Math.min(newWidth, map.length);
+        int endY = startY + Math.min(newHeight, map[0].length);
+        int ny = endY - startY;
+        byte[][] tmpMap = new byte[newWidth][newHeight];
+        SpriteTemplate[][] tmpSprite = new SpriteTemplate[newWidth][newHeight];
+        
+        for (int i = startX; i < endX; i++) 
+        {
+            System.arraycopy(map[i], startY, tmpMap[i-startX], 0, ny);
+            for (int j = startY; j < endY; j++) 
+            {
+                if (tmpSprite[i-startX][j-startY] != null)
+                {
+                    tmpSprite[i-startX][j-startY] = new SpriteTemplate(spriteTemplates[i][j].getCode());
+                }
+            }
+        }
+        map = tmpMap;
+        spriteTemplates = tmpSprite;
+
+        // Remove any platforms that end up out of bounds
+        int nHazards = hazards.size();
+        for (int i = nHazards - 1; i >= 0; i--)
+        {
+            SpriteTemplate st = hazards.get(i);
+            if (st.sprite != null)
+            {
+                if (st.sprite instanceof Platform)
+                {
+                    Platform platform = (Platform)st.sprite;
+                    int tStart = (int)platform.start / 16;
+                    int tEnd = (int)platform.end / 16;
+                    if (tStart < startX && tEnd > endX)
+                    {
+                        hazards.remove(st);
+                    }
+                    else
+                    {
+                        Platform tmpPlatform;
+                        if (platform instanceof PlatformH)
+                        {
+                            tmpPlatform = new PlatformH((int)platform.x + startX, (int)platform.y + endY, platform.width, platform.trackLength);
+                        }
+                        else
+                        {
+                            tmpPlatform = new PlatformV((int)platform.x + startX, (int)platform.y + endY, platform.width, platform.trackLength);
+                        }
+                        tmpPlatform.setStartPosition(platform.startPos);
+                        st.sprite = tmpPlatform;
+                    }
+                }
+            }
+        }
+
+        // Move the level exit
+        if (xExit < startX || xExit > endX)
+        {
+            setLevelExit(10, 10);
+        }
+
+        width = newWidth;
+        height = newHeight;
+    }
 }
