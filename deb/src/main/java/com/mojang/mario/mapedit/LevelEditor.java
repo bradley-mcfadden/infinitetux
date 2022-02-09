@@ -7,6 +7,8 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -21,19 +23,21 @@ import com.mojang.mario.level.*;
  * Allows the user to place tiles, enemies, and hazards in a level, save levels,
  * and playtest their levels.
  */
-public class LevelEditor extends JFrame implements ActionListener
+public class LevelEditor extends JFrame 
+    implements ActionListener, LevelEditView.ActionCompleteListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
 
     private JButton testButton;
     private JButton resizeButton;
-    private JButton undoButton;
     private JButton generateButton;
     private JMenuItem changeDirectoryItem;
     private JMenuItem openLevelItem;
     private JMenuItem newLevelItem;
     private JMenuItem saveLevelItem;
     private JMenuItem saveLevelAsItem;
+    private JMenuItem undoActionItem;
+    private JMenuItem redoActionItem;
     private JLabel levelNameLabel;
     private JTextField nameField;
     private LevelEditView levelEditView;
@@ -44,6 +48,9 @@ public class LevelEditor extends JFrame implements ActionListener
     private String coordinateText="X=P , Y=Q";
     private TestLevelFrameLauncher levelTester;
     private JCheckBox[] bitmapCheckboxes = new JCheckBox[8];
+
+    private ArrayList<Level> actionQueue;
+    private int nextStatePtr;
 
     private String workingDirectory;
     private String levelName;
@@ -60,6 +67,7 @@ public class LevelEditor extends JFrame implements ActionListener
         super("Map Edit");
         
         levelName = "test";
+    
         try
         {
             Level.loadBehaviors(new DataInputStream(new FileInputStream("tiles.dat")));
@@ -90,6 +98,7 @@ public class LevelEditor extends JFrame implements ActionListener
 
         JPanel borderPanel = new JPanel(new BorderLayout());
         levelEditView = new LevelEditView(enemyPicker, tilePicker, hazardPicker);
+        levelEditView.setActionCompleteListener(this);
         borderPanel.add(BorderLayout.CENTER, new JScrollPane(levelEditView));
         borderPanel.add(BorderLayout.SOUTH, lowerPanel);
         borderPanel.add(BorderLayout.NORTH, buildButtonPanel());
@@ -100,6 +109,9 @@ public class LevelEditor extends JFrame implements ActionListener
         levelTester = new TestLevelFrameLauncher();
 
         tilePicker.addTilePickChangedListener(this);
+
+        actionQueue = new ArrayList<>();
+        saveState();
     }
 
     /**
@@ -209,7 +221,22 @@ public class LevelEditor extends JFrame implements ActionListener
         fileMenu.add(saveLevelItem);
         fileMenu.add(saveLevelAsItem);
         fileMenu.add(changeDirectoryItem);
+
+        JMenu editMenu = new JMenu("Edit");
+        undoActionItem = new JMenuItem("Undo");
+        redoActionItem = new JMenuItem("Redo");
+
+        undoActionItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getExtendedKeyCodeForChar('z'), KeyEvent.CTRL_DOWN_MASK));
+        redoActionItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getExtendedKeyCodeForChar('z'), KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
+
+        undoActionItem.addActionListener(this);
+        redoActionItem.addActionListener(this);
+
+        editMenu.add(undoActionItem);
+        editMenu.add(redoActionItem);
+
         menuBar.add(fileMenu);
+        menuBar.add(editMenu);
         return menuBar;
     }
 
@@ -279,7 +306,15 @@ public class LevelEditor extends JFrame implements ActionListener
                     levelEditView.setLevel(new Level(256, 15));
                     JOptionPane.showMessageDialog(null, "Previous level saved to: " + saveLocation);
                 }
-            }     
+            }   
+            if (e.getSource() == undoActionItem)
+            {
+                undoAction();
+            }  
+            if (e.getSource() == redoActionItem)
+            {
+                redoAction();
+            }
             if (e.getSource() == testButton) 
             {
                 String saveLocation = getLevelDirectory();
@@ -341,9 +376,9 @@ public class LevelEditor extends JFrame implements ActionListener
                 if (params != null)
                 {
                     Level level = LevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type);
-                    levelEditView.setLevel(level);
-                    levelEditView.resize();
-                    levelEditView.repaint();
+                    updateLevel(level);
+
+                    saveState();
                 }
             }
             if (e.getSource() == changeDirectoryItem)
@@ -386,11 +421,6 @@ public class LevelEditor extends JFrame implements ActionListener
      */
     private String getLevelDirectory()
     {
-        /*if (nameField.getText().trim().isEmpty())
-        {
-            JOptionPane.showMessageDialog(null, "No level name specified", "Please enter a level name", JOptionPane.ERROR_MESSAGE);
-            return null;
-        }*/
         File levelDirectory = new File(workingDirectory + "/" + levelName);
         if (!levelDirectory.exists()) 
         {
@@ -459,6 +489,8 @@ public class LevelEditor extends JFrame implements ActionListener
      *    isValidPath("not|good.txt"); //returns false
      *    isValidPath("not:good.txt"); //returns false
      * </pre>
+     * @param path Path of string to check
+     * @retrun True if path is valid
      */
     public static boolean isValidPath(String path) {
         try {
@@ -467,6 +499,64 @@ public class LevelEditor extends JFrame implements ActionListener
             return false;
         }
         return true;
+    }
+
+    /**
+     * Navigate down history to last action.
+     */
+    private void undoAction()
+    {
+        if (actionQueue.size() < 2) return;
+        nextStatePtr--;
+        Level oldState = actionQueue.get(Math.max(nextStatePtr - 1, 0));
+        updateLevel(oldState);
+    }
+
+    /**
+     * Reload last state.
+     */
+    private void redoAction()
+    {
+        if (actionQueue.size() < 2) return;
+        Level oldState = actionQueue.get(nextStatePtr);
+        updateLevel(oldState);
+        nextStatePtr++;
+    }
+
+    /**
+     * Add a new action to history.
+     * Note that this erases any actions that can be redone.
+     */
+    private void saveState()
+    {
+        // Discard actions in future if nextStatePtr points to a non-empty slot.
+        if (nextStatePtr < actionQueue.size())
+        {
+            int lastIndex = actionQueue.size() - 1;
+            for (int i = lastIndex; i >= nextStatePtr; i--)
+            {
+                actionQueue.remove(i);
+            }
+        }
+        actionQueue.add(new Level(levelEditView.getLevel()));
+        nextStatePtr++;
+    }
+
+    /**
+     * updateLevel update the level and its render
+     * @param level New level state to view
+     */
+    private void updateLevel(Level level)
+    {
+        levelEditView.setLevel(level);
+        levelEditView.resize();
+        levelEditView.repaint();
+    }
+
+    @Override
+    public void onActionComplete() 
+    {
+        saveState();    
     }
 
     public static void main(String[] args)

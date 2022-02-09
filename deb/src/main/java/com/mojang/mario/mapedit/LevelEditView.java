@@ -24,6 +24,7 @@ public class LevelEditView extends JComponent
 
     private LevelRenderer levelRenderer;
     private Level level;
+    private ActionCompleteListener actionCompleteListener;
 
     private int xTile = -1;
     private int yTile = -1;
@@ -136,7 +137,7 @@ public class LevelEditView extends JComponent
             }
             else
             {
-                System.out.println("Picked tile " + tilePicker.pickedTile + " at " + xTile + " " + yTile);
+                // System.out.println("Picked tile " + tilePicker.pickedTile + " at " + xTile + " " + yTile);
                 if (tilePicker.pickedTile == (byte)-1) 
                 {
                     int xExitOld = level.xExit;
@@ -150,22 +151,20 @@ public class LevelEditView extends JComponent
                     level.setBlock(xTile, yTile, tilePicker.pickedTile);
                     levelRenderer.repaint(xTile - 1, yTile - 1, 3, 3);
                 }
-
                 repaint();
             }
         } 
         else if (editingMode == LevelEditor.MODE_ENEMY)
         {
-            System.out.println("Placed enemy at " + xTile + "," + yTile);
+            // System.out.println("Placed enemy at " + xTile + "," + yTile);
             level.setSpriteTemplate(xTile, yTile, enemyPicker.pickedEnemy);
             levelRenderer.repaint(xTile - 2, yTile - 2, 5, 5);
 
             repaint();
-
         }
         else if (editingMode == LevelEditor.MODE_HAZARD)
         {
-            System.out.println("Placed hazard at " + xTile + "," + yTile);
+            // System.out.println("Placed hazard at " + xTile + "," + yTile);
             Sprite hazard = hazardPicker.pickedHazard.sprite;
             
             if (hazard instanceof Platform) 
@@ -175,19 +174,14 @@ public class LevelEditView extends JComponent
                 SpriteTemplate hazardTemplate = new SpriteTemplate(platform.copy());
                 level.addHazard(hazardTemplate);
             }
-            else
-            {
-
-            }
-
             levelRenderer.repaint(0, 0, level.width, level.height);
-
             repaint();
         }
     }
 
     public void mouseReleased(MouseEvent e)
     {
+        notifyListener();
     }
 
     /**
@@ -195,13 +189,10 @@ public class LevelEditView extends JComponent
      */
     public void mouseDragged(MouseEvent e)
     {
-        xTile = e.getX() / 16;
-        yTile = e.getY() / 16;
-
-        level.setBlock(xTile, yTile, tilePicker.pickedTile);
-        levelRenderer.repaint(xTile - 1, yTile - 1, 3, 3);
-
-        repaint();
+        if (editingMode == LevelEditor.MODE_TILE || editingMode == LevelEditor.MODE_ENEMY || editingMode == LevelEditor.MODE_HAZARD)
+        {
+            mousePressed(e);
+        }
     }
 
     public void mouseMoved(MouseEvent e)
@@ -256,5 +247,36 @@ public class LevelEditView extends JComponent
         setMinimumSize(size);
         setMaximumSize(size);
         repaint();
+    }
+
+    /**
+     * Notifies actionComplteListener that an editor action just finished.
+     */
+    private void notifyListener()
+    {
+        if (actionCompleteListener != null)
+        {
+            actionCompleteListener.onActionComplete();
+        }
+    }
+
+    /**
+     * setActionCompleteListener sets the callback for editor actions
+     * @param listener
+     */
+    public void setActionCompleteListener(ActionCompleteListener listener)
+    {
+        actionCompleteListener = listener;
+    }
+
+    /**
+     * Callback interface for completed actions
+     */
+    public interface ActionCompleteListener
+    {
+        /**
+         * Callback method
+         */
+        void onActionComplete();
     }
 }
