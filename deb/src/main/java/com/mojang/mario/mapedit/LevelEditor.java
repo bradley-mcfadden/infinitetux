@@ -3,7 +3,10 @@ package com.mojang.mario.mapedit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.*;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -22,14 +25,16 @@ public class LevelEditor extends JFrame implements ActionListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
 
-    private JButton loadButton;
-    private JButton saveButton;
-    private JButton newButton;
     private JButton testButton;
     private JButton resizeButton;
     private JButton undoButton;
     private JButton generateButton;
-    private JMenuItem changeDirectory;
+    private JMenuItem changeDirectoryItem;
+    private JMenuItem openLevelItem;
+    private JMenuItem newLevelItem;
+    private JMenuItem saveLevelItem;
+    private JMenuItem saveLevelAsItem;
+    private JLabel levelNameLabel;
     private JTextField nameField;
     private LevelEditView levelEditView;
     private TilePicker tilePicker;
@@ -41,6 +46,7 @@ public class LevelEditor extends JFrame implements ActionListener
     private JCheckBox[] bitmapCheckboxes = new JCheckBox[8];
 
     private String workingDirectory;
+    private String levelName;
 
     public static final int MODE_TILE = 1;
     public static final int MODE_ENEMY = 2;
@@ -53,6 +59,7 @@ public class LevelEditor extends JFrame implements ActionListener
     {
         super("Map Edit");
         
+        levelName = "test";
         try
         {
             Level.loadBehaviors(new DataInputStream(new FileInputStream("tiles.dat")));
@@ -88,13 +95,7 @@ public class LevelEditor extends JFrame implements ActionListener
         borderPanel.add(BorderLayout.NORTH, buildButtonPanel());
         setContentPane(borderPanel);
 
-        JMenuBar menuBar = new JMenuBar();
-        JMenu fileMenu = new JMenu("File");
-        changeDirectory = new JMenuItem("Change levels directory");
-        changeDirectory.addActionListener(this);
-        fileMenu.add(changeDirectory);
-        menuBar.add(fileMenu);
-        setJMenuBar(menuBar);
+        setJMenuBar(buildMenuBar());
 
         levelTester = new TestLevelFrameLauncher();
 
@@ -155,9 +156,6 @@ public class LevelEditor extends JFrame implements ActionListener
      */
     public JPanel buildButtonPanel()
     {
-        loadButton = new JButton("Load");
-        saveButton = new JButton("Save");
-        newButton = new JButton("New");
         testButton = new JButton("Test");
         resizeButton = new JButton("Resize");
         generateButton = new JButton("Generate");
@@ -169,25 +167,50 @@ public class LevelEditor extends JFrame implements ActionListener
         workingDirectory = levelDirectory.getAbsolutePath();
         
         nameField = new JTextField("test", 10);
+        levelNameLabel = new JLabel(levelName);
         
-        coordinates = new JLabel(coordinateText,10);
-        loadButton.addActionListener(this);
-        saveButton.addActionListener(this);
-        newButton.addActionListener(this);
+        coordinates = new JLabel(coordinateText, 10);
         testButton.addActionListener(this);
         resizeButton.addActionListener(this);
         generateButton.addActionListener(this);
         
         JPanel panel = new JPanel();
-        panel.add(nameField);
-        panel.add(loadButton);
-        panel.add(saveButton);
-        panel.add(newButton);
+        panel.add(levelNameLabel);
         panel.add(testButton);
         panel.add(resizeButton);
         panel.add(generateButton);
         panel.add(coordinates);
         return panel;
+    }
+
+    public JMenuBar buildMenuBar()
+    {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        newLevelItem = new JMenuItem("New");
+        openLevelItem = new JMenuItem("Open");
+        saveLevelItem = new JMenuItem("Save");
+        saveLevelAsItem = new JMenuItem("Save as");
+        changeDirectoryItem = new JMenuItem("Change levels directory");
+
+        newLevelItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getExtendedKeyCodeForChar('n'), KeyEvent.CTRL_DOWN_MASK));
+        openLevelItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getExtendedKeyCodeForChar('o'), KeyEvent.CTRL_DOWN_MASK));
+        saveLevelItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getExtendedKeyCodeForChar('s'), KeyEvent.CTRL_DOWN_MASK));
+        saveLevelAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.getExtendedKeyCodeForChar('s'), KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
+
+        newLevelItem.addActionListener(this);
+        openLevelItem.addActionListener(this);
+        saveLevelItem.addActionListener(this);
+        saveLevelAsItem.addActionListener(this);
+        changeDirectoryItem.addActionListener(this);
+
+        fileMenu.add(newLevelItem);
+        fileMenu.add(openLevelItem);
+        fileMenu.add(saveLevelItem);
+        fileMenu.add(saveLevelAsItem);
+        fileMenu.add(changeDirectoryItem);
+        menuBar.add(fileMenu);
+        return menuBar;
     }
 
     /**
@@ -197,7 +220,7 @@ public class LevelEditor extends JFrame implements ActionListener
     {
         try
         {
-            if (e.getSource() == loadButton)
+            if (e.getSource() == openLevelItem)
             {
                 JFileChooser chooser = new JFileChooser(workingDirectory);
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -222,7 +245,7 @@ public class LevelEditor extends JFrame implements ActionListener
                     levelEditView.setLevel(Level.load(new File(getLevelDirectory())));
                 }
             }
-            if (e.getSource() == saveButton)
+            if (e.getSource() == saveLevelItem)
             {
                 String saveLocation = getLevelDirectory();
                 if (saveLocation != null)
@@ -230,7 +253,23 @@ public class LevelEditor extends JFrame implements ActionListener
                     levelEditView.getLevel().save(new File(saveLocation));
                 }
             }
-            if (e.getSource() == newButton)
+            if (e.getSource() == saveLevelAsItem)
+            {
+                String newLevelName = (String)JOptionPane.showInputDialog(
+                    null, "Enter a name for the level", "Enter new level name", 
+                    JOptionPane.PLAIN_MESSAGE, null, null, levelName
+                );
+                if (isValidPath(newLevelName))
+                {
+                    levelName = newLevelName;
+                    levelNameLabel.setText(levelName);
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(null, newLevelName + " is not a valid filename.", "Invalid level name", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            if (e.getSource() == newLevelItem)
             {
                 String saveLocation = getLevelDirectory();
                 if (saveLocation != null)
@@ -307,7 +346,7 @@ public class LevelEditor extends JFrame implements ActionListener
                     levelEditView.repaint();
                 }
             }
-            if (e.getSource() == changeDirectory)
+            if (e.getSource() == changeDirectoryItem)
             {
                 JFileChooser chooser = new JFileChooser(workingDirectory);
                 chooser.setAcceptAllFileFilterUsed(false);
@@ -347,13 +386,14 @@ public class LevelEditor extends JFrame implements ActionListener
      */
     private String getLevelDirectory()
     {
-        if (nameField.getText().trim().isEmpty())
+        /*if (nameField.getText().trim().isEmpty())
         {
             JOptionPane.showMessageDialog(null, "No level name specified", "Please enter a level name", JOptionPane.ERROR_MESSAGE);
             return null;
-        }
-        File levelDirectory = new File(workingDirectory + "/" + nameField.getText().trim());
-        if (!levelDirectory.exists()) {
+        }*/
+        File levelDirectory = new File(workingDirectory + "/" + levelName);
+        if (!levelDirectory.exists()) 
+        {
             levelDirectory.mkdirs();
         }
         return levelDirectory.getPath();
@@ -403,6 +443,30 @@ public class LevelEditor extends JFrame implements ActionListener
             JOptionPane.showMessageDialog(editor, ie.getMessage(), "Error reloading level", JOptionPane.ERROR_MESSAGE);
             ie.printStackTrace();
         }
+    }
+
+    /**
+     * <pre>
+     * Checks if a string is a valid path.
+     * Null safe.
+     *  
+     * Calling examples:
+     *    isValidPath("c:/test");      //returns true
+     *    isValidPath("c:/te:t");      //returns false
+     *    isValidPath("c:/te?t");      //returns false
+     *    isValidPath("c/te*t");       //returns false
+     *    isValidPath("good.txt");     //returns true
+     *    isValidPath("not|good.txt"); //returns false
+     *    isValidPath("not:good.txt"); //returns false
+     * </pre>
+     */
+    public static boolean isValidPath(String path) {
+        try {
+            Paths.get(path);
+        } catch (InvalidPathException | NullPointerException ex) {
+            return false;
+        }
+        return true;
     }
 
     public static void main(String[] args)
