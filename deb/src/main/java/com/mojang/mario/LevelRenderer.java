@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import com.mojang.mario.level.*;
+import com.mojang.mario.mapedit.Highlight;
 import com.mojang.mario.sprites.*;
 
 
@@ -29,8 +30,8 @@ public class LevelRenderer
     {
         this.width = width;
         this.height = height;
-
         this.level = level;
+
         image = graphicsConfiguration.createCompatibleVolatileImage(width, height, Transparency.BITMASK);
         g = (Graphics2D) image.getGraphics();
         g.setComposite(AlphaComposite.Src);
@@ -213,7 +214,6 @@ public class LevelRenderer
                     {
                     }
                 }
-
             }
     }
 

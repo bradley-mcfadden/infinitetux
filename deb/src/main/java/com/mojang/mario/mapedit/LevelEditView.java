@@ -8,6 +8,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import com.mojang.mario.*;
 import com.mojang.mario.level.*;
 import com.mojang.mario.sprites.Platform;
@@ -33,6 +34,7 @@ public class LevelEditView extends JComponent
     private HazardPicker hazardPicker;
     private int editingMode = LevelEditor.MODE_TILE;
 
+    private ArrayList<Highlight> highlights;
 
     /**
      * Constructor.
@@ -40,6 +42,7 @@ public class LevelEditView extends JComponent
     public LevelEditView()
     {
         level = new Level(256, 15);
+        highlights = new ArrayList<>();
         Dimension size = new Dimension(level.width * 16, level.height * 16);
         setPreferredSize(size);
         setMinimumSize(size);
@@ -102,6 +105,10 @@ public class LevelEditView extends JComponent
         g.setColor(new Color(0x8090ff));
         g.fillRect(0, 0, level.width * 16, level.height * 16);
         levelRenderer.render(g, 0, 0);
+        for (Highlight h : highlights)
+        {
+            h.draw(g);
+        }
         g.setColor(Color.BLACK);
         g.drawRect(xTile * 16 - 1, yTile * 16 - 1, 17, 17);
     }
@@ -267,6 +274,32 @@ public class LevelEditView extends JComponent
     public void setActionCompleteListener(ActionCompleteListener listener)
     {
         actionCompleteListener = listener;
+    }
+
+    /**
+     * addHighlight to the list of Highlights to be displayed.
+     * @param x x tile pos of left corner
+     * @param y y tile pos of left corner
+     * @param w width of Highlight in tiles
+     * @param h height of Highlight in tiles
+     * @param color Color of Highlight
+     * @param message message to display in Highlight
+     * @return Highlight object
+     */
+    public Highlight addHighlight(int x, int y, int w, int h, Color color, String message)
+    {
+        Highlight hl = new Highlight(x, y, w, h, color, message);
+        highlights.add(hl);
+        return hl;
+    }
+
+    /**
+     * removeHighlight from list of Highlight to draw.
+     * @param hl Highlight to remove.
+     */
+    public void removeHighlight(Highlight hl)
+    {
+        highlights.remove(hl);
     }
 
     /**

@@ -11,7 +11,6 @@ import javax.swing.*;
 public class TestLevelFrameLauncher implements LevelEndListener, WindowListener {
     private JFrame frame;
     private MarioComponent mario;
-    private TestScene scene;
 
     public void testLevel(Level level) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

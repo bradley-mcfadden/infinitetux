@@ -3,7 +3,6 @@ package com.mojang.mario.sprites;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import javax.lang.model.util.ElementScanner6;
 
 public class PlatformH extends Platform {
 
