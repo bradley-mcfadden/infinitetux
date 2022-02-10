@@ -51,6 +51,9 @@ public class LevelScene extends Scene implements SpriteContext
     private int musicType;
     private int levelDifficulty;
 
+    private int marioSpawnXTile = Mario.DEFAULT_SPAWN_X;
+    private int marioSpawnYTile = Mario.DEFAULT_SPAWN_Y;
+
     public LevelScene(GraphicsConfiguration graphicsConfiguration, MarioComponent renderer, long seed, int levelDifficulty, int type)
     {
         this.graphicsConfiguration = graphicsConfiguration;
@@ -164,7 +167,7 @@ public class LevelScene extends Scene implements SpriteContext
             Level bgLevel = BgLevelGenerator.createLevel(w / 32 + 1, h / 32 + 1, i == 0, levelType);
             bgLayer[i] = new BgRenderer(bgLevel, graphicsConfiguration, 320, 240, scrollSpeed);
         }
-        mario = new Mario(this);
+        mario = new Mario(this, marioSpawnXTile, marioSpawnYTile);
         sprites.add(mario);
         startTime = 1;
         
@@ -668,5 +671,21 @@ public class LevelScene extends Scene implements SpriteContext
         {
             sprite.bumpCheck(x, y);
         }
+    }
+
+    /**
+     * setSpawn of Mario in this world
+     * @param x -coord of tile where Mario shoud spawn
+     * @param y -coord of tile where Mario should spawn
+     */
+    public void setSpawn(int x, int y)
+    {
+        if (x < 0) x = 0;
+        if (x >= level.width) x = level.width - 1;
+        if (y < 0) y = 0;
+        if (y >= level.height) y = level.height - 1;
+
+        marioSpawnXTile = x;
+        marioSpawnYTile = y;
     }
 }

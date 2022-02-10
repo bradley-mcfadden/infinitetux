@@ -36,6 +36,9 @@ public class Mario extends Sprite
     private static float GROUND_INERTIA = 0.89f;
     private static float AIR_INERTIA = 0.89f;
 
+    public static final int DEFAULT_SPAWN_X = 2;
+    public static final int DEFAULT_SPAWN_Y = 0;
+
     public boolean[] keys;
     private float runTime;
     boolean wasOnGround = false;
@@ -70,18 +73,33 @@ public class Mario extends Sprite
     public Sprite carried = null;
     private static Mario instance;
 
+    /**
+     * Constructor.
+     * @param world Scene to spawn Mario in
+     */
     public Mario(LevelScene world)
+    {
+        this(world, DEFAULT_SPAWN_X, DEFAULT_SPAWN_Y);
+    }
+    
+    /**
+     * Constructor.
+     * @param world Scene to spawn Mario in
+     * @param startX x tile of Mario's spawn
+     * @param startY y tile of Mario's spawn
+     */
+    public Mario(LevelScene world, int startX, int startY)
     {
         Mario.instance = this;
         this.world = world;
         keys = Scene.keys;
-        x = 32;
-        y = 0;
+        x = startX * 16;
+        y = startY * 16;
 
         facing = 1;
         setLarge(Mario.large, Mario.fire);
     }
-    
+
     private boolean lastLarge;
     private boolean lastFire;
     private boolean newLarge;

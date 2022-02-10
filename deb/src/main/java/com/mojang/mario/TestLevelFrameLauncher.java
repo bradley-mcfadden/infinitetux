@@ -13,11 +13,17 @@ public class TestLevelFrameLauncher implements LevelEndListener, WindowListener 
     private MarioComponent mario;
 
     public void testLevel(Level level) {
+        testLevel(level, Mario.DEFAULT_SPAWN_X, Mario.DEFAULT_SPAWN_Y);
+    }
+
+    public void testLevel(Level level, int marioSpawnXTile, int marioSpawnYTile)
+    {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
                 
         frame = new JFrame("Infinite Tux Level Tester");
         mario = new MarioComponent(640, 480);
         TestScene scene = new TestScene(new Level(level), mario.getGraphicsConfiguration(), mario, 0, 0, 0);
+        scene.setSpawn(marioSpawnXTile, marioSpawnYTile);
         mario.setTestScene(scene);
         mario.addLevelEndListener(this);
         frame.setLayout( new GridBagLayout() );

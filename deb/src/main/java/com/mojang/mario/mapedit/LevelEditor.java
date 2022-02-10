@@ -12,10 +12,13 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
+import com.mojang.mario.sprites.Mario;
 
 
 /**
@@ -24,7 +27,7 @@ import com.mojang.mario.level.*;
  * and playtest their levels.
  */
 public class LevelEditor extends JFrame 
-    implements ActionListener, KeyListener, LevelEditView.ActionCompleteListener
+    implements ActionListener, ChangeListener, KeyListener, LevelEditView.ActionCompleteListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
 
@@ -44,6 +47,7 @@ public class LevelEditor extends JFrame
     private JLabel levelNameLabel;
     private JTextField nameField;
     private LevelEditView levelEditView;
+    private JSlider marioSpawnSlider;
     private TilePicker tilePicker;
     private EnemyPicker enemyPicker;
     private HazardPicker hazardPicker;
@@ -57,6 +61,8 @@ public class LevelEditor extends JFrame
 
     private String workingDirectory;
     private String levelName;
+
+    private Highlight spawnHighlight;
 
     public static final int MODE_TILE = 1;
     public static final int MODE_ENEMY = 2;
@@ -101,14 +107,37 @@ public class LevelEditor extends JFrame
         lowerPanel.add(hazardPicker);
 
         JPanel borderPanel = new JPanel(new BorderLayout());
+        JPanel levelEditPanel = new JPanel(new FlowLayout());
         levelEditView = new LevelEditView(enemyPicker, tilePicker, hazardPicker);
         levelEditView.setActionCompleteListener(this);
         levelEditView.setFocusable(true);
         levelEditView.addKeyListener(this);
-        borderPanel.add(BorderLayout.CENTER, new JScrollPane(levelEditView));
+
+        Dimension bounds = levelEditView.getMinimumSize();
+
+        Level level = levelEditView.getLevel();
+        marioSpawnSlider = new JSlider(0, level.width - 1, Mario.DEFAULT_SPAWN_X);
+        marioSpawnSlider.setMinorTickSpacing(1);
+        marioSpawnSlider.addChangeListener(this);
+        Dimension sliderBounds = new Dimension(bounds);
+        sliderBounds.height = marioSpawnSlider.getMinimumSize().height;
+        marioSpawnSlider.setMinimumSize(sliderBounds);
+        marioSpawnSlider.setMaximumSize(sliderBounds);
+        marioSpawnSlider.setPreferredSize(sliderBounds);
+
+        bounds.height += marioSpawnSlider.getMinimumSize().height;
+        levelEditPanel.setMinimumSize(bounds);
+        levelEditPanel.setMaximumSize(bounds);
+        levelEditPanel.setPreferredSize(bounds);
+
+        levelEditPanel.add(levelEditView);
+        levelEditPanel.add(marioSpawnSlider);
+
+        borderPanel.add(BorderLayout.CENTER, new JScrollPane(levelEditPanel));
         borderPanel.add(BorderLayout.SOUTH, lowerPanel);
         borderPanel.add(BorderLayout.NORTH, buildButtonPanel());
         
+        spawnHighlight = levelEditView.addHighlight(marioSpawnSlider.getValue(), Mario.DEFAULT_SPAWN_Y, 1, 15, Highlight.GREEN, "Test spawn");
         setFocusable(true);
         addKeyListener(this);
 
@@ -350,7 +379,7 @@ public class LevelEditor extends JFrame
                 String saveLocation = getLevelDirectory();
                 Level level = levelEditView.getLevel();
                 level.save(new File(saveLocation));
-                levelTester.testLevel(level);
+                levelTester.testLevel(level, spawnHighlight.getX(), spawnHighlight.getY());
             }       
             if (e.getSource() == buildButton)
             {
@@ -611,6 +640,11 @@ public class LevelEditor extends JFrame
         }
     }
 
+    private void setSpawn(int x, int y)
+    {
+
+    }
+
     @Override
     public void onActionComplete() 
     {
@@ -634,6 +668,16 @@ public class LevelEditor extends JFrame
         {
             onDeletePressed();
         }
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) 
+    {
+        if (e.getSource() == marioSpawnSlider)
+        {
+            spawnHighlight.setX(marioSpawnSlider.getValue());
+            levelEditView.repaint();
+        }    
     }
 
     public static void main(String[] args)

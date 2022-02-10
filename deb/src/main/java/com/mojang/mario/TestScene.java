@@ -28,5 +28,4 @@ public class TestScene extends LevelScene {
         setupMusic();
         finishInit();
     }
-    
 }
