@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import com.mojang.mario.level.*;
-import com.mojang.mario.mapedit.Highlight;
 import com.mojang.mario.sprites.*;
 
 

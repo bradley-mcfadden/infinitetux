@@ -5,7 +5,7 @@ package com.mojang.mario.level;
  * This is useful for a level generator.
  */
 public interface Tile {
-    byte AIR = (byte)-1;
+    byte AIR = (byte)0;
     byte BREAKABLE = (byte)16;
     byte COIN_REWARD = (byte)32;
     byte POWERUP_REWARD = (byte)22;

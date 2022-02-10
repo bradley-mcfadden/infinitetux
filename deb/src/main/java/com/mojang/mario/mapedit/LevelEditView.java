@@ -93,6 +93,15 @@ public class LevelEditView extends JComponent
         return level;
     }
 
+    /**
+     * getSelected retrieves the current Highlight
+     * @returns Current Highlighted area, or null.
+     */
+    public Highlight getSelected()
+    {
+        return lastSelect;
+    }
+
     public void addNotify()
     {
         super.addNotify();
@@ -201,6 +210,7 @@ public class LevelEditView extends JComponent
         {
             
         }
+        requestFocusInWindow();
     }
 
     /**

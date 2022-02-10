@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.*;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -23,13 +24,14 @@ import com.mojang.mario.level.*;
  * and playtest their levels.
  */
 public class LevelEditor extends JFrame 
-    implements ActionListener, LevelEditView.ActionCompleteListener
+    implements ActionListener, KeyListener, LevelEditView.ActionCompleteListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
 
     private JButton testButton;
     private JButton resizeButton;
     private JButton generateButton;
+    private JButton deleteButton;
     private JRadioButton selectButton;
     private JRadioButton buildButton;
     private JMenuItem changeDirectoryItem;
@@ -101,11 +103,16 @@ public class LevelEditor extends JFrame
         JPanel borderPanel = new JPanel(new BorderLayout());
         levelEditView = new LevelEditView(enemyPicker, tilePicker, hazardPicker);
         levelEditView.setActionCompleteListener(this);
+        levelEditView.setFocusable(true);
+        levelEditView.addKeyListener(this);
         borderPanel.add(BorderLayout.CENTER, new JScrollPane(levelEditView));
         borderPanel.add(BorderLayout.SOUTH, lowerPanel);
         borderPanel.add(BorderLayout.NORTH, buildButtonPanel());
-        setContentPane(borderPanel);
+        
+        setFocusable(true);
+        addKeyListener(this);
 
+        setContentPane(borderPanel);
         setJMenuBar(buildMenuBar());
 
         levelTester = new TestLevelFrameLauncher();
@@ -181,6 +188,7 @@ public class LevelEditor extends JFrame
         testButton = new JButton("Test");
         resizeButton = new JButton("Resize");
         generateButton = new JButton("Generate");
+        deleteButton = new JButton("Delete");
         selectButton = new JRadioButton("Select");
         buildButton = new JRadioButton("Build", true);
         ButtonGroup toolGroup = new ButtonGroup();
@@ -198,6 +206,7 @@ public class LevelEditor extends JFrame
         testButton.addActionListener(this);
         resizeButton.addActionListener(this);
         generateButton.addActionListener(this);
+        deleteButton.addActionListener(this);
         selectButton.addActionListener(this);
         buildButton.addActionListener(this);
         
@@ -208,6 +217,7 @@ public class LevelEditor extends JFrame
         panel.add(levelNameLabel);
         panel.add(selectButton);
         panel.add(buildButton);
+        panel.add(deleteButton);
         panel.add(testButton);
         panel.add(resizeButton);
         panel.add(generateButton);
@@ -408,6 +418,10 @@ public class LevelEditor extends JFrame
                     saveState();
                 }
             }
+            if (e.getSource() == deleteButton)
+            {
+                onDeletePressed();
+            }
             if (e.getSource() == changeDirectoryItem)
             {
                 JFileChooser chooser = new JFileChooser(workingDirectory);
@@ -580,10 +594,46 @@ public class LevelEditor extends JFrame
         levelEditView.repaint();
     }
 
+    /**
+     * Behaviour for delete button and delete key being pressed.
+     * Deletes the current selection.
+     */
+    private void onDeletePressed()
+    {
+        Level level = levelEditView.getLevel();
+        Highlight selectedArea = levelEditView.getSelected();
+        if (selectedArea != null)
+        {
+            level.clearArea(selectedArea.getX(), selectedArea.getY(), selectedArea.getW(), selectedArea.getH());
+            updateLevel(level);
+
+            saveState();
+        }
+    }
+
     @Override
     public void onActionComplete() 
     {
         saveState();    
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) 
+    {    
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) 
+    {    
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) 
+    {
+        if (e.getKeyCode() == KeyEvent.VK_DELETE)
+        {
+            onDeletePressed();
+        }
     }
 
     public static void main(String[] args)

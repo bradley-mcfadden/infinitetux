@@ -667,4 +667,46 @@ public class Level
         width = newWidth;
         height = newHeight;
     }
+
+    public void clearArea(int x, int y, int w, int h)
+    {
+        // clear tiles and enemies
+        int ex = x + w;
+        int ey = y + h; 
+        for (int xi = x; xi < ex; xi++)
+        {
+            for (int yi = y; yi < ey; yi++)
+            {
+                map[xi][yi] = Tile.AIR;
+                spriteTemplates[xi][yi] = null;
+            }
+        }
+        // og.fillRect((int)px - width*16/2, (int)py - height/2 + 8, width*16, height);
+
+        int n = hazards.size();
+        for (int i = n - 1; i >= 0; i--)
+        {
+            SpriteTemplate st = hazards.get(i);
+            if (st.sprite != null)
+            {
+                if (st.sprite instanceof Platform)
+                {
+                    Platform plat = (Platform)st.sprite;
+                    int px = (int)plat.px/16;
+                    int py = (int)plat.py/16;
+                    int pw = plat.width;
+                    int ph = plat.height;
+
+                    if (px + pw/2 <= ex && px - pw/2 > x && py + ph/2 <= ey && py - ph/2 > y)
+                    {
+
+                    }  
+                    else
+                    {
+                        hazards.remove(st);
+                    }
+                }
+            }
+        }
+    }
 }
