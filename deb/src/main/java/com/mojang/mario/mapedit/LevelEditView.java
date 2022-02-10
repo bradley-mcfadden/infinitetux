@@ -35,6 +35,8 @@ public class LevelEditView extends JComponent
     private int editingMode = LevelEditor.MODE_TILE;
 
     private ArrayList<Highlight> highlights;
+    private Highlight lastSelect;
+    private int lastXTile, lastYTile;
 
     /**
      * Constructor.
@@ -125,7 +127,6 @@ public class LevelEditView extends JComponent
     {
         xTile = -1;
         yTile = -1;
-        repaint();
     }
 
     /**
@@ -144,7 +145,6 @@ public class LevelEditView extends JComponent
             }
             else
             {
-                // System.out.println("Picked tile " + tilePicker.pickedTile + " at " + xTile + " " + yTile);
                 if (tilePicker.pickedTile == (byte)-1) 
                 {
                     int xExitOld = level.xExit;
@@ -163,7 +163,6 @@ public class LevelEditView extends JComponent
         } 
         else if (editingMode == LevelEditor.MODE_ENEMY)
         {
-            // System.out.println("Placed enemy at " + xTile + "," + yTile);
             level.setSpriteTemplate(xTile, yTile, enemyPicker.pickedEnemy);
             levelRenderer.repaint(xTile - 2, yTile - 2, 5, 5);
 
@@ -171,7 +170,6 @@ public class LevelEditView extends JComponent
         }
         else if (editingMode == LevelEditor.MODE_HAZARD)
         {
-            // System.out.println("Placed hazard at " + xTile + "," + yTile);
             Sprite hazard = hazardPicker.pickedHazard.sprite;
             
             if (hazard instanceof Platform) 
@@ -184,21 +182,114 @@ public class LevelEditView extends JComponent
             levelRenderer.repaint(0, 0, level.width, level.height);
             repaint();
         }
+        else if (editingMode == LevelEditor.MODE_SELECT)
+        {
+            lastXTile = xTile;
+            lastYTile = yTile;
+            clearSelection();
+            setSelection(xTile, yTile, 1, 1);
+        }
     }
 
     public void mouseReleased(MouseEvent e)
     {
-        notifyListener();
+        if (editingMode == LevelEditor.MODE_TILE || editingMode == LevelEditor.MODE_ENEMY || editingMode == LevelEditor.MODE_HAZARD)
+        {    
+            notifyListener();
+        }
+        else if (editingMode == LevelEditor.MODE_SELECT)
+        {
+            
+        }
     }
 
     /**
-     * @note Should probably get rid of this.
+     * For placing elements, calls mousePressed. 
+     * In MODE_SELECT, drags a select box around.
      */
     public void mouseDragged(MouseEvent e)
     {
         if (editingMode == LevelEditor.MODE_TILE || editingMode == LevelEditor.MODE_ENEMY || editingMode == LevelEditor.MODE_HAZARD)
         {
             mousePressed(e);
+        }
+        else if (editingMode == LevelEditor.MODE_SELECT)
+        {
+            int xT = e.getX() / 16;
+            int yT = e.getY() / 16;
+
+            if (lastSelect != null)
+            {
+                int x = lastSelect.getX();
+                int w = lastSelect.getW();
+                int y = lastSelect.getY();
+                int h = lastSelect.getH();
+                if (xT != lastXTile)
+                {
+                    if (x - xT <= 0) 
+                    {
+                        int newX = Math.min(x, xT);
+                        int newW = Math.abs(x - xT) + 1;
+                        if (newX + newW > level.width)
+                        {
+                            newW = level.height - newX;
+                        }
+                        lastSelect.setX(newX);
+                        lastSelect.setW(newW);
+                    }
+                    else
+                    {
+                        int rx = x + w;
+                        int newX = xT;
+                        if (newX < 0) 
+                        {
+                            newX = 0;
+                        }
+                        int newW = rx - newX;
+
+                        lastSelect.setX(newX);
+                        lastSelect.setW(newW);
+                    }
+                }
+                if (yT != lastYTile)
+                {
+                    if (y - yT <= 0)
+                    {
+                        int newY = Math.min(y, yT);
+                        int newH = Math.abs(y - yT) + 1;
+                        if (newY + newH > level.height)
+                        {
+                            newH = level.height - newY;
+                        }
+
+                        lastSelect.setY(newY);
+                        lastSelect.setH(newH);
+                    }
+                    else
+                    {
+                        int ry = y + h;
+                        int newY = yT;
+                        if (newY < 0) 
+                        {
+                            newY = 0;
+                        }
+                        int newH = ry - newY;
+                        lastSelect.setY(newY);
+                        lastSelect.setH(newH);
+                    }
+                }
+                if (xT != lastXTile || yT != lastYTile)
+                {
+                    x = lastSelect.getX();
+                    y = lastSelect.getY();
+                    w = lastSelect.getW();
+                    h = lastSelect.getH();
+                    lastSelect.setMessage(String.format("%d,%d to %d,%d", x, y, x + w, y + h));
+                    lastXTile = xT;
+                    lastYTile = yT;
+                    repaint();
+                }
+            }
         }
     }
 
@@ -242,6 +333,10 @@ public class LevelEditView extends JComponent
     public void setEditingMode(int mode)
     {
         editingMode = mode;
+        if (editingMode != LevelEditor.MODE_SELECT) 
+        {
+            clearSelection();
+        }
     }
 
     /**
@@ -300,6 +395,40 @@ public class LevelEditView extends JComponent
     public void removeHighlight(Highlight hl)
     {
         highlights.remove(hl);
+    }
+
+    /**
+     * setSelection sets the current selection area.
+     * @param x x tile of selection to set
+     * @param y y tile of selection to set
+     * @param w w in tiles of selection
+     * @param h h in tiles of selection
+     */
+    public void setSelection(int x, int y, int w, int h)
+    {
+        clearSelection();
+        lastSelect = addHighlight(x, y, w, h, Highlight.YELLOW, String.format("%d,%d to %d,%d", x, y, x+w, y+h));
+    }
+
+    /**
+     * getSelection
+     * @return The current selection Highlight
+     */
+    public Highlight getSelection()
+    {
+        return lastSelect;
+    }
+
+    /**
+     * clearSelection removes the last selection.
+     */
+    public void clearSelection()
+    {
+        if (lastSelect != null)
+        {
+            removeHighlight(lastSelect);
+            lastSelect = null;
+        }
     }
 
     /**

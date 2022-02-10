@@ -30,6 +30,8 @@ public class LevelEditor extends JFrame
     private JButton testButton;
     private JButton resizeButton;
     private JButton generateButton;
+    private JRadioButton selectButton;
+    private JRadioButton buildButton;
     private JMenuItem changeDirectoryItem;
     private JMenuItem openLevelItem;
     private JMenuItem newLevelItem;
@@ -57,6 +59,7 @@ public class LevelEditor extends JFrame
     public static final int MODE_TILE = 1;
     public static final int MODE_ENEMY = 2;
     public static final int MODE_HAZARD = 3;
+    public static final int MODE_SELECT = 4;
 
     /**
      * Constructor.
@@ -121,6 +124,14 @@ public class LevelEditor extends JFrame
     public void setEditingMode(int mode)
     {
         levelEditView.setEditingMode(mode);
+        if (mode == LevelEditor.MODE_ENEMY || mode == LevelEditor.MODE_HAZARD || mode == LevelEditor.MODE_TILE)
+        {
+            buildButton.setSelected(true);
+        }
+        else if (mode == LevelEditor.MODE_SELECT)
+        {
+            selectButton.setSelected(true);
+        }
     }
 
     /**
@@ -170,6 +181,9 @@ public class LevelEditor extends JFrame
         testButton = new JButton("Test");
         resizeButton = new JButton("Resize");
         generateButton = new JButton("Generate");
+        selectButton = new JRadioButton("Select");
+        buildButton = new JRadioButton("Build", true);
+        ButtonGroup toolGroup = new ButtonGroup();
         String userDir = System.getProperty("user.dir");
         File programDirectory = new File(userDir + "/.infinitetux");
         programDirectory.mkdirs();
@@ -184,9 +198,16 @@ public class LevelEditor extends JFrame
         testButton.addActionListener(this);
         resizeButton.addActionListener(this);
         generateButton.addActionListener(this);
+        selectButton.addActionListener(this);
+        buildButton.addActionListener(this);
         
+        toolGroup.add(selectButton);
+        toolGroup.add(buildButton);
+
         JPanel panel = new JPanel();
         panel.add(levelNameLabel);
+        panel.add(selectButton);
+        panel.add(buildButton);
         panel.add(testButton);
         panel.add(resizeButton);
         panel.add(generateButton);
@@ -320,8 +341,15 @@ public class LevelEditor extends JFrame
                 Level level = levelEditView.getLevel();
                 level.save(new File(saveLocation));
                 levelTester.testLevel(level);
-    
             }       
+            if (e.getSource() == buildButton)
+            {
+                setEditingMode(MODE_TILE);
+            }
+            if (e.getSource() == selectButton)
+            {
+                setEditingMode(MODE_SELECT);
+            }
             if (e.getSource() == resizeButton)
             {
                 Level level = levelEditView.getLevel();
