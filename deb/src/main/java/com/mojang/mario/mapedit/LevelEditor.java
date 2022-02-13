@@ -28,7 +28,7 @@ import com.mojang.mario.sprites.Mario;
  */
 public class LevelEditor extends JFrame 
     implements ActionListener, ChangeListener, KeyListener, 
-    LevelEditView.ActionCompleteListener, ChunkLibraryPanel.VisibilityListener
+    LevelEditView.ActionCompleteListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
 
@@ -147,7 +147,6 @@ public class LevelEditor extends JFrame
         chunkLibraryPanel = new ChunkLibraryPanel();
         chunkLibraryPanel.setEditor(this);
         chunkLibraryPanel.setSelectionChangedListener(levelEditView);
-        chunkLibraryPanel.setVisibiltyChangedListener(this);
         chunkLibraryPanel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(8, 8, 8, 8)));
         borderPanel.add(BorderLayout.EAST, chunkLibraryPanel);
@@ -700,14 +699,6 @@ public class LevelEditor extends JFrame
             spawnHighlight.setX(marioSpawnSliderX.getValue());
             levelEditView.repaint();
         }    
-    }
-
-    @Override
-    public void onVisibilityChanged(ChunkLibraryPanel panel, boolean isVisible) {
-        if (!isVisible)
-        {
-            setEditingMode(MODE_SELECT);
-        }
     }
 
     public static void main(String[] args)

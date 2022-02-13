@@ -22,7 +22,6 @@ public class ChunkLibraryPanel extends JPanel
     private List<LevelView> chunks;
     private LevelView currentSelection;
     private SelectionChangedListener selectionChangedListener;
-    private VisibilityListener visibilityChangedListener;
     private LevelEditor editor;
     
     public ChunkLibraryPanel()
@@ -110,19 +109,6 @@ public class ChunkLibraryPanel extends JPanel
         }
     }
 
-    public void setVisibiltyChangedListener(VisibilityListener listener)
-    {
-        visibilityChangedListener = listener;
-    }
-
-    private void notifyVisibilityChangedListener()
-    {
-        if (visibilityChangedListener != null)
-        {
-            visibilityChangedListener.onVisibilityChanged(this, this.isVisible());
-        }
-    }
-
     @Override
     public void clickPerformed(LevelView source) {
         for (LevelView chunk : chunks)
@@ -142,16 +128,15 @@ public class ChunkLibraryPanel extends JPanel
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == closeButton) {
             setVisible(false);
-            notifyVisibilityChangedListener();
+            if (editor != null)
+            {
+                editor.setEditingMode(LevelEditor.MODE_PLACE_CHUNK);
+            }
         }
     }
 
     public interface SelectionChangedListener {
         void onSelectionChanged(LevelView selection);
-    }
-
-    public interface VisibilityListener {
-        void onVisibilityChanged(ChunkLibraryPanel panel, boolean isVisible);
     }
 
     public static void main(String[] args)
