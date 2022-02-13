@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
 import java.io.*;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -61,9 +63,9 @@ public class LevelEditor extends JFrame
     private ArrayList<Level> actionQueue;
     private int nextStatePtr;
 
+    private File programDirectory;
     private String workingDirectory;
     private String levelName;
-
     private Highlight spawnHighlight;
 
     public static final int MODE_TILE = 1;
@@ -81,7 +83,7 @@ public class LevelEditor extends JFrame
         super("Map Edit");
         
         levelName = "test";
-    
+        setupDirectory();
         try
         {
             Level.loadBehaviors(new DataInputStream(new FileInputStream("tiles.dat")));
@@ -94,7 +96,6 @@ public class LevelEditor extends JFrame
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(screenSize.width * 8 / 10, screenSize.height * 8 / 10);
         setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         tilePicker = new TilePicker();
         JPanel tilePickerPanel = new JPanel(new BorderLayout());
@@ -148,6 +149,7 @@ public class LevelEditor extends JFrame
         chunkLibraryPanel = new ChunkLibraryPanel();
         chunkLibraryPanel.setEditor(this);
         chunkLibraryPanel.setSelectionChangedListener(levelEditView);
+        chunkLibraryPanel.setProgramDirectory(programDirectory);
         chunkLibraryPanel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(8, 8, 8, 8)));
         chunkLibraryPanel.getAddChunkButton().addActionListener(new ActionListener() {
@@ -163,6 +165,7 @@ public class LevelEditor extends JFrame
                 }    
             }
         });
+        chunkLibraryPanel.loadChunks();
         borderPanel.add(BorderLayout.EAST, chunkLibraryPanel);
         
         spawnHighlight = levelEditView.addHighlight(marioSpawnSliderX.getValue(), Mario.DEFAULT_SPAWN_Y, 1, 15, Highlight.GREEN, "Test spawn");
@@ -253,9 +256,6 @@ public class LevelEditor extends JFrame
         buildButton = new JRadioButton("Build", true);
         chunkButton = new JRadioButton("Chunk");
         ButtonGroup toolGroup = new ButtonGroup();
-        String userDir = System.getProperty("user.dir");
-        File programDirectory = new File(userDir + "/.infinitetux");
-        programDirectory.mkdirs();
         File levelDirectory = new File(programDirectory.getPath() + "/levels");
         levelDirectory.mkdirs();
         workingDirectory = levelDirectory.getAbsolutePath();
@@ -332,6 +332,16 @@ public class LevelEditor extends JFrame
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
         return menuBar;
+    }
+
+    public void buildWindowAdapter()
+    {
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                finish();
+                System.exit(0);
+            }
+        });
     }
 
     /**
@@ -715,8 +725,30 @@ public class LevelEditor extends JFrame
         }    
     }
 
+    /**
+     * setupDirectory creates the program directory for storing levels and editor data.
+     */
+    private void setupDirectory()
+    {
+        String userDir = System.getProperty("user.dir");
+        programDirectory = new File(userDir + "/.infinitetux");
+        programDirectory.mkdirs();
+    }
+
+    /**
+     * finish calls cleanup code for any actions that need to occur after the user closes
+     * the window.
+     */
+    public void finish()
+    {
+        chunkLibraryPanel.saveChunks();
+    }
+
     public static void main(String[] args)
     {
-        new LevelEditor().setVisible(true);
+        LevelEditor editor = new LevelEditor();
+        editor.setVisible(true);
+        editor.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        editor.buildWindowAdapter();
     }
 }

@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComponent;
@@ -133,6 +135,40 @@ public class LevelView extends JComponent
     @Override
     public void mouseExited(MouseEvent e) 
     {        
+    }
+
+    /**
+     * save the chunk into the given directory.
+     * @param chunkFolderName Directory to save chunk in, should exist.
+     */
+    public void save(File chunkFolderName)
+    {
+        try {
+            level.save(chunkFolderName);
+            level.xExit = level.yExit = -1;
+        } catch (IOException ie) {
+            System.err.println("Unable to save chunk at " + chunkFolderName.getName());
+            ie.printStackTrace();
+        }
+    }
+
+    /**
+     * load a chunk from the directory.
+     * @param chunkFolderName Directory to load chunk from, should exist.
+     * @return Loaded chunk, or null if an error occurred.
+     */
+    public static LevelView load(File chunkFolderName)
+    {
+        LevelView chunk = null;
+        try {
+            chunk = new LevelView(Level.load(chunkFolderName));
+            chunk.getLevel().xExit = -1;
+            chunk.getLevel().yExit = -1;
+        } catch (IOException ie) {
+            System.err.println("Unable to load chunk at " + chunkFolderName.getName());
+            ie.printStackTrace();
+        }
+        return chunk;
     }
 
     /**

@@ -354,14 +354,18 @@ public class Level
         dos.writeShort((short) width);
         dos.writeShort((short) height);
 
-        byte tmpByte = map[xExit][yExit];
-        map[xExit][yExit] = -1;
+        byte tmpByte = (byte)0;
+        if (xExit != -1 && yExit != -1) {
+            tmpByte = map[xExit][yExit];
+            map[xExit][yExit] = -1;
+        }
         for (int i = 0; i < width; i++)
         {
             dos.write(map[i]);
             dos.write(data[i]);
         }
-        map[xExit][yExit] = tmpByte;
+        if (xExit != -1 && yExit != -1) 
+            map[xExit][yExit] = tmpByte;
 
         dos.close();
     }

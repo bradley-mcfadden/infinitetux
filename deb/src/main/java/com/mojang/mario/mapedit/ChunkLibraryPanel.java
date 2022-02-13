@@ -6,6 +6,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -23,16 +24,18 @@ import com.mojang.mario.level.LevelGenerator;
  * The list of chunks can be modified with the addChunk()
  * and removeChunk() methods.
  */
-// TODO: Save/load list of chunks
 public class ChunkLibraryPanel extends JPanel 
     implements ActionListener, LevelView.ClickListener {
-        
+    
+    private static final String CHUNK_PARENT_DIR_NAME = "chunks";
+
     private JPanel chunkPanel;
     private JButton closeButton;
     private JButton addButton;
     private JButton removeButton;
     private JButton tagButton;
 
+    private File programDirectory;
     private List<LevelView> chunks;
     private LevelView currentSelection;
     private SelectionChangedListener selectionChangedListener;
@@ -45,13 +48,7 @@ public class ChunkLibraryPanel extends JPanel
     {
         chunks = new ArrayList<>();
         buildLayout();
-
-        addChunk(LevelGenerator.createLevel(15, 15, 15L, 3, LevelGenerator.TYPE_OVERGROUND));
-        addChunk(LevelGenerator.createLevel(15, 15, 1500L, 3, LevelGenerator.TYPE_OVERGROUND));
-        addChunk(LevelGenerator.createLevel(15, 15, 15L, 3, LevelGenerator.TYPE_OVERGROUND));
-        addChunk(LevelGenerator.createLevel(15, 15, 1500L, 3, LevelGenerator.TYPE_OVERGROUND));
-        addChunk(LevelGenerator.createLevel(15, 15, 15L, 3, LevelGenerator.TYPE_OVERGROUND));
-        addChunk(LevelGenerator.createLevel(15, 15, 1500L, 3, LevelGenerator.TYPE_OVERGROUND));
+        //setMaximumSize(new Dimension(20 * 16, Integer.MAX_VALUE));
     }
 
     /**
@@ -79,7 +76,11 @@ public class ChunkLibraryPanel extends JPanel
 
         chunkPanel = new JPanel(chunkLayout);
         chunkPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        
+        JScrollPane chunkPane = new JScrollPane(chunkPanel);
+        chunkPane.setMaximumSize(new Dimension(20 * 16, Integer.MAX_VALUE));
+        chunkPane.setPreferredSize(new Dimension(20 * 16, Integer.MAX_VALUE));
+        chunkPane.setMinimumSize(new Dimension(20 * 16, Integer.MAX_VALUE));
+
         titlePanel.add(BorderLayout.WEST, titleLabel);
         titlePanel.add(BorderLayout.CENTER, spacer);
         titlePanel.add(BorderLayout.EAST, closeButton);
@@ -96,7 +97,7 @@ public class ChunkLibraryPanel extends JPanel
         topPanel.add(BorderLayout.SOUTH, buildButtonPanel());
 
         add(BorderLayout.NORTH, topPanel);
-        add(BorderLayout.CENTER, new JScrollPane(chunkPanel));
+        add(BorderLayout.CENTER, chunkPane);
 
         closeButton.addActionListener(this);
     }
@@ -108,6 +109,7 @@ public class ChunkLibraryPanel extends JPanel
         tagButton = new JButton("Tag");
 
         removeButton.setEnabled(false);
+        tagButton.setEnabled(false);
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 0));
         buttonPanel.add(addButton);
@@ -117,6 +119,15 @@ public class ChunkLibraryPanel extends JPanel
         removeButton.addActionListener(this);
         tagButton.addActionListener(this);
         return buttonPanel;
+    }
+
+    /**
+     * setProgramDirectory for library to use to save chunks in
+     * @param programDirectory Folder that should exist
+     */
+    public void setProgramDirectory(File programDirectory)
+    {
+        this.programDirectory = programDirectory;
     }
 
     /**
@@ -137,6 +148,17 @@ public class ChunkLibraryPanel extends JPanel
     public void addChunk(Level level)
     {
         LevelView levelView = new LevelView(level);
+        addChunk(levelView);
+    }
+
+    /**
+     * addChunk to this panel.
+     * Renders the chunk along with the others,
+     * and will set it up for future saving and loading.
+     * @param level LevelView to add.
+     */
+    public void addChunk(LevelView levelView)
+    {
         levelView.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         levelView.setClickListener(this);
         chunkPanel.add(levelView);
@@ -174,6 +196,48 @@ public class ChunkLibraryPanel extends JPanel
     public JButton getAddChunkButton()
     {
         return addButton;
+    }
+
+    /**
+     * saveChunks in the panel to the chunks directory in program directory.
+     */
+    public void saveChunks()
+    {
+        File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
+        chunksDirectory.mkdirs();
+
+        int n = chunks.size();
+        for (int i = 0; i < n; i++)
+        {
+            LevelView chunk = chunks.get(i);
+            String name = String.format("%03d", i);
+            File chunkDir = new File(chunksDirectory.getPath() + File.separatorChar + name);
+            chunkDir.mkdirs();
+            chunk.save(chunkDir);
+        }
+    }
+
+    /**
+     * loadChunks in the panel to the chunks directory in program directory.
+     * TODO: Make a threaded version of this
+     */
+    public void loadChunks()
+    {
+        File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
+        File[] chunkDirs = chunksDirectory.listFiles();
+        System.out.println(chunksDirectory.getAbsolutePath());
+        if (chunkDirs != null)
+        {
+            for (File chunkDir : chunkDirs)
+            {
+                LevelView chunk = LevelView.load(chunkDir);
+                if (chunk != null)
+                {
+                    addChunk(chunk);
+                }
+            }
+            repaint();
+        }
     }
 
     /**
@@ -217,7 +281,7 @@ public class ChunkLibraryPanel extends JPanel
             setVisible(false);
             if (editor != null)
             {
-                editor.setEditingMode(LevelEditor.MODE_PLACE_CHUNK);
+                editor.setEditingMode(LevelEditor.MODE_SELECT);
             }
         }
         if (e.getSource() == removeButton)
