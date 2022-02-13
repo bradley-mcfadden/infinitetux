@@ -459,15 +459,6 @@ public class LevelEditView extends JComponent
     }
 
     /**
-     * getSelection
-     * @return The current selection Highlight
-     */
-    public Highlight getSelection()
-    {
-        return lastSelect;
-    }
-
-    /**
      * clearSelection removes the last selection.
      */
     public void clearSelection()
@@ -482,7 +473,6 @@ public class LevelEditView extends JComponent
     @Override
     public void onSelectionChanged(LevelView selection) {
         selectedChunk = selection;
-        System.out.println(selection==null);
     }
 
     /**

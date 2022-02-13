@@ -29,6 +29,10 @@ public class ChunkLibraryPanel extends JPanel
         
     private JPanel chunkPanel;
     private JButton closeButton;
+    private JButton addButton;
+    private JButton removeButton;
+    private JButton tagButton;
+
     private List<LevelView> chunks;
     private LevelView currentSelection;
     private SelectionChangedListener selectionChangedListener;
@@ -62,6 +66,7 @@ public class ChunkLibraryPanel extends JPanel
 
     private void buildLayout()
     {
+        JPanel topPanel = new JPanel();
         JPanel titlePanel = new JPanel(new BorderLayout());
         JLabel titleLabel = new JLabel("Chunk Library");
         titlePanel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
@@ -80,13 +85,38 @@ public class ChunkLibraryPanel extends JPanel
         titlePanel.add(BorderLayout.EAST, closeButton);
         
         BorderLayout mainLayout = new BorderLayout();
-        mainLayout.setVgap(8);
+        mainLayout.setVgap(2);
         setLayout(mainLayout);
   
-        add(BorderLayout.NORTH, titlePanel);
+        BorderLayout topLayout = new BorderLayout();
+        topLayout.setVgap(2);
+        topPanel.setLayout(topLayout);
+
+        topPanel.add(BorderLayout.NORTH, titlePanel);
+        topPanel.add(BorderLayout.SOUTH, buildButtonPanel());
+
+        add(BorderLayout.NORTH, topPanel);
         add(BorderLayout.CENTER, new JScrollPane(chunkPanel));
 
         closeButton.addActionListener(this);
+    }
+
+    private JPanel buildButtonPanel()
+    {
+        addButton = new JButton("Add");
+        removeButton = new JButton("Remove");
+        tagButton = new JButton("Tag");
+
+        removeButton.setEnabled(false);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 0));
+        buttonPanel.add(addButton);
+        buttonPanel.add(removeButton);
+        buttonPanel.add(tagButton);
+
+        removeButton.addActionListener(this);
+        tagButton.addActionListener(this);
+        return buttonPanel;
     }
 
     /**
@@ -137,6 +167,16 @@ public class ChunkLibraryPanel extends JPanel
     }
 
     /**
+     * getAddChunkButton has only a single particular use, for allowing 
+     * LevelEditor to set the callback on the button.
+     * @return addButton
+     */
+    public JButton getAddChunkButton()
+    {
+        return addButton;
+    }
+
+    /**
      * setSelectionChangedListener set listener for selection changing.
      * @param listener Object to be notified when selection is changed.
      */
@@ -155,6 +195,7 @@ public class ChunkLibraryPanel extends JPanel
 
     @Override
     public void clickPerformed(LevelView source) {
+        removeButton.setEnabled(true);
         for (LevelView chunk : chunks)
         {
             chunk.clearHighlight();
@@ -169,17 +210,37 @@ public class ChunkLibraryPanel extends JPanel
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == closeButton) {
+    public void actionPerformed(ActionEvent e) 
+    {
+        if (e.getSource() == closeButton) 
+        {
             setVisible(false);
             if (editor != null)
             {
                 editor.setEditingMode(LevelEditor.MODE_PLACE_CHUNK);
             }
         }
+        if (e.getSource() == removeButton)
+        {
+            if (currentSelection != null)
+            {
+                currentSelection.setVisible(false);
+                chunks.remove(currentSelection);
+                removeChunk(currentSelection);
+                
+            }
+        }
     }
 
+    /**
+     * SelectionChangedListener is an interface allowing an object to
+     * be notified when the user's selection in this component changes.
+     */
     public interface SelectionChangedListener {
+        /**
+         * onSelectionChanged
+         * @param selection
+         */
         void onSelectionChanged(LevelView selection);
     }
 

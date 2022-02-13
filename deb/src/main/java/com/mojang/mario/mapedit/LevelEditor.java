@@ -144,11 +144,25 @@ public class LevelEditor extends JFrame
         innerBorderPanel.add(BorderLayout.CENTER, innerContentPanel);
         innerBorderPanel.add(BorderLayout.NORTH, buildButtonPanel());
         borderPanel.add(BorderLayout.CENTER, innerBorderPanel);
+
         chunkLibraryPanel = new ChunkLibraryPanel();
         chunkLibraryPanel.setEditor(this);
         chunkLibraryPanel.setSelectionChangedListener(levelEditView);
         chunkLibraryPanel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+        chunkLibraryPanel.getAddChunkButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Highlight selection = levelEditView.getSelected();
+                if (selection != null) {
+                    Level chunk = levelEditView.getLevel().getArea(
+                        selection.getX(), selection.getY(), 
+                        selection.getW(), selection.getH()
+                    );
+                    chunkLibraryPanel.addChunk(chunk);
+                    chunkLibraryPanel.repaint();
+                }    
+            }
+        });
         borderPanel.add(BorderLayout.EAST, chunkLibraryPanel);
         
         spawnHighlight = levelEditView.addHighlight(marioSpawnSliderX.getValue(), Mario.DEFAULT_SPAWN_Y, 1, 15, Highlight.GREEN, "Test spawn");
