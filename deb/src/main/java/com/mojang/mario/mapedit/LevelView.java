@@ -17,6 +17,10 @@ import com.mojang.mario.LevelRenderer;
 import com.mojang.mario.level.Level;
 import com.mojang.mario.level.LevelGenerator;
 
+/**
+ * LevelView is a view-only render of a Level.
+ * It provides some event handling.
+ */
 // TODO: Documentation, testing
 public class LevelView extends JComponent 
     implements MouseListener {
@@ -26,6 +30,11 @@ public class LevelView extends JComponent
     private List<Highlight> highlights;
     private ClickListener listener;
 
+    /**
+     * Constructor.
+     * @param level Level to provide a view of. Should not be null.
+     * @throws NullPointerException if level is null.
+     */
     public LevelView(Level level)
     {
         this.level = level;
@@ -63,23 +72,38 @@ public class LevelView extends JComponent
         }
     }
 
+    /**
+     * setHighlight will highlight this component by painting over it
+     * with a semi-transparent yellow color.
+     */
     public void setHighlight()
     {
         highlights.add(new Highlight(0, 0, level.width, level.height, Highlight.YELLOW, ""));
         repaint();
     }
 
+    /**
+     * clear any highlight on this component.
+     */
     public void clearHighlight()
     {
         highlights.clear();
         repaint();
     }
 
+    /**
+     * getLevel the level this view renders
+     * @return the level this view renders
+     */
     public Level getLevel()
     {
         return level;
     }
 
+    /**
+     * setClickListener to receive callbacks from this item.
+     * @param listener ClickListener that will receive callbacks.
+     */
     public void setClickListener(ClickListener listener)
     {
         this.listener = listener;
@@ -111,7 +135,15 @@ public class LevelView extends JComponent
     {        
     }
 
+    /**
+     * ClickListener provides a callback for objects interested
+     * in being notified when this component is clicked.
+     */
     public interface ClickListener {
+        /**
+         * clickPerformed is the callback for source being clicked.
+         * @param source What was clicked?
+         */
         void clickPerformed(LevelView source);
     }
 

@@ -667,6 +667,16 @@ public class Level
         }
     }
 
+    /**
+     * clearArea is a bounded delete. It sets tiles to air,
+     * removes enemies and hazards in the area. The bounds
+     * of the area are capped at the upper and lower ends of
+     * the level.
+     * @param x x tile of area's upper left corner
+     * @param y y tile of area's upper left corner
+     * @param w width in tiles of area to delete
+     * @param h height in tiles of area to delete
+     */
     public void clearArea(int x, int y, int w, int h)
     {
         // clear tiles and enemies
@@ -707,6 +717,15 @@ public class Level
         }
     }
 
+    /**
+     * getArea returns a subsection of this level. Not bounded.
+     * @param x x tile of upper left corner of area to sample
+     * @param y y tile of upper left corner of area to sample
+     * @param w width in tiles of area to sample
+     * @param h height in tiles of area to sample
+     * @return Subsection of Level, or null if x,y,w,h is not a 
+     *         subsection of this level.
+     */
     public Level getArea(int x, int y, int w, int h)
     {
         Level tmp = new Level(this);
@@ -714,6 +733,16 @@ public class Level
         return tmp;
     }
 
+    /**
+     * setArea overwrites part of the level from x, y, to
+     * level.width+x, level.height+y. Hazards are added
+     * if they are contained in the subsection.
+     * This method is bounded.
+     * @param level Level to overwrite with
+     * @param x xTile to start overwriting at
+     * @param y yTile to start overwriting at
+     * @throws NullPointerException if level is null
+     */
     public void setArea(Level level, int x, int y)
     {
         int w = level.width;

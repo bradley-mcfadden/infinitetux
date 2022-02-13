@@ -13,6 +13,16 @@ import javax.swing.*;
 import com.mojang.mario.level.Level;
 import com.mojang.mario.level.LevelGenerator;
 
+/**
+ * ChunkLibraryPanel manages a list of "chunks", or Level
+ * sections that the user can interact with.
+ * 
+ * Clicking on a chunk highlights it, and the user can get
+ * the current selection with the getSelection() method.
+ * 
+ * The list of chunks can be modified with the addChunk()
+ * and removeChunk() methods.
+ */
 // TODO: Save/load list of chunks
 public class ChunkLibraryPanel extends JPanel 
     implements ActionListener, LevelView.ClickListener {
@@ -24,6 +34,9 @@ public class ChunkLibraryPanel extends JPanel
     private SelectionChangedListener selectionChangedListener;
     private LevelEditor editor;
     
+    /**
+     * Constructor.
+     */
     public ChunkLibraryPanel()
     {
         chunks = new ArrayList<>();
@@ -37,6 +50,10 @@ public class ChunkLibraryPanel extends JPanel
         addChunk(LevelGenerator.createLevel(15, 15, 1500L, 3, LevelGenerator.TYPE_OVERGROUND));
     }
 
+    /**
+     * Constructor that sets a reference to LevelEditor.
+     * @param editor LevelEditor for the purpose of callbacks.
+     */
     public ChunkLibraryPanel(LevelEditor editor)
     {
         this();
@@ -72,11 +89,21 @@ public class ChunkLibraryPanel extends JPanel
         closeButton.addActionListener(this);
     }
 
+    /**
+     * setEditor set callback to LevelEditor.
+     * @param editor LevelEditor object
+     */
     public void setEditor(LevelEditor editor)
     {
         this.editor = editor;
     }
 
+    /**
+     * addChunk to this panel.
+     * Renders the chunk along with the others,
+     * and will set it up for future saving and loading.
+     * @param level Level to create a chunk from.
+     */
     public void addChunk(Level level)
     {
         LevelView levelView = new LevelView(level);
@@ -87,6 +114,12 @@ public class ChunkLibraryPanel extends JPanel
         repaint();
     }
 
+    /**
+     * removeChunk from this panel.
+     * Stops rendering of the chunk, and prevents
+     * it from being loaded or saved in the future.
+     * @param chunk Chunk to remove.
+     */
     public void removeChunk(LevelView chunk)
     {
         chunkPanel.remove(chunk);
@@ -94,8 +127,19 @@ public class ChunkLibraryPanel extends JPanel
         repaint();
     }
 
-    public LevelView currentSelection() { return currentSelection; }
+    /**
+     * currentSelection returns the current selected chunk.
+     * @return Selected chunk, or null if nothing is selected.
+     */
+    public LevelView currentSelection() 
+    { 
+        return currentSelection; 
+    }
 
+    /**
+     * setSelectionChangedListener set listener for selection changing.
+     * @param listener Object to be notified when selection is changed.
+     */
     public void setSelectionChangedListener(SelectionChangedListener listener)
     {
         selectionChangedListener = listener;
