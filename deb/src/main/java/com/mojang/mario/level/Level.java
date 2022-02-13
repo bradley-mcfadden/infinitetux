@@ -610,6 +610,8 @@ public class Level
         byte[][] tmpMap = new byte[newWidth][newHeight];
         SpriteTemplate[][] tmpSprite = new SpriteTemplate[newWidth][newHeight];
         
+        width = newWidth;
+        height = newHeight;
         for (int i = startX; i < endX; i++) 
         {
             System.arraycopy(map[i], startY, tmpMap[i-startX], 0, ny);
@@ -663,9 +665,6 @@ public class Level
         {
             setLevelExit(10, 10);
         }
-
-        width = newWidth;
-        height = newHeight;
     }
 
     public void clearArea(int x, int y, int w, int h)
@@ -681,8 +680,6 @@ public class Level
                 spriteTemplates[xi][yi] = null;
             }
         }
-        // og.fillRect((int)px - width*16/2, (int)py - height/2 + 8, width*16, height);
-
         int n = hazards.size();
         for (int i = n - 1; i >= 0; i--)
         {
@@ -705,6 +702,52 @@ public class Level
                     {
                         hazards.remove(st);
                     }
+                }
+            }
+        }
+    }
+
+    public Level getArea(int x, int y, int w, int h)
+    {
+        Level tmp = new Level(this);
+        tmp.resize(x, y, w, h);
+        return tmp;
+    }
+
+    public void setArea(Level level, int x, int y)
+    {
+        int w = level.width;
+        int h = level.height;
+        int ex = Math.min(x + w, width);
+        int ey = Math.min(y + h, height);
+
+        for (int xi = x; xi < ex; xi++)
+        {
+            for (int yi = y; yi < ey; yi++)
+            {
+                map[xi][yi] = level.map[xi-x][yi-y];
+                spriteTemplates[xi][yi] = level.spriteTemplates[xi-x][yi-y];
+            }
+        }
+
+        int n = level.hazards.size();
+        for (int i = n - 1; i >= 0; i--)
+        {
+            SpriteTemplate st = level.hazards.get(i);
+            if (st.sprite != null)
+            {
+                if (st.sprite instanceof Platform)
+                {
+                    Platform plat = (Platform)st.sprite;
+                    int px = (int)plat.px/16;
+                    int py = (int)plat.py/16;
+                    int pw = plat.width;
+                    int ph = plat.height;
+
+                    if (px + pw/2 <= ex && px - pw/2 > x && py + ph/2 <= ey && py - ph/2 > y)
+                    {
+                        hazards.add(new SpriteTemplate(plat));
+                    }  
                 }
             }
         }

@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import com.mojang.mario.*;
 import com.mojang.mario.level.*;
+import com.mojang.mario.mapedit.ChunkLibraryPanel.SelectionChangedListener;
 import com.mojang.mario.sprites.Platform;
 import com.mojang.mario.sprites.Sprite;
 
@@ -19,7 +20,7 @@ import com.mojang.mario.sprites.Sprite;
  * LevelEditView provides a graphic representation of the level being built.
  */
 public class LevelEditView extends JComponent 
-    implements MouseListener, MouseMotionListener
+    implements MouseListener, MouseMotionListener, SelectionChangedListener
 {
     private static final long serialVersionUID = -7696446733303717142L;
 
@@ -36,7 +37,10 @@ public class LevelEditView extends JComponent
 
     private ArrayList<Highlight> highlights;
     private Highlight lastSelect;
+    private Highlight chunkTarget;
     private int lastXTile, lastYTile;
+
+    private LevelView selectedChunk;
 
     /**
      * Constructor.
@@ -126,16 +130,42 @@ public class LevelEditView extends JComponent
 
     public void mouseClicked(MouseEvent e)
     {
+        int xT = e.getX() / 16;
+        int yT = e.getY() / 16;
+        if (editingMode == LevelEditor.MODE_PLACE_CHUNK)
+        {
+            if (selectedChunk != null)
+            {
+                Level chnk = selectedChunk.getLevel();
+                level.setArea(chnk, xT, yT);
+                notifyListener();
+                levelRenderer.repaint(xT, yT, Math.min(level.width, xT+chnk.width), Math.min(level.height, yT+chnk.height));
+            }
+        }
     }
 
     public void mouseEntered(MouseEvent e)
     {
+        int xT = e.getX() / 16;
+        int yT = e.getY() / 16;
+        if (editingMode == LevelEditor.MODE_PLACE_CHUNK)
+        {
+            if (selectedChunk != null)
+            {
+                Level level = selectedChunk.getLevel();
+                chunkTarget = addHighlight(xT, yT, level.width, level.height, Highlight.GREEN, "");
+            }
+        }
     }
 
     public void mouseExited(MouseEvent e)
     {
         xTile = -1;
         yTile = -1;
+        if (editingMode == LevelEditor.MODE_PLACE_CHUNK)
+        {
+            removeHighlight(chunkTarget);
+        }
     }
 
     /**
@@ -309,6 +339,14 @@ public class LevelEditView extends JComponent
         yTile = e.getY() / 16;
         ((LevelEditor)this.getRootPane().getParent()).setCoordinates(xTile, yTile);
        
+        if (editingMode == LevelEditor.MODE_PLACE_CHUNK)
+        {
+            if (chunkTarget != null)
+            {
+                chunkTarget.setX(xTile);
+                chunkTarget.setY(yTile);
+            }
+        }
         repaint();
     }
 
@@ -439,6 +477,12 @@ public class LevelEditView extends JComponent
             removeHighlight(lastSelect);
             lastSelect = null;
         }
+    }
+
+    @Override
+    public void onSelectionChanged(LevelView selection) {
+        selectedChunk = selection;
+        System.out.println(selection==null);
     }
 
     /**

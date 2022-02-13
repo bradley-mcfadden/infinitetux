@@ -6,6 +6,7 @@ package com.mojang.mario.level;
  */
 public interface Tile {
     byte AIR = (byte)0;
+    byte ANCHOR_POINT = (byte)-2;
     byte BREAKABLE = (byte)16;
     byte COIN_REWARD = (byte)32;
     byte POWERUP_REWARD = (byte)22;

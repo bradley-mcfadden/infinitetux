@@ -27,7 +27,8 @@ import com.mojang.mario.sprites.Mario;
  * and playtest their levels.
  */
 public class LevelEditor extends JFrame 
-    implements ActionListener, ChangeListener, KeyListener, LevelEditView.ActionCompleteListener
+    implements ActionListener, ChangeListener, KeyListener, 
+    LevelEditView.ActionCompleteListener, ChunkLibraryPanel.VisibilityListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
 
@@ -37,6 +38,7 @@ public class LevelEditor extends JFrame
     private JButton deleteButton;
     private JRadioButton selectButton;
     private JRadioButton buildButton;
+    private JRadioButton chunkButton;
     private JMenuItem changeDirectoryItem;
     private JMenuItem openLevelItem;
     private JMenuItem newLevelItem;
@@ -47,7 +49,7 @@ public class LevelEditor extends JFrame
     private JLabel levelNameLabel;
     private JTextField nameField;
     private LevelEditView levelEditView;
-    private JSlider marioSpawnSlider;
+    private JSlider marioSpawnSliderX;
     private TilePicker tilePicker;
     private EnemyPicker enemyPicker;
     private HazardPicker hazardPicker;
@@ -55,7 +57,7 @@ public class LevelEditor extends JFrame
     private String coordinateText="X=P , Y=Q";
     private TestLevelFrameLauncher levelTester;
     private JCheckBox[] bitmapCheckboxes = new JCheckBox[8];
-
+    private ChunkLibraryPanel chunkLibraryPanel;
     private ArrayList<Level> actionQueue;
     private int nextStatePtr;
 
@@ -68,12 +70,14 @@ public class LevelEditor extends JFrame
     public static final int MODE_ENEMY = 2;
     public static final int MODE_HAZARD = 3;
     public static final int MODE_SELECT = 4;
+    public static final int MODE_PLACE_CHUNK = 5;
 
     /**
      * Constructor.
      */
     public LevelEditor()
     {
+        // TODO: Add ChunkLibrary panel, button to open it
         super("Map Edit");
         
         levelName = "test";
@@ -116,28 +120,39 @@ public class LevelEditor extends JFrame
         Dimension bounds = levelEditView.getMinimumSize();
 
         Level level = levelEditView.getLevel();
-        marioSpawnSlider = new JSlider(0, level.width - 1, Mario.DEFAULT_SPAWN_X);
-        marioSpawnSlider.setMinorTickSpacing(1);
-        marioSpawnSlider.addChangeListener(this);
+        marioSpawnSliderX = new JSlider(0, level.width - 1, Mario.DEFAULT_SPAWN_X);
+        marioSpawnSliderX.setMinorTickSpacing(1);
+        marioSpawnSliderX.addChangeListener(this);
         Dimension sliderBounds = new Dimension(bounds);
-        sliderBounds.height = marioSpawnSlider.getMinimumSize().height;
-        marioSpawnSlider.setMinimumSize(sliderBounds);
-        marioSpawnSlider.setMaximumSize(sliderBounds);
-        marioSpawnSlider.setPreferredSize(sliderBounds);
+        sliderBounds.height = marioSpawnSliderX.getMinimumSize().height;
+        marioSpawnSliderX.setMinimumSize(sliderBounds);
+        marioSpawnSliderX.setMaximumSize(sliderBounds);
+        marioSpawnSliderX.setPreferredSize(sliderBounds);
 
-        bounds.height += marioSpawnSlider.getMinimumSize().height;
+        bounds.height += marioSpawnSliderX.getMinimumSize().height;
         levelEditPanel.setMinimumSize(bounds);
         levelEditPanel.setMaximumSize(bounds);
         levelEditPanel.setPreferredSize(bounds);
 
         levelEditPanel.add(levelEditView);
-        levelEditPanel.add(marioSpawnSlider);
+        levelEditPanel.add(marioSpawnSliderX);
 
-        borderPanel.add(BorderLayout.CENTER, new JScrollPane(levelEditPanel));
-        borderPanel.add(BorderLayout.SOUTH, lowerPanel);
-        borderPanel.add(BorderLayout.NORTH, buildButtonPanel());
+        JPanel innerContentPanel = new JPanel(new BorderLayout());
+        innerContentPanel.add(BorderLayout.CENTER, new JScrollPane(levelEditPanel));
+        innerContentPanel.add(BorderLayout.SOUTH, lowerPanel);
+        JPanel innerBorderPanel = new JPanel(new BorderLayout());
+        innerBorderPanel.add(BorderLayout.CENTER, innerContentPanel);
+        innerBorderPanel.add(BorderLayout.NORTH, buildButtonPanel());
+        borderPanel.add(BorderLayout.CENTER, innerBorderPanel);
+        chunkLibraryPanel = new ChunkLibraryPanel();
+        chunkLibraryPanel.setEditor(this);
+        chunkLibraryPanel.setSelectionChangedListener(levelEditView);
+        chunkLibraryPanel.setVisibiltyChangedListener(this);
+        chunkLibraryPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+        borderPanel.add(BorderLayout.EAST, chunkLibraryPanel);
         
-        spawnHighlight = levelEditView.addHighlight(marioSpawnSlider.getValue(), Mario.DEFAULT_SPAWN_Y, 1, 15, Highlight.GREEN, "Test spawn");
+        spawnHighlight = levelEditView.addHighlight(marioSpawnSliderX.getValue(), Mario.DEFAULT_SPAWN_Y, 1, 15, Highlight.GREEN, "Test spawn");
         setFocusable(true);
         addKeyListener(this);
 
@@ -145,7 +160,6 @@ public class LevelEditor extends JFrame
         setJMenuBar(buildMenuBar());
 
         levelTester = new TestLevelFrameLauncher();
-
         tilePicker.addTilePickChangedListener(this);
 
         actionQueue = new ArrayList<>();
@@ -167,6 +181,10 @@ public class LevelEditor extends JFrame
         else if (mode == LevelEditor.MODE_SELECT)
         {
             selectButton.setSelected(true);
+        }
+        else if (mode == LevelEditor.MODE_PLACE_CHUNK)
+        {
+            chunkButton.setSelected(true);
         }
     }
 
@@ -220,6 +238,7 @@ public class LevelEditor extends JFrame
         deleteButton = new JButton("Delete");
         selectButton = new JRadioButton("Select");
         buildButton = new JRadioButton("Build", true);
+        chunkButton = new JRadioButton("Chunk");
         ButtonGroup toolGroup = new ButtonGroup();
         String userDir = System.getProperty("user.dir");
         File programDirectory = new File(userDir + "/.infinitetux");
@@ -238,14 +257,17 @@ public class LevelEditor extends JFrame
         deleteButton.addActionListener(this);
         selectButton.addActionListener(this);
         buildButton.addActionListener(this);
+        chunkButton.addActionListener(this);
         
         toolGroup.add(selectButton);
         toolGroup.add(buildButton);
+        toolGroup.add(chunkButton);
 
         JPanel panel = new JPanel();
         panel.add(levelNameLabel);
         panel.add(selectButton);
         panel.add(buildButton);
+        panel.add(chunkButton);
         panel.add(deleteButton);
         panel.add(testButton);
         panel.add(resizeButton);
@@ -388,6 +410,11 @@ public class LevelEditor extends JFrame
             if (e.getSource() == selectButton)
             {
                 setEditingMode(MODE_SELECT);
+            }
+            if (e.getSource() == chunkButton)
+            {
+                setEditingMode(MODE_PLACE_CHUNK);
+                chunkLibraryPanel.setVisible(true);
             }
             if (e.getSource() == resizeButton)
             {
@@ -640,15 +667,10 @@ public class LevelEditor extends JFrame
         }
     }
 
-    private void setSpawn(int x, int y)
-    {
-
-    }
-
     @Override
     public void onActionComplete() 
     {
-        saveState();    
+        saveState();
     }
 
     @Override
@@ -673,11 +695,19 @@ public class LevelEditor extends JFrame
     @Override
     public void stateChanged(ChangeEvent e) 
     {
-        if (e.getSource() == marioSpawnSlider)
+        if (e.getSource() == marioSpawnSliderX)
         {
-            spawnHighlight.setX(marioSpawnSlider.getValue());
+            spawnHighlight.setX(marioSpawnSliderX.getValue());
             levelEditView.repaint();
         }    
+    }
+
+    @Override
+    public void onVisibilityChanged(ChunkLibraryPanel panel, boolean isVisible) {
+        if (!isVisible)
+        {
+            setEditingMode(MODE_SELECT);
+        }
     }
 
     public static void main(String[] args)

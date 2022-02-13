@@ -15,6 +15,7 @@ import com.mojang.mario.*;
  * TilePicker displays a grid of tiles, and allows the user to choose
  * from them.
  */
+// TODO: Anchor point
 public class TilePicker extends JComponent implements MouseListener, MouseMotionListener
 {
     private static final long serialVersionUID = -7696446733303717142L;
