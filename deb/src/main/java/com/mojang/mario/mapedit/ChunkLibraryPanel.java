@@ -163,7 +163,7 @@ public class ChunkLibraryPanel extends JPanel
         levelView.setClickListener(this);
         Dimension levelPSize = levelView.getPreferredSize();
         Dimension cpPSize = chunkPanel.getPreferredSize();
-        Dimension newPSize = new Dimension(Math.max(cpPSize.width, levelPSize.width), chunkPanelOffset+8);        
+        Dimension newPSize = new Dimension(Math.max(cpPSize.width, levelPSize.width), chunkPanelOffset+levelPSize.height+8);        
         chunkPanel.add(levelView);
         levelView.setBounds(8, chunkPanelOffset, levelPSize.width, levelPSize.height);
         chunkPanelOffset += levelPSize.height + 8;
@@ -188,6 +188,21 @@ public class ChunkLibraryPanel extends JPanel
     {
         chunkPanel.remove(chunk);
         chunks.remove(chunk);
+
+        Dimension levelPSize = chunk.getPreferredSize();
+        Dimension cpPSize = chunkPanel.getPreferredSize();
+        Dimension newPSize = new Dimension(Math.max(cpPSize.width, levelPSize.width), chunkPanelOffset-levelPSize.height+8);        
+        chunkPanelOffset -= levelPSize.height + 8;
+        chunkPanel.setMaximumSize(newPSize);
+        chunkPanel.setPreferredSize(newPSize);
+
+        int yOffset = 8;
+        for (LevelView tmpChunk : chunks)
+        {
+            Dimension tmpSize = tmpChunk.getPreferredSize();
+            tmpChunk.setBounds(8, yOffset, tmpSize.width, tmpSize.height);
+            yOffset += tmpSize.height + 8;
+        }
         repaint();
     }
 
