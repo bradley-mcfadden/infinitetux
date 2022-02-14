@@ -57,9 +57,13 @@ public class Art
     private static Sequencer sequencer;
     private static Color translucent = new Color(0,0,0,0);
 
+    private static boolean artInit;
+    private static boolean soundInit;
+
 
     public static void init(GraphicsConfiguration gc, SonarSoundEngine sound)
     {
+        if (soundInit && artInit) return;
         try
         {
             mario = cutImage(gc, "/mariosheet.png", 32, 32);
@@ -95,6 +99,7 @@ public class Art
                 samples[SAMPLE_MARIO_FIREBALL] = sound.loadSample("/snd/fireball.wav");
                 samples[SAMPLE_LOW_TIME] = sound.loadSample("/snd/lowtime.wav");
             }
+            artInit = true;
         }
         catch (Exception e)
         {
@@ -110,6 +115,8 @@ public class Art
             songs[2] = MidiSystem.getSequence(Art.class.getResourceAsStream("/mus/smb3undr.mid"));
             songs[3] = MidiSystem.getSequence(Art.class.getResourceAsStream("/mus/smwfortress.mid"));
             songs[4] = MidiSystem.getSequence(Art.class.getResourceAsStream("/mus/smwtitle.mid"));
+
+            soundInit = true;
         }
         catch (Exception e)
         {

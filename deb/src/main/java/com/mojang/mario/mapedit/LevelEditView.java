@@ -83,7 +83,7 @@ public class LevelEditView extends JComponent
         Dimension size = new Dimension(level.width * 16, level.height * 16);
         setPreferredSize(size);
         setMinimumSize(size);
-        setMaximumSize(size);
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, size.height));
         repaint();
         levelRenderer.setLevel(level);
     }

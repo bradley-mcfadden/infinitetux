@@ -23,7 +23,6 @@ import com.mojang.mario.level.LevelGenerator;
  * LevelView is a view-only render of a Level.
  * It provides some event handling.
  */
-// TODO: Documentation, testing
 public class LevelView extends JComponent 
     implements MouseListener {
 
@@ -42,9 +41,8 @@ public class LevelView extends JComponent
         this.level = level;
         Dimension size = new Dimension(level.width * 16, level.height * 16);
         setPreferredSize(size);
-        setMinimumSize(size);
-        setMaximumSize(size);
-        repaint();
+        //setMaximumSize(size);
+        //repaint();
 
         addMouseListener(this);
 
@@ -144,8 +142,8 @@ public class LevelView extends JComponent
     public void save(File chunkFolderName)
     {
         try {
-            level.save(chunkFolderName);
             level.xExit = level.yExit = -1;
+            level.save(chunkFolderName);
         } catch (IOException ie) {
             System.err.println("Unable to save chunk at " + chunkFolderName.getName());
             ie.printStackTrace();
@@ -181,6 +179,29 @@ public class LevelView extends JComponent
          * @param source What was clicked?
          */
         void clickPerformed(LevelView source);
+    }
+
+    
+    public static class Loader implements Runnable {
+        private File chunkFolderName;
+        private LevelView result;
+
+        public Loader(File chunkFolderName)
+        {
+            this.chunkFolderName = chunkFolderName;
+        }
+
+        @Override
+        public void run() 
+        {
+            result = LevelView.load(chunkFolderName);
+        }
+
+        public LevelView getResult()
+        {
+            return result;
+        }
+        
     }
 
     public static void main(String[] args)

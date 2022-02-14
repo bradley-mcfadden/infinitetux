@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import com.mojang.mario.level.Level;
 import com.mojang.mario.level.LevelGenerator;
+import com.mojang.mario.mapedit.LevelView.Loader;
 
 /**
  * ChunkLibraryPanel manages a list of "chunks", or Level
@@ -40,15 +41,18 @@ public class ChunkLibraryPanel extends JPanel
     private LevelView currentSelection;
     private SelectionChangedListener selectionChangedListener;
     private LevelEditor editor;
+
+    private boolean areChunksLoaded;
+    private int chunkPanelOffset;
     
     /**
      * Constructor.
      */
     public ChunkLibraryPanel()
     {
+        chunkPanelOffset = 8;
         chunks = new ArrayList<>();
         buildLayout();
-        //setMaximumSize(new Dimension(20 * 16, Integer.MAX_VALUE));
     }
 
     /**
@@ -71,15 +75,11 @@ public class ChunkLibraryPanel extends JPanel
         spacer.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         closeButton = new JButton("X");
 
-        GridLayout chunkLayout = new GridLayout(0, 1);
-        chunkLayout.setVgap(8);
-
-        chunkPanel = new JPanel(chunkLayout);
+        chunkPanel = new JPanel(null);
         chunkPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         JScrollPane chunkPane = new JScrollPane(chunkPanel);
         chunkPane.setMaximumSize(new Dimension(20 * 16, Integer.MAX_VALUE));
         chunkPane.setPreferredSize(new Dimension(20 * 16, Integer.MAX_VALUE));
-        chunkPane.setMinimumSize(new Dimension(20 * 16, Integer.MAX_VALUE));
 
         titlePanel.add(BorderLayout.WEST, titleLabel);
         titlePanel.add(BorderLayout.CENTER, spacer);
@@ -161,9 +161,21 @@ public class ChunkLibraryPanel extends JPanel
     {
         levelView.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         levelView.setClickListener(this);
+        Dimension levelPSize = levelView.getPreferredSize();
+        Dimension cpPSize = chunkPanel.getPreferredSize();
+        Dimension newPSize = new Dimension(Math.max(cpPSize.width, levelPSize.width), chunkPanelOffset+8);        
         chunkPanel.add(levelView);
+        levelView.setBounds(8, chunkPanelOffset, levelPSize.width, levelPSize.height);
+        chunkPanelOffset += levelPSize.height + 8;
+        chunkPanel.setMaximumSize(newPSize);
+        chunkPanel.setPreferredSize(newPSize);
+        chunkPanel.revalidate();
         chunks.add(levelView);
-        repaint();
+        
+        if (!areChunksLoaded)
+        {
+            repaint();
+        }
     }
 
     /**
@@ -219,25 +231,79 @@ public class ChunkLibraryPanel extends JPanel
 
     /**
      * loadChunks in the panel to the chunks directory in program directory.
-     * TODO: Make a threaded version of this
      */
     public void loadChunks()
     {
+        areChunksLoaded = false;
+        if (Runtime.getRuntime().availableProcessors() > 1) 
+        {
+            loadChunksThreaded();
+        } 
+        else 
+        {
+            long start = System.currentTimeMillis();
+
+            File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
+            File[] chunkDirs = chunksDirectory.listFiles();
+            System.out.println(chunksDirectory.getAbsolutePath());
+            if (chunkDirs != null)
+            {
+                for (File chunkDir : chunkDirs)
+                {
+                    LevelView chunk = LevelView.load(chunkDir);
+                    if (chunk != null)
+                    {
+                        addChunk(chunk);
+                    }
+                }
+                repaint();
+            }
+
+            long end = System.currentTimeMillis();
+            System.out.println("Loaded levels in " + (end - start) + " ms");
+        }
+        areChunksLoaded = true;
+    }
+
+    private void loadChunksThreaded()
+    {
+        long start = System.currentTimeMillis();
         File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
         File[] chunkDirs = chunksDirectory.listFiles();
-        System.out.println(chunksDirectory.getAbsolutePath());
         if (chunkDirs != null)
         {
+            List<Loader> loaders = new ArrayList<>(chunkDirs.length);
+            List<Thread> threads = new ArrayList<>(chunkDirs.length);
+            Loader tmpLoader;
+            Thread tmpThread;
             for (File chunkDir : chunkDirs)
             {
-                LevelView chunk = LevelView.load(chunkDir);
-                if (chunk != null)
-                {
-                    addChunk(chunk);
+                tmpLoader = new Loader(chunkDir);
+                tmpThread = new Thread(tmpLoader);
+                loaders.add(tmpLoader);
+                threads.add(tmpThread);
+                tmpThread.start();
+            }
+            int n = loaders.size();
+            for (int i = 0; i < n; i++)
+            {
+                tmpThread = threads.get(i);
+                try {
+                    tmpThread.join();
+                    tmpLoader = loaders.get(i);
+                    LevelView result = tmpLoader.getResult();
+                    if (result != null)
+                    {
+                        addChunk(result);
+                    }
+                } catch (InterruptedException ie) {
+                    System.err.println("Thread " + i + " interrupted while joining");
                 }
             }
             repaint();
         }
+        long end = System.currentTimeMillis();
+        System.out.println("Loaded levels in " + (end - start) + " ms");
     }
 
     /**
@@ -291,7 +357,6 @@ public class ChunkLibraryPanel extends JPanel
                 currentSelection.setVisible(false);
                 chunks.remove(currentSelection);
                 removeChunk(currentSelection);
-                
             }
         }
     }

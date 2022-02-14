@@ -79,7 +79,6 @@ public class LevelEditor extends JFrame
      */
     public LevelEditor()
     {
-        // TODO: Add ChunkLibrary panel, button to open it
         super("Map Edit");
         
         levelName = "test";
@@ -144,8 +143,8 @@ public class LevelEditor extends JFrame
         JPanel innerBorderPanel = new JPanel(new BorderLayout());
         innerBorderPanel.add(BorderLayout.CENTER, innerContentPanel);
         innerBorderPanel.add(BorderLayout.NORTH, buildButtonPanel());
-        borderPanel.add(BorderLayout.CENTER, innerBorderPanel);
 
+        
         chunkLibraryPanel = new ChunkLibraryPanel();
         chunkLibraryPanel.setEditor(this);
         chunkLibraryPanel.setSelectionChangedListener(levelEditView);
@@ -167,7 +166,8 @@ public class LevelEditor extends JFrame
         });
         chunkLibraryPanel.loadChunks();
         borderPanel.add(BorderLayout.EAST, chunkLibraryPanel);
-        
+        borderPanel.add(BorderLayout.CENTER, innerBorderPanel);
+
         spawnHighlight = levelEditView.addHighlight(marioSpawnSliderX.getValue(), Mario.DEFAULT_SPAWN_Y, 1, 15, Highlight.GREEN, "Test spawn");
         setFocusable(true);
         addKeyListener(this);
@@ -746,8 +746,11 @@ public class LevelEditor extends JFrame
 
     public static void main(String[] args)
     {
+        long start = System.currentTimeMillis();
         LevelEditor editor = new LevelEditor();
         editor.setVisible(true);
+        long end = System.currentTimeMillis();
+        System.out.println("Launched app in " + (end - start) + " ms");
         editor.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         editor.buildWindowAdapter();
     }
