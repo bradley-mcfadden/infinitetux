@@ -55,8 +55,9 @@ public class LevelView extends JComponent
         super.addNotify();
         Art.init(getGraphicsConfiguration(), null);
         levelRenderer = new LevelRenderer(level, getGraphicsConfiguration(), level.width * 16, level.height * 16);
-        levelRenderer.renderBehaviors = false;
+        levelRenderer.renderBehaviors = true;
         levelRenderer.setIsLevelEditor(true);
+        levelRenderer.setLevel(level);
     }
 
     @Override
@@ -142,7 +143,7 @@ public class LevelView extends JComponent
     public void save(File chunkFolderName)
     {
         try {
-            level.xExit = level.yExit = -1;
+            //level.xExit = level.yExit = -1;
             level.save(chunkFolderName);
         } catch (IOException ie) {
             System.err.println("Unable to save chunk at " + chunkFolderName.getName());

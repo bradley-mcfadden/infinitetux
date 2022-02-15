@@ -41,8 +41,6 @@ public class Sprite implements SoundSource
         int xPixel = (int)(xOld+(x-xOld)*alpha)-xPicO;
         int yPixel = (int)(yOld+(y-yOld)*alpha)-yPicO;
 
-
-        
         og.drawImage(sheet[xPic][yPic], xPixel+(xFlipPic?wPic:0), yPixel+(yFlipPic?hPic:0), xFlipPic?-wPic:wPic, yFlipPic?-hPic:hPic, null);
     }
     

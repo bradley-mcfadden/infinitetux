@@ -53,7 +53,7 @@ public class SpriteTemplate
      */
     public SpriteTemplate(byte code)
     {
-        this.type = code ^ 0x80;
+        this.type = code & 0x0F;
         this.winged = (code >> 7) == 1;
     }
 
@@ -133,7 +133,7 @@ public class SpriteTemplate
      */
     public byte getCode()
     {
-        return (byte)((this.winged?1:0 << 7) + this.type);
+        return (byte)((this.winged?1:0 << 7) + (byte)this.type);
     }
 
     /**

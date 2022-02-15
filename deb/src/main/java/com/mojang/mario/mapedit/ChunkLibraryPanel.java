@@ -260,7 +260,7 @@ public class ChunkLibraryPanel extends JPanel
 
             File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
             File[] chunkDirs = chunksDirectory.listFiles();
-            System.out.println(chunksDirectory.getAbsolutePath());
+            // System.out.println(chunksDirectory.getAbsolutePath());
             if (chunkDirs != null)
             {
                 for (File chunkDir : chunkDirs)
@@ -370,8 +370,18 @@ public class ChunkLibraryPanel extends JPanel
             if (currentSelection != null)
             {
                 currentSelection.setVisible(false);
+                int i = chunks.indexOf(currentSelection);
                 chunks.remove(currentSelection);
                 removeChunk(currentSelection);
+
+                File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
+                File levelDirectory = new File(String.format("%s%s%03d", chunksDirectory, File.separator, i));
+                File[] contents = levelDirectory.listFiles();
+                for (File file : contents)
+                {
+                    file.delete();
+                }
+                levelDirectory.delete();
             }
         }
     }

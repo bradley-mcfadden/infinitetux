@@ -106,7 +106,8 @@ public class Level
         }
 
         int n = other.hazards.size();
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) 
+        {
             hazards.add(new SpriteTemplate((SpriteTemplate)other.hazards.get(i)));
         }
 
@@ -242,6 +243,7 @@ public class Level
 
         int width = dis.readShort() & 0xffff;
         int height = dis.readShort() & 0xffff;
+        // System.out.printf("Width %d Height %d\n", width, height);
         
         Level level = new Level(width, height);
         level.map = new byte[width][height];
@@ -252,6 +254,7 @@ public class Level
             dis.readFully(level.data[i]);
         }
 
+        
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -263,6 +266,15 @@ public class Level
                     level.setLevelExit(tmpByte / 16, tmpByte % 16);
                 }
             }
+        }
+
+        for (int j = 0; j < height; j++)
+        {
+            for (int i = 0; i < width; i++)
+            {
+                //System.out.printf("%+04d ", level.map[i][j]);
+            }
+            //System.out.println();
         }
 
         return level;
@@ -290,6 +302,7 @@ public class Level
             {
                 if (buffer[j] != Enemy.ENEMY_NULL)
                 {
+                    //System.out.println(buffer[j]);
                     level.setSpriteTemplate(i, j, new SpriteTemplate(buffer[j]));
                 }
             }
@@ -354,6 +367,8 @@ public class Level
         dos.writeShort((short) width);
         dos.writeShort((short) height);
 
+        //System.out.printf("Width %d Height %d\n", width, height);
+
         byte tmpByte = (byte)0;
         if (xExit != -1 && yExit != -1) {
             tmpByte = map[xExit][yExit];
@@ -361,11 +376,25 @@ public class Level
         }
         for (int i = 0; i < width; i++)
         {
+            //System.out.println(map[i].length);
+            //System.out.println(data[i].length);
             dos.write(map[i]);
             dos.write(data[i]);
         }
-        if (xExit != -1 && yExit != -1) 
+
+        for (int j = 0; j < height; j++)
+        {
+            for (int i = 0; i < width; i++)
+            {
+                //System.out.printf("%+04d ", map[i][j]);
+            }
+            //System.out.println();
+        }
+        //System.out.println();
+        if (xExit != -1 && yExit != -1)
+        {
             map[xExit][yExit] = tmpByte;
+        }
 
         dos.close();
     }
@@ -612,22 +641,26 @@ public class Level
         int endY = startY + Math.min(newHeight, map[0].length);
         int ny = endY - startY;
         byte[][] tmpMap = new byte[newWidth][newHeight];
+        byte[][] tmpData = new byte[newWidth][newHeight];
         SpriteTemplate[][] tmpSprite = new SpriteTemplate[newWidth][newHeight];
+        
         
         width = newWidth;
         height = newHeight;
         for (int i = startX; i < endX; i++) 
         {
             System.arraycopy(map[i], startY, tmpMap[i-startX], 0, ny);
+            System.arraycopy(data[i], startY, tmpData[i-startX], 0, ny);
             for (int j = startY; j < endY; j++) 
             {
-                if (tmpSprite[i-startX][j-startY] != null)
+                if (spriteTemplates[i][j] != null)
                 {
-                    tmpSprite[i-startX][j-startY] = new SpriteTemplate(spriteTemplates[i][j].getCode());
+                    tmpSprite[i-startX][j-startY] = new SpriteTemplate(spriteTemplates[i][j]);
                 }
             }
         }
         map = tmpMap;
+        data = tmpData;
         spriteTemplates = tmpSprite;
 
         // Remove any platforms that end up out of bounds
@@ -691,6 +724,7 @@ public class Level
             for (int yi = y; yi < ey; yi++)
             {
                 map[xi][yi] = Tile.AIR;
+                data[xi][yi] = (byte)0;
                 spriteTemplates[xi][yi] = null;
             }
         }
@@ -759,7 +793,11 @@ public class Level
             for (int yi = y; yi < ey; yi++)
             {
                 map[xi][yi] = level.map[xi-x][yi-y];
-                spriteTemplates[xi][yi] = level.spriteTemplates[xi-x][yi-y];
+                data[xi][yi] = level.data[xi-x][yi-y];
+                if (level.spriteTemplates[xi-x][yi-y] != null) 
+                {
+                    spriteTemplates[xi][yi] = new SpriteTemplate(level.spriteTemplates[xi-x][yi-y]);
+                }
             }
         }
 

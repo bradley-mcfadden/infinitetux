@@ -18,6 +18,10 @@ public class SamplePlayer implements SoundProducer
     
     public float read(float[] buf, int readRate)
     {
+        if (sample == null) {
+            System.out.println("Sound is null");
+            return 0.0f;
+        }
         float step = (sample.rate*rate)/readRate;
         
         for (int i=0; i<buf.length; i++)

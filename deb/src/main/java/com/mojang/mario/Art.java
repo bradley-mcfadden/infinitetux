@@ -156,6 +156,12 @@ public class Art
         return images;
     }
 
+    public static void resetInit()
+    {
+        artInit = false;
+        soundInit = false;
+    }
+
     public static void startMusic(int song)
     {
         stopMusic();

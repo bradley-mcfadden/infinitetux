@@ -204,7 +204,6 @@ public class LevelEditView extends JComponent
         {
             level.setSpriteTemplate(xTile, yTile, enemyPicker.pickedEnemy);
             levelRenderer.repaint(xTile - 2, yTile - 2, 5, 5);
-
             repaint();
         }
         else if (editingMode == LevelEditor.MODE_HAZARD)
