@@ -144,11 +144,12 @@ public class LevelEditor extends JFrame
         innerBorderPanel.add(BorderLayout.CENTER, innerContentPanel);
         innerBorderPanel.add(BorderLayout.NORTH, buildButtonPanel());
 
-        
+        ChunkLibrary.init(programDirectory);
         chunkLibraryPanel = new ChunkLibraryPanel();
+        ChunkLibrary.addLoadingFinishedListener(chunkLibraryPanel);
+        ChunkLibrary.loadChunks();
         chunkLibraryPanel.setEditor(this);
         chunkLibraryPanel.setSelectionChangedListener(levelEditView);
-        chunkLibraryPanel.setProgramDirectory(programDirectory);
         chunkLibraryPanel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(8, 8, 8, 8)));
         chunkLibraryPanel.getAddChunkButton().addActionListener(new ActionListener() {
@@ -164,7 +165,6 @@ public class LevelEditor extends JFrame
                 }    
             }
         });
-        chunkLibraryPanel.loadChunks();
         borderPanel.add(BorderLayout.EAST, chunkLibraryPanel);
         borderPanel.add(BorderLayout.CENTER, innerBorderPanel);
 
@@ -741,7 +741,8 @@ public class LevelEditor extends JFrame
      */
     public void finish()
     {
-        chunkLibraryPanel.saveChunks();
+        //chunkLibraryPanel.saveChunks();
+        ChunkLibrary.saveChunks();
     }
 
     public static void main(String[] args)

@@ -6,37 +6,30 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
+import com.mojang.mario.level.ChunkLibrary;
 import com.mojang.mario.level.Level;
 import com.mojang.mario.level.LevelGenerator;
-import com.mojang.mario.mapedit.LevelView.Loader;
 
 /**
  * ChunkLibraryPanel manages a list of "chunks", or Level
  * sections that the user can interact with.
  * 
- * Clicking on a chunk highlights it, and the user can get
- * the current selection with the getSelection() method.
- * 
  * The list of chunks can be modified with the addChunk()
  * and removeChunk() methods.
  */
 public class ChunkLibraryPanel extends JPanel 
-    implements ActionListener, LevelView.ClickListener {
+    implements ActionListener, ChunkLibrary.LoadingFinishedListener, LevelView.ClickListener {
     
-    private static final String CHUNK_PARENT_DIR_NAME = "chunks";
-
     private JPanel chunkPanel;
     private JButton closeButton;
     private JButton addButton;
     private JButton removeButton;
     private JButton tagButton;
 
-    private File programDirectory;
     private List<LevelView> chunks;
     private LevelView currentSelection;
     private SelectionChangedListener selectionChangedListener;
@@ -122,15 +115,6 @@ public class ChunkLibraryPanel extends JPanel
     }
 
     /**
-     * setProgramDirectory for library to use to save chunks in
-     * @param programDirectory Folder that should exist
-     */
-    public void setProgramDirectory(File programDirectory)
-    {
-        this.programDirectory = programDirectory;
-    }
-
-    /**
      * setEditor set callback to LevelEditor.
      * @param editor LevelEditor object
      */
@@ -159,23 +143,34 @@ public class ChunkLibraryPanel extends JPanel
      */
     public void addChunk(LevelView levelView)
     {
+        addChunkToPanel(levelView);
+        ChunkLibrary.addChunk(levelView.getLevel());
+    }
+
+    private void addChunkToPanel(LevelView levelView)
+    {
+        chunks.add(levelView);
         levelView.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         levelView.setClickListener(this);
         Dimension levelPSize = levelView.getPreferredSize();
         Dimension cpPSize = chunkPanel.getPreferredSize();
-        Dimension newPSize = new Dimension(Math.max(cpPSize.width, levelPSize.width), chunkPanelOffset+levelPSize.height+8);        
+        Dimension newPSize = new Dimension(Math.max(cpPSize.width-16, levelPSize.width) + 16, chunkPanelOffset+levelPSize.height+8);        
         chunkPanel.add(levelView);
         levelView.setBounds(8, chunkPanelOffset, levelPSize.width, levelPSize.height);
         chunkPanelOffset += levelPSize.height + 8;
         chunkPanel.setMaximumSize(newPSize);
         chunkPanel.setPreferredSize(newPSize);
         chunkPanel.revalidate();
-        chunks.add(levelView);
-        
         if (!areChunksLoaded)
         {
             repaint();
         }
+    }
+
+    private void addChunkToPanel(Level level)
+    {
+        LevelView levelView = new LevelView(level);
+        addChunkToPanel(levelView);
     }
 
     /**
@@ -186,9 +181,14 @@ public class ChunkLibraryPanel extends JPanel
      */
     public void removeChunk(LevelView chunk)
     {
-        chunkPanel.remove(chunk);
-        chunks.remove(chunk);
+        ChunkLibrary.removeChunk(chunk.getLevel());
+        removeChunkFromPanel(chunk);
+    }
 
+    private void removeChunkFromPanel(LevelView chunk)
+    {
+        chunks.remove(chunk);
+        chunkPanel.remove(chunk);
         Dimension levelPSize = chunk.getPreferredSize();
         Dimension cpPSize = chunkPanel.getPreferredSize();
         Dimension newPSize = new Dimension(Math.max(cpPSize.width, levelPSize.width), chunkPanelOffset-levelPSize.height+8);        
@@ -226,99 +226,23 @@ public class ChunkLibraryPanel extends JPanel
     }
 
     /**
-     * saveChunks in the panel to the chunks directory in program directory.
-     */
-    public void saveChunks()
-    {
-        File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
-        chunksDirectory.mkdirs();
-
-        int n = chunks.size();
-        for (int i = 0; i < n; i++)
-        {
-            LevelView chunk = chunks.get(i);
-            String name = String.format("%03d", i);
-            File chunkDir = new File(chunksDirectory.getPath() + File.separatorChar + name);
-            chunkDir.mkdirs();
-            chunk.save(chunkDir);
-        }
-    }
-
-    /**
      * loadChunks in the panel to the chunks directory in program directory.
      */
     public void loadChunks()
     {
         areChunksLoaded = false;
-        if (Runtime.getRuntime().availableProcessors() > 1) 
+        //System.out.println(ChunkLibrary.getChunks().size());
+        for (Level chunk : ChunkLibrary.getChunks())
         {
-            loadChunksThreaded();
-        } 
-        else 
-        {
-            long start = System.currentTimeMillis();
-
-            File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
-            File[] chunkDirs = chunksDirectory.listFiles();
-            // System.out.println(chunksDirectory.getAbsolutePath());
-            if (chunkDirs != null)
+            System.out.println("LOL");
+            if (chunk != null)
             {
-                for (File chunkDir : chunkDirs)
-                {
-                    LevelView chunk = LevelView.load(chunkDir);
-                    if (chunk != null)
-                    {
-                        addChunk(chunk);
-                    }
-                }
-                repaint();
+                addChunkToPanel(chunk);
             }
-
-            long end = System.currentTimeMillis();
-            System.out.println("Loaded levels in " + (end - start) + " ms");
         }
         areChunksLoaded = true;
-    }
-
-    private void loadChunksThreaded()
-    {
-        long start = System.currentTimeMillis();
-        File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
-        File[] chunkDirs = chunksDirectory.listFiles();
-        if (chunkDirs != null)
-        {
-            List<Loader> loaders = new ArrayList<>(chunkDirs.length);
-            List<Thread> threads = new ArrayList<>(chunkDirs.length);
-            Loader tmpLoader;
-            Thread tmpThread;
-            for (File chunkDir : chunkDirs)
-            {
-                tmpLoader = new Loader(chunkDir);
-                tmpThread = new Thread(tmpLoader);
-                loaders.add(tmpLoader);
-                threads.add(tmpThread);
-                tmpThread.start();
-            }
-            int n = loaders.size();
-            for (int i = 0; i < n; i++)
-            {
-                tmpThread = threads.get(i);
-                try {
-                    tmpThread.join();
-                    tmpLoader = loaders.get(i);
-                    LevelView result = tmpLoader.getResult();
-                    if (result != null)
-                    {
-                        addChunk(result);
-                    }
-                } catch (InterruptedException ie) {
-                    System.err.println("Thread " + i + " interrupted while joining");
-                }
-            }
-            repaint();
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("Loaded levels in " + (end - start) + " ms");
+        // repaint();
+        revalidate();
     }
 
     /**
@@ -369,21 +293,14 @@ public class ChunkLibraryPanel extends JPanel
         {
             if (currentSelection != null)
             {
-                currentSelection.setVisible(false);
-                int i = chunks.indexOf(currentSelection);
-                chunks.remove(currentSelection);
                 removeChunk(currentSelection);
-
-                File chunksDirectory = new File(programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
-                File levelDirectory = new File(String.format("%s%s%03d", chunksDirectory, File.separator, i));
-                File[] contents = levelDirectory.listFiles();
-                for (File file : contents)
-                {
-                    file.delete();
-                }
-                levelDirectory.delete();
             }
         }
+    }
+
+    @Override
+    public void onLoadingFinished() {
+        loadChunks();        
     }
 
     /**
