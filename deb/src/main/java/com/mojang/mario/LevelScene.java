@@ -299,6 +299,7 @@ public class LevelScene extends Scene implements SpriteContext
         }
         else
         {
+            if (tick % MarioComponent.TICKS_PER_SECOND == 0) System.out.printf("MARIO: %d %d\n", (int)(mario.x/16), (int)(mario.y/16));
             tick++;
             level.tick();
 

@@ -1,6 +1,7 @@
 package com.mojang.mario.mapedit;
 
 import com.mojang.mario.sprites.Enemy;
+import com.mojang.mario.Art;
 import com.mojang.mario.level.SpriteTemplate;
 
 import java.awt.*;
@@ -104,11 +105,19 @@ public class HazardPicker extends JPanel implements ActionListener {
             platformPanel.setVisible(true);
             pickedHazard = platformPanel.getSpriteTemplate();
             editor.setEditingMode(LevelEditor.MODE_HAZARD);
+
+            editor.setCursor(Cursor.getDefaultCursor());
         }
         else if (o == noneRadio)
         {
             nonePanel.setVisible(true);
             pickedHazard = new SpriteTemplate(Enemy.ENEMY_NULL, false);
+            editor.setEditingMode(LevelEditor.MODE_HAZARD);
+            
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            Image image = Art.cursor;
+            Cursor c = toolkit.createCustomCursor(image, new Point(4, 4), "eraser");
+            editor.setCursor(c);
         }
     }
 }

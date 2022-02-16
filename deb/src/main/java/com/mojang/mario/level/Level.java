@@ -630,6 +630,31 @@ public class Level
     }
 
     /**
+     * removeHazard overlapping with xTile, yTile
+     * @param xTile xTile to check hazards for
+     * @param yTile yTile to check hazards for
+     */
+    public void removeHazard(int xTile, int yTile)
+    {
+        int n = hazards.size();
+        for (int i = n - 1; i >= 0; i--)
+        {
+            SpriteTemplate hazard = hazards.get(i);
+            if (hazard.getType() == Hazard.HAZARD_PLATFORM)
+            {
+                Platform plat = (Platform)hazard.sprite;
+                int px = (int)plat.px / 16;
+                int py = (int)plat.py / 16;
+                int w2 = plat.width / 2;
+                if (xTile >= px - w2 && xTile < px + w2 && yTile == py)
+                {
+                    hazards.remove(hazard);
+                }
+            }
+        }
+    }
+
+    /**
      * resize allows the level width and height to be changed.
      * The level exit is moved to the default position if it gets clipped.
      * Sprites and hazards are moved as well.

@@ -162,10 +162,10 @@ public class ChunkLibrary {
             long end = System.currentTimeMillis();
             System.out.println("Loaded levels in " + (end - start) + " ms");
         }
-        int i =11;
+        // int i =11;
         for (LoadingFinishedListener lf : ref.lfListeners)
         {
-            System.out.println(i++ +"");
+            // System.out.println(i++ +"");
             lf.onLoadingFinished();
         }
     }

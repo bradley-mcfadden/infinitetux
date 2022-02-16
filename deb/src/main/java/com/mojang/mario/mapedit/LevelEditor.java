@@ -18,6 +18,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import com.mojang.mario.Art;
 import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
 import com.mojang.mario.sprites.Mario;
@@ -197,10 +198,12 @@ public class LevelEditor extends JFrame
         else if (mode == LevelEditor.MODE_SELECT)
         {
             selectButton.setSelected(true);
+            setCursor(Cursor.getDefaultCursor());
         }
         else if (mode == LevelEditor.MODE_PLACE_CHUNK)
         {
             chunkButton.setSelected(true);
+            setCursor(Cursor.getDefaultCursor());
         }
     }
 
@@ -573,6 +576,8 @@ public class LevelEditor extends JFrame
         {
             bitmapCheckboxes[i].setSelected((bm&(1<<i))>0);
         }
+
+        setCursor(Cursor.getDefaultCursor());
     }
 
     @Deprecated

@@ -50,6 +50,7 @@ public class Art
     public static Image[][] gameOver;
     public static Image logo;
     public static Image titleScreen;
+    public static Image cursor;
 
     public static SonarSample[] samples = new SonarSample[100];
 
@@ -80,6 +81,7 @@ public class Art
             font = cutImage(gc, "/font.gif", 8, 8);
             endScene = cutImage(gc, "/endscene.gif", 96, 96);
             gameOver = cutImage(gc, "/gameovergost.gif", 96, 64);
+            cursor = getImage(gc, "/eraser-sm.png");
 
             if (sound != null)
             {
@@ -154,6 +156,16 @@ public class Art
         }
 
         return images;
+    }
+
+    public static boolean isArtInit()
+    {
+        return artInit;
+    }
+
+    public static boolean isSoundInit()
+    {
+        return soundInit;
     }
 
     public static void resetInit()

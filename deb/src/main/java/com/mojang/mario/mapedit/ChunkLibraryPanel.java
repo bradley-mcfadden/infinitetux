@@ -234,7 +234,7 @@ public class ChunkLibraryPanel extends JPanel
         //System.out.println(ChunkLibrary.getChunks().size());
         for (Level chunk : ChunkLibrary.getChunks())
         {
-            System.out.println("LOL");
+            // System.out.println("LOL");
             if (chunk != null)
             {
                 addChunkToPanel(chunk);

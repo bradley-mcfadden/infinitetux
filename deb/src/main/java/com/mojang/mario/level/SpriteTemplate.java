@@ -124,7 +124,7 @@ public class SpriteTemplate
             sprite = new Enemy(null, x*16+8, y*16+15, dir, type, winged);
         }
         sprite.spriteTemplate = this;
-        sprite.render(g, 1);
+        sprite.render(g, 1f);
     }
 
     /**

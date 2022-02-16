@@ -1,5 +1,6 @@
 package com.mojang.mario.mapedit;
 
+import com.mojang.mario.Art;
 import com.mojang.mario.level.SpriteTemplate;
 import com.mojang.mario.sprites.Enemy;
 
@@ -125,6 +126,8 @@ public class EnemyPicker extends JPanel implements ActionListener {
     {
         editor.setEditingMode(LevelEditor.MODE_ENEMY);
         boolean winged = wingedButton.isSelected();
+
+        editor.setCursor(Cursor.getDefaultCursor());
         if (e.getSource() == redKoopaButton)
         {
             pickedEnemy = new SpriteTemplate(Enemy.ENEMY_RED_KOOPA, winged);
@@ -152,6 +155,11 @@ public class EnemyPicker extends JPanel implements ActionListener {
         else if (e.getSource() == noneButton)
         {
             pickedEnemy = new SpriteTemplate(Enemy.ENEMY_NULL, winged);
+
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            Image image = Art.cursor;
+            Cursor c = toolkit.createCustomCursor(image, new Point(4, 4), "eraser");
+            editor.setCursor(c);
         }
     }
 }

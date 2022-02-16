@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import com.mojang.mario.*;
 import com.mojang.mario.level.*;
 import com.mojang.mario.mapedit.ChunkLibraryPanel.SelectionChangedListener;
+import com.mojang.mario.sprites.Enemy;
 import com.mojang.mario.sprites.Platform;
 import com.mojang.mario.sprites.Sprite;
 
@@ -208,14 +209,21 @@ public class LevelEditView extends JComponent
         }
         else if (editingMode == LevelEditor.MODE_HAZARD)
         {
-            Sprite hazard = hazardPicker.pickedHazard.sprite;
-            
-            if (hazard instanceof Platform) 
+            if (hazardPicker.pickedHazard.getType() == Enemy.ENEMY_NULL)
             {
-                Platform platform = (Platform)hazard;
-                platform.setPosition(xTile * 16, yTile * 16);
-                SpriteTemplate hazardTemplate = new SpriteTemplate(platform.copy());
-                level.addHazard(hazardTemplate);
+                level.removeHazard(xTile, yTile);
+            }
+            else
+            {
+                Sprite hazard = hazardPicker.pickedHazard.sprite;
+                
+                if (hazard instanceof Platform) 
+                {
+                    Platform platform = (Platform)hazard;
+                    platform.setPosition(xTile * 16, yTile * 16);
+                    SpriteTemplate hazardTemplate = new SpriteTemplate(platform.copy());
+                    level.addHazard(hazardTemplate);
+                }
             }
             levelRenderer.repaint(0, 0, level.width, level.height);
             repaint();
