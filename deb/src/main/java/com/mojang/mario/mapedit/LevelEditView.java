@@ -480,6 +480,11 @@ public class LevelEditView extends JComponent
     @Override
     public void onSelectionChanged(LevelView selection) {
         selectedChunk = selection;
+
+        if (selection == null)
+        {
+            removeHighlight(chunkTarget);
+        }
     }
 
     /**

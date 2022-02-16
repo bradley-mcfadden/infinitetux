@@ -41,7 +41,10 @@ public class Sprite implements SoundSource
         int xPixel = (int)(xOld+(x-xOld)*alpha)-xPicO;
         int yPixel = (int)(yOld+(y-yOld)*alpha)-yPicO;
 
+        if (xPic < sheet.length && yPic < sheet[xPic].length)
         og.drawImage(sheet[xPic][yPic], xPixel+(xFlipPic?wPic:0), yPixel+(yFlipPic?hPic:0), xFlipPic?-wPic:wPic, yFlipPic?-hPic:hPic, null);
+        else
+        System.out.println(spriteTemplate.toString());
     }
     
 /*  private void blit(Graphics og, Image bitmap, int x0, int y0, int x1, int y1, int w, int h)

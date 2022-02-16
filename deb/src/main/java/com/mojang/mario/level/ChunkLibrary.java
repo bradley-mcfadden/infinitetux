@@ -68,11 +68,14 @@ public class ChunkLibrary {
             File chunksDirectory = new File(ref.programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
             File levelDirectory = new File(String.format("%s%s%03d", chunksDirectory, File.separator, i));
             File[] contents = levelDirectory.listFiles();
-            for (File file : contents)
+            if (contents != null)
             {
-                file.delete();
+                for (File file : contents)
+                {
+                    file.delete();
+                }
+                levelDirectory.delete();
             }
-            levelDirectory.delete();
         }
         else
         {
@@ -148,6 +151,7 @@ public class ChunkLibrary {
                 {
                     Level chunk = null; 
                     try {
+                        System.out.println("Next chunk " + chunkDir.getName());
                         chunk = Level.load(chunkDir);
                     } catch (IOException ie) {
                         System.err.println(ie);

@@ -55,8 +55,6 @@ public class SpriteTemplate
     {
         this.type = code & 0x0F;
         this.winged = ((code >> 7) & 0x01) == 1;
-        System.out.println(code);
-        System.out.println("code >> 7 " + ((code >> 7) & 0x01));
     }
 
     /**
@@ -135,8 +133,6 @@ public class SpriteTemplate
      */
     public byte getCode()
     {
-        System.out.println("in getCode() type: " + ((byte)this.type & 0x0F));
-        System.out.println("in getCode() winged: " + (byte)(((byte)(this.winged?1:0) << 7)));
         return (byte)(((byte)(this.winged?1:0) << 7) + ((byte)this.type & 0x0F));
     }
 

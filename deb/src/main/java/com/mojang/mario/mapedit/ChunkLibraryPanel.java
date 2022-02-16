@@ -187,6 +187,12 @@ public class ChunkLibraryPanel extends JPanel
 
     private void removeChunkFromPanel(LevelView chunk)
     {
+        if (currentSelection == chunk)
+        {
+            currentSelection = null;
+            editor.setEditingMode(LevelEditor.MODE_SELECT);
+            notifySelectionChangedListener();
+        }
         chunks.remove(chunk);
         chunkPanel.remove(chunk);
         Dimension levelPSize = chunk.getPreferredSize();
