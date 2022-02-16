@@ -303,7 +303,8 @@ public class Level
                 if (buffer[j] != Enemy.ENEMY_NULL)
                 {
                     //System.out.println(buffer[j]);
-                    level.setSpriteTemplate(i, j, new SpriteTemplate(buffer[j]));
+                    SpriteTemplate st = new SpriteTemplate(buffer[j]);
+                    level.setSpriteTemplate(i, j, st);
                 }
             }
         }
@@ -418,6 +419,7 @@ public class Level
             }
             dos.write(buffer);
         }
+        System.out.println();
         dos.close();
     }
 

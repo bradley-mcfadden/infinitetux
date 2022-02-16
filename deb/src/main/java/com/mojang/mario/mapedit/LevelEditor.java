@@ -18,7 +18,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import com.mojang.mario.Art;
 import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
 import com.mojang.mario.sprites.Mario;

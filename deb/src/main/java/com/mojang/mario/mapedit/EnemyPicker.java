@@ -154,12 +154,19 @@ public class EnemyPicker extends JPanel implements ActionListener {
         }
         else if (e.getSource() == noneButton)
         {
-            pickedEnemy = new SpriteTemplate(Enemy.ENEMY_NULL, winged);
+            pickedEnemy = new SpriteTemplate(Enemy.ENEMY_NULL, false);
 
             Toolkit toolkit = Toolkit.getDefaultToolkit();
             Image image = Art.cursor;
             Cursor c = toolkit.createCustomCursor(image, new Point(4, 4), "eraser");
             editor.setCursor(c);
         }
+        else if (e.getSource() == wingedButton)
+        {
+            int type = pickedEnemy.getType();
+            boolean isNull =  type == Enemy.ENEMY_NULL;
+            pickedEnemy = new SpriteTemplate(type, winged && !isNull); 
+        }
+
     }
 }

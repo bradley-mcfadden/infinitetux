@@ -54,7 +54,9 @@ public class SpriteTemplate
     public SpriteTemplate(byte code)
     {
         this.type = code & 0x0F;
-        this.winged = (code >> 7) == 1;
+        this.winged = ((code >> 7) & 0x01) == 1;
+        System.out.println(code);
+        System.out.println("code >> 7 " + ((code >> 7) & 0x01));
     }
 
     /**
@@ -133,7 +135,9 @@ public class SpriteTemplate
      */
     public byte getCode()
     {
-        return (byte)((this.winged?1:0 << 7) + (byte)this.type);
+        System.out.println("in getCode() type: " + ((byte)this.type & 0x0F));
+        System.out.println("in getCode() winged: " + (byte)(((byte)(this.winged?1:0) << 7)));
+        return (byte)(((byte)(this.winged?1:0) << 7) + ((byte)this.type & 0x0F));
     }
 
     /**
@@ -145,6 +149,36 @@ public class SpriteTemplate
     {
         if (sprite == null) return Enemy.ENEMY_NULL;
         else return sprite.getCode();
+    }
+
+    public String toString()
+    {
+        String typeString = "unsure " + type;
+        switch (type)
+        {
+            case Enemy.ENEMY_RED_KOOPA:
+                typeString = "red koopa";
+                break;
+            case Enemy.ENEMY_GREEN_KOOPA:
+                typeString = "green koopa";
+                break;
+            case Enemy.ENEMY_GOOMBA:
+                typeString = "goomba";
+                break;
+            case Enemy.ENEMY_SPIKY:
+                typeString = "spiky";
+                break;
+            case Enemy.ENEMY_FLOWER:
+                typeString = "flower";
+                break;
+            case Enemy.ENEMY_THWOMP:
+                typeString = "thwomp";
+                break;
+            case Enemy.ENEMY_NULL:
+                typeString = "null";
+                break;
+        }
+        return String.format("SpriteTemplate: %s %s %d", typeString, String.valueOf(winged), getCode());
     }
 
     /**
