@@ -9,7 +9,9 @@ import javax.swing.JOptionPane;
 
 import com.mojang.mario.mapedit.LevelView;
 import com.mojang.mario.sprites.Enemy;
+import com.mojang.mario.util.RandomFreq;
 
+// TODO: thorough documentation
 public class OreLevelGenerator 
 {
     private static long lastSeed;
@@ -24,9 +26,11 @@ public class OreLevelGenerator
 
     private Level level;
     private int lastContextIdx;
+    private RandomFreq randomGen;
     private ArrayList<AnchorPoint> anchorPoints;
     private ArrayList<AnchorPoint> failedToFilter;
-    private ArrayList<Chunk> chunkList;
+    private ArrayList<Chunk> chunkListStart;
+    private ArrayList<Chunk> chunkListEnd;
     private int numIntegrated = 0;
     //private Component[][] queryChunk;
 
@@ -44,11 +48,20 @@ public class OreLevelGenerator
         this.shouldBuildEnd = shouldBuildEnd;
         this.anchorPoints = new ArrayList<>();
         this.failedToFilter = new ArrayList<>();
-        this.chunkList = new ArrayList<>();
+        this.chunkListStart = new ArrayList<>();
+        this.chunkListEnd = new ArrayList<>();
 
         for (Level level : ChunkLibrary.getChunks())
         {
-            chunkList.add(Chunk.fromLevel(level));
+            Chunk chunk = Chunk.fromLevel(level);
+            if (chunk.anchors.size() >= 2)
+            {
+                chunkListStart.add(chunk);
+            }
+            else if (chunk.anchors.size() == 1)
+            {
+                chunkListEnd.add(chunk);
+            }
         }
     }
 
@@ -60,19 +73,33 @@ public class OreLevelGenerator
         lastSeed = seed;
         random = new Random(seed);
         level = new Level(width, height);
-        //this.queryChunk = new Component[width][height];
-
-        Collections.shuffle(anchorPoints, random);
 
         if (shouldBuildStart)
         {
             buildStart();
         }
+
+        mainLoop(chunkListStart);
+        mainLoop(chunkListEnd);
+
+        if (shouldBuildEnd)
+        {
+            buildEnd();
+        }
+
+        return level;
+    }
+
+    private void mainLoop(List<Chunk> chunkList)
+    {
+        randomGen = new RandomFreq(chunkList.size(), lastSeed);
+        failedToFilter = new ArrayList<>();
+        lastContextIdx = 0;
         while (failedToFilter.size() < anchorPoints.size())
         {
             AnchorPoint context = contextSelection();
             System.out.println("Starting filtering");
-            List<Chunk> compatibleChunks = chunkFiltering(context);
+            List<Chunk> compatibleChunks = chunkFiltering(context, chunkList);
             System.out.println("Finished filtering");
             if (compatibleChunks == null || compatibleChunks.size() == 0)
             {
@@ -102,7 +129,6 @@ public class OreLevelGenerator
                     System.out.printf("Removing ap at %d %d\n", ap.x, ap.y);
                     selectedChunk.anchors.remove(ap);
                 }
-                //anchorPoints.addAll(selectedChunk.anchors);
                 for (AnchorPoint ap : selectedChunk.anchors)
                 {
                     if (!ap.equals(context))
@@ -110,7 +136,7 @@ public class OreLevelGenerator
                         anchorPoints.add(ap);
                     }
                 }
-                //anchorPoints.remove(context);
+                anchorPoints.remove(context);
 
                 LevelView.show(level);
                 JOptionPane.showConfirmDialog(null, "Please");
@@ -118,12 +144,6 @@ public class OreLevelGenerator
             }
             shuffleContext();
         }
-        if (shouldBuildEnd)
-        {
-            buildEnd();
-        }
-
-        return level;
     }
 
     private int buildStart()
@@ -172,13 +192,12 @@ public class OreLevelGenerator
         return ap;
     }
 
-    private List<Chunk> chunkFiltering(AnchorPoint context)
+    private List<Chunk> chunkFiltering(AnchorPoint context, List<Chunk> chunkList)
     {
         List<Chunk> filteredChunks = new ArrayList<>();
         for (Chunk testChunk : chunkList)
         {
             Chunk matchedChunk = testChunk.copy();
-            Level data = matchedChunk.segment;
             Level tdata = testChunk.segment;
             //1 align the test chunk with the chosen context
             // test chunk from context.x to context.x + testChunk.width
@@ -191,11 +210,9 @@ public class OreLevelGenerator
 
             AnchorPoint a = testChunk.anchors.get(0);
 
-            // if placing the test chunk does not change query chunk, reject test chunk
-            System.out.printf("Checking for problems in query chunk from %d %d to %d %d\n", ox - a.x, oy - a.y, ox-a.x + tdata.width, oy-a.y+tdata.height);
-            if (level.equals(tdata, ox-a.x, oy-a.y))
+            // If any part of the test chunk is outside the level, do not place it
+            if (level.isOutside(tdata, ox-a.x, oy-a.y))
             {
-                System.out.println("Rejecting due to no change");
                 continue;
             }
             
@@ -218,7 +235,10 @@ public class OreLevelGenerator
 
                     int idx = ox - a.x + xi;
                     int idy = oy - a.y + yi;
-                    if (idx < 0 || idx >= level.width || idy < 0 || idy >= level.height) continue;
+                    if (idx < 0 || idx >= level.width || idy < 0 || idy >= level.height) 
+                    {
+                        continue;
+                    }
                     Component queryComp = Component.fromByte(ox - a.x + xi, oy - a.y + yi, level.map[ox-a.x+xi][oy-a.y+yi]);
                     if (queryComp.type == Component.NULL)
                     {
@@ -226,113 +246,64 @@ public class OreLevelGenerator
                     }
                     else 
                     {
-                        if (level.map[idx][idy] == tdata.map[xi][yi]) continue;
-                        System.out.printf("Overlap found, must reject: solid block at %d %d\n", idx, idy);
-                        rejectTestChunk = true;
-                        break;
+                        if (level.map[idx][idy] == tdata.map[xi][yi])
+                        {
+                        }
+                        else
+                        {
+                            System.out.printf("Overlap found, must reject: solid block at %d %d\n", idx, idy);
+                            rejectTestChunk = true;
+                            break;
+                        }
                     }
                     if (Component.fromSpriteTemplate(ox - a.x + xi, oy - a.y + yi, level.spriteTemplates[ox-a.x+xi][oy-a.y+yi]).type == Component.NULL)
                     {  
-
                     }
                     else 
                     {
-                        // if (level.spriteTemplates[idx][idy] == tdata.spriteTemplates[xi][yi])
-                        System.out.printf("Overlap found, must reject: enemy at %d %d\n", idx, idy);
-                        rejectTestChunk = true;
-                        break;
+                        SpriteTemplate lst, tst;
+                        lst = level.spriteTemplates[idx][idy];
+                        tst = tdata.spriteTemplates[idx][idy];
+                        if (lst == tst)
+                        {
+                        } 
+                        else if (lst!=null && tst!=null && lst.getType() == tst.getType())
+                        {
+                        }
+                        else {
+                            System.out.printf("Overlap found, must reject: enemy at %d %d\n", idx, idy);
+                            rejectTestChunk = true;
+                            break;
+                        }
                     }
-                    
-                    /// a if it duplicates an existing component,
-                    /// eliminate it, continue to the next component
-                    //# not sure how to do this yet
-
-                    /// b If on top of an existing component, reject
-                    /// this test chunk
-                    
-
-                    // boolean exitFlag = false; 
-                    // for (int xii = tileComp.sx; xii < tileComp.ex && !exitFlag; xii++)
-                    // {
-                    //     for (int yii = tileComp.sy; yii < tileComp.ey; yii++)
-                    //     {
-                    //         if (queryChunk[xii][yii] != null) {
-                    //             exitFlag = true;
-                    //             rejectTestChunk = true;
-                    //         }
-                    //     }
-                    // }
-                    // if (exitFlag)
-                    // {
-                    //     break;
-                    // }
-                    /// c If not a platform, for 8 adjacent neighbours
-                    /// in query chunk
-                    // int sx = tileComp.sx + ox - 1;
-                    // if (sx < 0) sx = 0;
-                    // int ex = sx + 2;
-                    // if (ex >= queryChunk.length) ex = queryChunk.length;
-
-                    // int sy = Math.max(0, tileComp.sx + oy - 1);
-                    // int ey = Math.min(queryChunk[0].length, sy + 2); 
-                    // for (int xii = tileComp.sx + ox - 1; xii < tileComp.sx + ox +1;)
-                    // {
-                    //     //// ca If neighbour is duplicated by component in test chunk, continue
-                    //     //// cb If neighbour matches test component, eliminate test component, test rest of chunk
-                        
-                    //     //// cc Else reject test chunk
-                    // }
                 }
                 if (rejectTestChunk)
                 {
                     break;
                 }
-
-                /// c If not a platform, for 8 adjacent neighbours
-                /// in query chunk
-                // for (int xii = tileComp.sx + ox - 1; ;)
-                //// ca If neighbour is duplicated by component in test chunk, continue
-                //// cb If neighbour matches test component, eliminate test component, test rest of chunk
-                //// cc Else reject test chunk
             }
-            /// c If not a platform, for 8 adjacent neighbours
-            /// in query chunk
-            //// ca If neighbour is duplicated by component in test chunk, continue
-            //// cb If neighbour matches test component, eliminate test component, test rest of chunk
-            //// cc Else reject test chunk
-
-            // d Else if is a platform, for all 25 neighbours wi 2 tiles in query chunk
-            /// i If neighbour overlaps matching component in test chunk, continue
-            /// ii If neighbour isn't a platform and blocks test cmpnt from extending,
-            /// reject the test chunk
-            
-            /// iii If neighbour is a platform, reject test chunk unless compatible
-            // e Eliminate components in test chunk beyod level edges
-            
-            // f If not reject, return all matching components as matching chunk
 
             if (!rejectTestChunk)
-            filteredChunks.add(matchedChunk);
+            {
+                filteredChunks.add(matchedChunk);
+            }
         }
         return filteredChunks;
     }
 
     private Chunk chunkSelection(List<Chunk> compatibleChunks)
     {
-        int n = compatibleChunks.size();
-        int i = random.nextInt(n);
+        int i = randomGen.get();
 
         return compatibleChunks.get(i);
     }
 
     private AnchorPoint chunkIntegration(AnchorPoint context, Chunk selection)
     {
-        //System.out.println("Number of chunks integrated " + numIntegrated++);
         AnchorPoint a = selection.anchors.get(0);
         System.out.printf("Leftmost anchor point in selection %d %d\n", a.x, a.y);
         System.out.printf("Plaing segment at %d %d\n", context.x - a.x, context.y - a.y);
-        level.safeSetArea(selection.segment, context.x - a.x, context.y - a.y);
-        //level.setArea(selection.segment, Math.max(context.x - a.x, 0), Math.max(context.y - a.y, 0));
+        level./*safeS*/setArea(selection.segment, context.x - a.x, context.y - a.y);
         
         return new AnchorPoint(a);
     }
@@ -369,6 +340,10 @@ public class OreLevelGenerator
         return 5;
     }
 
+    // TODO: fill in the gaps underneath platforms, involves finding these gaps I suppose
+    // public void decorate()
+
+    // TODO: doc
     public static class AnchorPoint {
         public int x;
         public int y;
@@ -394,7 +369,10 @@ public class OreLevelGenerator
         }
     }
 
+    // TODO: doc
     private static class Chunk {
+        private static int idCounter = 0;
+        public int id;
         public Level segment;
         public ArrayList<AnchorPoint> anchors;
 
@@ -407,7 +385,8 @@ public class OreLevelGenerator
             Chunk chunk = new Chunk();
             chunk.segment = new Level(level);
             chunk.anchors = new ArrayList<>();
-
+            chunk.id = idCounter;
+            idCounter++;
             for (int x = 0; x < level.width; x++)
             {
                 for (int y = 0; y < level.height; y++)
@@ -428,6 +407,7 @@ public class OreLevelGenerator
             Chunk copy = new Chunk();
             copy.segment = new Level(segment);
             copy.anchors = new ArrayList<>();
+            copy.id = id;
             for (AnchorPoint ap : anchors)
             {
                 copy.anchors.add(new AnchorPoint(ap));
@@ -436,6 +416,7 @@ public class OreLevelGenerator
         }
     }
 
+    // TODO: use ex, ey
     private static class Component {
         public static final int ENEMY = 1;
         public static final int TILE = 2;
@@ -447,22 +428,22 @@ public class OreLevelGenerator
 
         public static Component fromByte(int x, int y, byte b)
         {
-            Component comp;
+            Component comp = new Component();
             if (((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_UPPER) > 0 ||
                     ((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_ALL) > 0 ||
                     ((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_LOWER) > 0 ||
                     b == Tile.ANCHOR_POINT)
             {
-                comp = new Component();
                 comp.type = TILE;
-                comp.sx = x;
-                comp.sy = y;
             }
             else
             {
-                comp = new Component();
                 comp.type = NULL;
             }
+            comp.sx = x;
+            comp.sy = y;
+            comp.ex = x + 1;
+            comp.ey = y + 1;
             return comp;
         }
 
@@ -476,20 +457,29 @@ public class OreLevelGenerator
                 comp.sy = y - 1;
                 if (st.getType() == Enemy.ENEMY_THWOMP)
                 {
-                    comp.ex = x + 1;
-                    comp.ey = y + 2;
+                    comp.ex = comp.sx + 2;
+                    comp.ey = comp.sy + 3;
+                }
+                else if (st.getType() == Enemy.ENEMY_FLOWER)
+                {
+                    comp.ex = comp.sx + 2;
+                    comp.ey = comp.sy + 2;
                 }
                 else
                 {
-                    comp.ex = x;
-                    comp.ey = y;
+                    comp.ex = comp.sx + 1;
+                    comp.ey = comp.sy + 1;
                 }
             }
             else 
             {
                 comp.type = NULL;
+                comp.ex = comp.sx + 1;
+                comp.ey = comp.sy + 1;
             }
             return comp;
         }
+
+        // TODO: public List<Component> getHazards(Level level)
     }
 }
