@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 import com.mojang.mario.sprites.*;
 
+import javafx.geometry.Point2D;
+
 
 /**
  * Level - representation for a level as used by the level editor and
@@ -676,6 +678,7 @@ public class Level
         height = newHeight;
         for (int i = startX; i < endX; i++) 
         {
+            try {
             System.arraycopy(map[i], startY, tmpMap[i-startX], 0, ny);
             System.arraycopy(data[i], startY, tmpData[i-startX], 0, ny);
             for (int j = startY; j < endY; j++) 
@@ -684,6 +687,12 @@ public class Level
                 {
                     tmpSprite[i-startX][j-startY] = new SpriteTemplate(spriteTemplates[i][j]);
                 }
+            }
+            } catch (ArrayIndexOutOfBoundsException ai)
+            {
+                System.out.printf("Tried to do array copy from %d to %d on array of length %d by %d\n", startY, startY +ny, map.length, map[0].length);
+                System.out.printf("Dest array %d to %d length %d by %d\n", 0, ny, tmpMap.length, tmpMap[0].length);
+                ai.printStackTrace();
             }
         }
         map = tmpMap;
@@ -810,6 +819,7 @@ public class Level
      */
     public void setArea(Level level, int x, int y)
     {
+        System.out.printf("setting area at %d %d\n", x,y );
         int w = level.width;
         int h = level.height;
         int ex = Math.min(x + w, width);
@@ -848,6 +858,322 @@ public class Level
                     }  
                 }
             }
+        }
+    }
+
+    public void safeSetArea(Level level, int x, int y)
+    {
+        Point[] bounds = clip(level, x, y);
+        if (bounds == null)
+        {
+            level.resize(0, 0, 1, 1);
+            level.map[0][0] = Tile.AIR;
+        }
+        else
+        {
+            Point min = bounds[0];
+            Point size = bounds[1];
+            level.resize(min.x-x, min.y-y, size.x, size.y);
+            mergeArea(level, min.x, min.y);
+            System.out.printf("new level segment is %d %d and %d %d\n", min.x, min.y, size.x, size.y);
+        }
+    }
+
+    public Point[] clip(Level level, int x, int y)
+    {
+        System.out.printf("clipping level %d %d %d %d\n", x, y, level.width, level.height);
+        int sy = y;
+        int ey = y + level.height;
+        int sx = x;
+        int ex = x + level.width;
+    
+        ArrayList<Point> leftClipper = new ArrayList<>();
+        ArrayList<Point> rightClipper = new ArrayList<>();
+        ArrayList<Point> bottomClipper = new ArrayList<>();
+        ArrayList<Point> topClipper = new ArrayList<>();
+        ArrayList<Point> out = new ArrayList<>();
+        leftClipper.add(new Point(ex, ey));
+        leftClipper.add(new Point(ex, sy));
+        leftClipper.add(new Point(sx, sy));
+        leftClipper.add(new Point(sx, ey));
+        leftClipper.add(leftClipper.get(0));
+        for (int i = 0; i < leftClipper.size()-1; i++)
+        {
+            Point pt1 = leftClipper.get(i);
+            Point pt2 = leftClipper.get(i+1);
+            if (pt1.x >= 0)
+            {
+                if (pt2.x >= 0)
+                {
+                    rightClipper.add(pt1);
+                }
+                else
+                {
+                    rightClipper.add(new Point(0, pt2.y));
+                }
+            }
+            else
+            {
+                if (pt2.x >= 0)
+                {
+                    rightClipper.add(new Point(0, pt1.y));
+                    rightClipper.add(pt2);
+                }
+            }
+        }
+        if (rightClipper.size() > 0)
+        rightClipper.add(rightClipper.get(0));
+        // System.out.println("After left clipping");
+        for (Point p : rightClipper)
+        {
+            // System.out.printf("%d,%d ", p.x, p.y);
+        }
+        // System.out.println();
+        for (int i = 0; i < rightClipper.size()-1; i++)
+        {
+            Point pt1 = rightClipper.get(i);
+            Point pt2 = rightClipper.get(i+1);
+            if (pt1.x < width)
+            {
+                if (pt2.x < width)
+                {
+                    bottomClipper.add(pt1);
+                }
+                else
+                {
+                    bottomClipper.add(new Point(width - 1, pt2.y));
+                }
+            }
+            else
+            {
+                if (pt2.x < width)
+                {
+                    bottomClipper.add(new Point(width - 1, pt1.y));
+                    bottomClipper.add(pt2);
+                }
+            }
+        }
+        if (bottomClipper.size() > 0)
+        bottomClipper.add(bottomClipper.get(0));
+        // System.out.println("After right clipping");
+        for (Point p : bottomClipper)
+        {
+            // System.out.printf("%d,%d ", p.x, p.y);
+        }
+        // System.out.println();
+        for (int i = 0; i < bottomClipper.size()-1; i++)
+        {
+            Point pt1 = bottomClipper.get(i);
+            Point pt2 = bottomClipper.get(i+1);
+            if (pt1.y >= 0)
+            {
+                if (pt2.y >= 0)
+                {
+                    topClipper.add(pt1);
+                }
+                else
+                {
+                    topClipper.add(new Point(pt2.x, 0));
+                }
+            }
+            else
+            {
+                if (pt2.y >= 0)
+                {
+                    topClipper.add(new Point(pt2.x, 0));
+                    topClipper.add(pt2);
+                }
+            }
+        }
+        if (topClipper.size() > 0)
+        topClipper.add(topClipper.get(0));
+        // System.out.println("After bottom clipping");
+        for (Point p : topClipper)
+        {
+           // System.out.printf("%d,%d ", p.x, p.y);
+        }
+        // System.out.println();
+        for (int i = 0; i < topClipper.size()-1; i++)
+        {
+            Point pt1 = topClipper.get(i);
+            Point pt2 = topClipper.get(i+1);
+            if (pt1.y < height)
+            {
+                if (pt2.y < height)
+                {
+                    out.add(pt1);
+                }
+                else
+                {
+                    out.add(new Point(pt2.x, height - 1));
+                }
+            }
+            else
+            {
+                if (pt2.y < height)
+                {
+                    out.add(new Point(pt2.x, height - 1));
+                    out.add(pt2);
+                }
+            }
+        }
+        System.out.println("After top clipping");
+        for (Point p : out)
+        {
+            System.out.printf("%d,%d ", p.x, p.y);
+        }
+        System.out.println();
+        if (out.size() > 0) 
+        {
+            int minX = Integer.MAX_VALUE;
+            int minY = Integer.MAX_VALUE;
+            int maxX = Integer.MIN_VALUE;
+            int maxY = Integer.MIN_VALUE;
+            for (Point pt : out)
+            {
+                if (pt.x < minX) minX = pt.x;
+                if (pt.x > maxX) maxX = pt.x;
+                if (pt.y < minY) minY = pt.y;
+                if (pt.y > maxY) maxY = pt.y;
+            }
+            return new Point[]{
+                new Point(minX, minY),
+                new Point(maxX-minX, maxY-minY+1)
+            };
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    /**
+     * mergeArea over this one. Components in src that are
+     * transparent are not written.
+     * @param src
+     * @param x
+     * @param y
+     */
+    public void mergeArea(Level src, int x, int y)
+    {
+        int ex = Math.min(width, x + src.width);
+        int ey = Math.min(height, y + src.height);
+        for (int xi = x; xi < ex; xi++)
+        {
+            for (int yi = y; yi < ey; yi++)
+            {
+                byte b = src.map[xi-x][yi-y];
+                if (b != Tile.AIR)
+                {
+                    map[xi][yi] = b;
+                    data[xi][yi] = src.data[xi-x][yi-y];
+                }
+
+                SpriteTemplate st = src.spriteTemplates[xi-x][yi-y];
+                if (st != null && st.getType() != Enemy.ENEMY_NULL)
+                {
+                    spriteTemplates[xi][yi] = new SpriteTemplate(st);
+                }
+            }
+        }
+    }
+
+    public boolean equals(Level other, int x, int y)
+    {
+        Point[] bounds = clip(other, x, y);
+        if (bounds == null) return false;
+
+        Point min = bounds[0];
+        Point size = bounds[1];
+
+        System.out.printf("Size of other %d %d %d %d\n", min.x, min.y, size.x, size.y);
+        // System.out.printf("Attemping to resize segments w params %d %d %d %d\n", min.x, min.y, size.x, size.y);
+        Level queryCopy = new Level(this);
+        System.out.println(queryCopy);
+        queryCopy = queryCopy.getArea(x, y, size.x, size.y);
+
+        Level testCopy = new Level(this);
+        testCopy.mergeArea(other, min.x, min.y);
+        testCopy = testCopy.getArea(min.x, min.y, size.x, size.y);
+
+        // System.out.println("TEST COPY " + testCopy.width + " " + testCopy.height);
+        System.out.println(testCopy);
+
+        // System.out.println("QUERY COPY" + queryCopy.width + " " + queryCopy.height);
+        System.out.println(queryCopy);
+
+        int ex = size.x + min.x;
+        int ey = size.y + min.y;
+        System.out.printf("Checking area from %d %d to %d %d\n", min.x, min.y, min.x+size.x, min.y+size.y);
+        for (int xi = 0; xi < size.x; xi++)
+        {
+            for (int yi = 0; yi < size.y; yi++)
+            {
+                if (queryCopy.map[xi][yi] != testCopy.map[xi][yi])
+                {
+                    System.out.printf("not the same %d %d\n", xi, yi);
+                    return false;
+                }
+                SpriteTemplate st1 = queryCopy.spriteTemplates[xi][yi];
+                SpriteTemplate st2 = testCopy.spriteTemplates[xi][yi];
+
+                if ((st1 == null && st2 == null) || (st1 != null && st2 != null && st1.getType() == st2.getType()))
+                {
+                    // pass
+                }
+                else
+                {
+                    // return false;
+                }
+            }
+        }
+
+        System.out.println("the same");
+
+        return true;
+    }
+
+    public boolean isOutside(Level other, int x, int y)
+    {
+        int sx = x;
+        int sy = y;
+        int ex = x + other.width;
+        int ey = y + other.height;
+
+        if (sx < width && sx >= 0 && ex < width && ex >= 0 
+        && sy < height && sy >= 0 && ey < height && sy >= 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                builder.append(String.format("%+04d ", map[x][y]));
+            }
+            builder.append('\n');
+        }
+        return builder.toString();
+    }
+
+    public static class Point
+    {
+        int x, y;
+
+        Point(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
         }
     }
 }

@@ -493,7 +493,8 @@ public class LevelEditor extends JFrame
                 GenerateDialog.Results params = GenerateDialog.getDialog();
                 if (params != null)
                 {
-                    Level level = LevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type);
+                    // Level level = LevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type);
+                    Level level = OreLevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type, true, true);
                     updateLevel(level);
 
                     saveState();

@@ -205,6 +205,17 @@ public class LevelView extends JComponent
         
     }
 
+    public static void show(Level level)
+    {
+        JFrame frame = new JFrame("Level View");
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new LevelView(level));
+        frame.setContentPane(panel);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
     public static void main(String[] args)
     {
         Level level = LevelGenerator.createLevel(300, 15, 15L, 3, LevelGenerator.TYPE_OVERGROUND);
