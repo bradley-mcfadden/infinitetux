@@ -43,7 +43,7 @@ public class LevelView extends JComponent
         setPreferredSize(size);
         //setMaximumSize(size);
         //repaint();
-
+        
         addMouseListener(this);
 
         highlights = new ArrayList<>();

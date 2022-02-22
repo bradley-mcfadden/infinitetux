@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import com.mojang.mario.mapedit.LevelView;
 import com.mojang.mario.sprites.Enemy;
 import com.mojang.mario.util.RandomFreq;
+import com.mojang.mario.util.Logger;
 
 // TODO: thorough documentation
 public class OreLevelGenerator 
@@ -18,7 +19,9 @@ public class OreLevelGenerator
 
     private boolean shouldBuildStart;
     private boolean shouldBuildEnd;
+    @SuppressWarnings("unused")
     private int type;
+    @SuppressWarnings("unused")
     private int difficulty;
     private int width;
     private int height;
@@ -31,7 +34,6 @@ public class OreLevelGenerator
     private ArrayList<AnchorPoint> failedToFilter;
     private ArrayList<Chunk> chunkListStart;
     private ArrayList<Chunk> chunkListEnd;
-    private int numIntegrated = 0;
     //private Component[][] queryChunk;
 
     public static Level createLevel(int width, int height, long seed, int difficulty, int type, boolean buildStart, boolean buildEnd)
@@ -42,6 +44,8 @@ public class OreLevelGenerator
 
     private OreLevelGenerator(int width, int height, boolean shouldBuildStart, boolean shouldBuildEnd)
     {
+        Logger.setLevel(Logger.LEVEL_DEBUG);
+
         this.width = width;
         this.height = height;
         this.shouldBuildStart = shouldBuildStart;
@@ -79,7 +83,9 @@ public class OreLevelGenerator
             buildStart();
         }
 
+        Logger.d("ORE", "Starting chunkListStart");
         mainLoop(chunkListStart);
+        Logger.d("ORE", "Starting chunkListEnd");
         mainLoop(chunkListEnd);
 
         if (shouldBuildEnd)
@@ -95,15 +101,16 @@ public class OreLevelGenerator
         randomGen = new RandomFreq(chunkList.size(), lastSeed);
         failedToFilter = new ArrayList<>();
         lastContextIdx = 0;
+        List<AnchorPoint> usedAnchorPoints = new ArrayList<>(anchorPoints.size());
         while (failedToFilter.size() < anchorPoints.size())
         {
             AnchorPoint context = contextSelection();
-            System.out.println("Starting filtering");
+            Logger.i("ORE", "Starting filtering");
             List<Chunk> compatibleChunks = chunkFiltering(context, chunkList);
-            System.out.println("Finished filtering");
+            Logger.i("ORE", "Finished filtering");
             if (compatibleChunks == null || compatibleChunks.size() == 0)
             {
-                System.out.println("No compatible chunks for the current context");
+                Logger.i("ORE", "No compatible chunks for the current context");
                 failedToFilter.add(context);
             }
             else
@@ -113,8 +120,8 @@ public class OreLevelGenerator
                 List<AnchorPoint> toRemove = new ArrayList<>();
                 for (AnchorPoint ap : selectedChunk.anchors)
                 {
-                    System.out.printf("cx %d apx %d csx %d\n", context.x, ap.x, chunkStart.x);
-                    System.out.printf("Anchor point from %d %d ", ap.x, ap.y);
+                    // System.out.printf("cx %d apx %d csx %d\n", context.x, ap.x, chunkStart.x);
+                    Logger.i("ORE", String.format("Select context has anchor point (%d,%d) ", ap.x, ap.y));
                     ap.x = context.x + ap.x - chunkStart.x;
                     ap.y = context.y + ap.y - chunkStart.y;
 
@@ -122,11 +129,11 @@ public class OreLevelGenerator
                     {
                         toRemove.add(ap);
                     }
-                    System.out.printf("to %d %d\n", ap.x, ap.y);
+                    Logger.i("ORE", String.format("Moving anchor point to %d %d\n", ap.x, ap.y));
                 }
                 for (AnchorPoint ap : toRemove)
                 {
-                    System.out.printf("Removing ap at %d %d\n", ap.x, ap.y);
+                    Logger.i("ORE", String.format("Clipping anchor at %d %d\n", ap.x, ap.y));
                     selectedChunk.anchors.remove(ap);
                 }
                 for (AnchorPoint ap : selectedChunk.anchors)
@@ -136,6 +143,7 @@ public class OreLevelGenerator
                         anchorPoints.add(ap);
                     }
                 }
+                usedAnchorPoints.add(context);
                 anchorPoints.remove(context);
 
                 LevelView.show(level);
@@ -144,6 +152,8 @@ public class OreLevelGenerator
             }
             shuffleContext();
         }
+        
+        anchorPoints.addAll(usedAnchorPoints);
     }
 
     private int buildStart()
@@ -187,7 +197,7 @@ public class OreLevelGenerator
     private AnchorPoint contextSelection()
     {
         AnchorPoint ap = anchorPoints.get(lastContextIdx);
-        System.out.printf("Using anchor point %d %d\n", ap.x, ap.y);
+        Logger.i("ORE", String.format("Selected context at %d %d", ap.x, ap.y));
         lastContextIdx++;
         return ap;
     }
@@ -239,7 +249,27 @@ public class OreLevelGenerator
                     {
                         continue;
                     }
-                    Component queryComp = Component.fromByte(ox - a.x + xi, oy - a.y + yi, level.map[ox-a.x+xi][oy-a.y+yi]);
+                    // Check enemy in test chunk's area for overlap with tiles or enemies in query chunk
+                    if (testComp.type == Component.ENEMY)
+                    {
+                        int tstCompW = testComp.ex - testComp.sx;
+                        int tstCompH = testComp.ey - testComp.sy;
+                        for (int i = idx; i < tstCompW && !rejectTestChunk; i++)
+                        {
+                            for (int j = idy; j < tstCompH; j++)
+                            {
+                                if (Component.fromByte(i, j, level.map[i][j]).type != Component.NULL 
+                                || Component.fromSpriteTemplate(i, j, level.spriteTemplates[i][j]).type != Component.NULL)
+                                {
+                                    rejectTestChunk = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    // Check for overlap between blocks
+                    // Component queryComp = Component.fromByte(ox - a.x + xi, oy - a.y + yi, level.map[ox-a.x+xi][oy-a.y+yi]);
+                    Component queryComp = Component.fromByte(idx, idy, level.map[idx][idy]);
                     if (queryComp.type == Component.NULL)
                     {
                         
@@ -251,12 +281,15 @@ public class OreLevelGenerator
                         }
                         else
                         {
-                            System.out.printf("Overlap found, must reject: solid block at %d %d\n", idx, idy);
+                            Logger.i("ORE", String.format("Overlap found, must reject: solid block at %d %d", idx, idy));
                             rejectTestChunk = true;
                             break;
                         }
                     }
-                    if (Component.fromSpriteTemplate(ox - a.x + xi, oy - a.y + yi, level.spriteTemplates[ox-a.x+xi][oy-a.y+yi]).type == Component.NULL)
+                    // Check for overlap between enemies
+                    // If there is an enemy sprite in query chunk
+//                    if (Component.fromSpriteTemplate(ox - a.x + xi, oy - a.y + yi, level.spriteTemplates[ox-a.x+xi][oy-a.y+yi]).type == Component.NULL)
+                    if (Component.fromSpriteTemplate(idx, idy, level.spriteTemplates[idx][idy]).type == Component.NULL)
                     {  
                     }
                     else 
@@ -267,11 +300,13 @@ public class OreLevelGenerator
                         if (lst == tst)
                         {
                         } 
+                        // If the queryChunk sprite is the same as the testChunk sprite
                         else if (lst!=null && tst!=null && lst.getType() == tst.getType())
                         {
                         }
-                        else {
-                            System.out.printf("Overlap found, must reject: enemy at %d %d\n", idx, idy);
+                        else 
+                        {
+                            Logger.i("ORE", String.format("Overlap found, must reject: enemy at %d %d", idx, idy));
                             rejectTestChunk = true;
                             break;
                         }
@@ -294,23 +329,28 @@ public class OreLevelGenerator
     private Chunk chunkSelection(List<Chunk> compatibleChunks)
     {
         int i = randomGen.get();
-
+        while (i > compatibleChunks.size() - 1) 
+        {
+            i = randomGen.get();
+        }
+        randomGen.updateValue(i);
         return compatibleChunks.get(i);
     }
 
     private AnchorPoint chunkIntegration(AnchorPoint context, Chunk selection)
     {
         AnchorPoint a = selection.anchors.get(0);
-        System.out.printf("Leftmost anchor point in selection %d %d\n", a.x, a.y);
-        System.out.printf("Plaing segment at %d %d\n", context.x - a.x, context.y - a.y);
-        level./*safeS*/setArea(selection.segment, context.x - a.x, context.y - a.y);
+        Logger.i("ORE", String.format("Leftmost anchor point in integrated chunk %d %d", a.x, a.y));
+        Logger.i("ORE", String.format("Placing integrated chunk at %d %d", context.x - a.x, context.y - a.y));
+        level./*safeS*/mergeArea(selection.segment, context.x - a.x, context.y - a.y);
         
         return new AnchorPoint(a);
     }
 
     private void shuffleContext()
     {
-        if (lastContextIdx == anchorPoints.size())
+        Logger.d("ORE", String.format("shuffleContext lastContextIdx %d anchorPoints.size %d", lastContextIdx, anchorPoints.size()));
+        if (lastContextIdx >= anchorPoints.size())
         {
             Collections.shuffle(anchorPoints, random);
             lastContextIdx = 0;
@@ -319,8 +359,9 @@ public class OreLevelGenerator
 
     private int buildEnd()
     {
+        level.resize(0, 0, level.width + 15, level.height);
         int floor = height - 1 - random.nextInt(4);
-        for (int x = level.width - 5; x < level.width; x++)
+        for (int x = level.width - 15; x < level.width; x++)
         {
             for (int y = floor; y < height; y++) 
             {
@@ -334,8 +375,8 @@ public class OreLevelGenerator
                 }
             }
         }
-        level.setBlock(level.width-5, floor-1, Tile.ANCHOR_POINT);
-        level.setBlock(level.width-4, floor-1, Tile.LEVEL_EXIT);
+        //level.setBlock(level.width-10, floor-1, Tile.ANCHOR_POINT);
+        level.setBlock(level.width-10, floor-1, Tile.LEVEL_EXIT);
 
         return 5;
     }
@@ -416,7 +457,7 @@ public class OreLevelGenerator
         }
     }
 
-    // TODO: use ex, ey
+    // TODO doc
     private static class Component {
         public static final int ENEMY = 1;
         public static final int TILE = 2;

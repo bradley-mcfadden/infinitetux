@@ -487,6 +487,10 @@ public class LevelEditor extends JFrame
                 levelEditView.repaint();
                 levelEditView.resize();
                 levelEditView.setLevel(level);
+
+                
+                spawnHighlight.setX(marioSpawnSliderX.getValue());
+                levelEditView.repaint();
             }
             if (e.getSource() == generateButton)
             {

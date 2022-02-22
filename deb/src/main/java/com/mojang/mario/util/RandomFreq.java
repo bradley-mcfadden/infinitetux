@@ -13,6 +13,11 @@ public class RandomFreq {
     private double max;
     private Random random;
 
+    /**
+     * Constructor.
+     * @param bound Upper bound on returned number
+     * @param seed Seed for the random number generation
+     */
     public RandomFreq(int bound, long seed)
     {
         counts = new int[bound];
@@ -21,6 +26,10 @@ public class RandomFreq {
         updateIntervals();
     }
 
+    /**
+     * Constructor.
+     * @param bound Upper bound on returned numbers.
+     */
     public RandomFreq(int bound)
     {
         this(bound, System.nanoTime());
@@ -28,7 +37,7 @@ public class RandomFreq {
 
     private void updateIntervals()
     {
-         System.out.println("Starting updateIntervals");
+         Logger.i("RandomFreq", "Starting updateIntervals");
          double runningSum = 0.0;
          for (int i = 0; i < intervals.length; i++)
          {
@@ -38,10 +47,27 @@ public class RandomFreq {
              System.out.printf("%.2f ", intervals[i]);
          }
          max = runningSum;
-         System.out.println("eanding updateIntervals");
+         Logger.i("RandomFreq", "ending updateIntervals");
     }
 
+    /**
+     * get a number between [0, bound)
+     * @return Integer between [0, bound)
+     */
     public int get()
+    {
+        int i = getNoUpdate();
+        updateIntervals();
+        return i;
+    }
+
+    /**
+     * getNoUpdate returns a number, but does not update the frequencies
+     * so effectively using getNoUpdate is Random.nextInt() with a lot more
+     * overhead. Useful if you can't guarantee you'll use the number.
+     * @return Integer between [0, bound)
+     */
+    public int getNoUpdate()
     {
         double num = random.nextDouble() * max;
         int i = -1;
@@ -56,6 +82,18 @@ public class RandomFreq {
         }
         updateIntervals();
         return i;
+    }
+
+    /**
+     * updateValue i by incrementing its counter.
+     * Useful with getNoUpdate to apply an update after checking
+     * if the number is needed.
+     * @param i value to update counter for, in range [0,bound)
+     */
+    public void updateValue(int i)
+    {
+        counts[i]++;
+        updateIntervals();
     }
 
     public static void main(String[] args)

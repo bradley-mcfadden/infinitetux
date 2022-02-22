@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 import com.mojang.mario.sprites.*;
 
-import javafx.geometry.Point2D;
 
 
 /**
@@ -924,10 +923,11 @@ public class Level
         if (rightClipper.size() > 0)
         rightClipper.add(rightClipper.get(0));
         // System.out.println("After left clipping");
-        for (Point p : rightClipper)
-        {
+        
+        // for (Point p : rightClipper)
+        // {
             // System.out.printf("%d,%d ", p.x, p.y);
-        }
+        // }
         // System.out.println();
         for (int i = 0; i < rightClipper.size()-1; i++)
         {
@@ -956,10 +956,10 @@ public class Level
         if (bottomClipper.size() > 0)
         bottomClipper.add(bottomClipper.get(0));
         // System.out.println("After right clipping");
-        for (Point p : bottomClipper)
-        {
+        // for (Point p : bottomClipper)
+        // {
             // System.out.printf("%d,%d ", p.x, p.y);
-        }
+        // }
         // System.out.println();
         for (int i = 0; i < bottomClipper.size()-1; i++)
         {
@@ -988,10 +988,10 @@ public class Level
         if (topClipper.size() > 0)
         topClipper.add(topClipper.get(0));
         // System.out.println("After bottom clipping");
-        for (Point p : topClipper)
-        {
+        // for (Point p : topClipper)
+        // {
            // System.out.printf("%d,%d ", p.x, p.y);
-        }
+        // }
         // System.out.println();
         for (int i = 0; i < topClipper.size()-1; i++)
         {
@@ -1102,8 +1102,6 @@ public class Level
         // System.out.println("QUERY COPY" + queryCopy.width + " " + queryCopy.height);
         System.out.println(queryCopy);
 
-        int ex = size.x + min.x;
-        int ey = size.y + min.y;
         System.out.printf("Checking area from %d %d to %d %d\n", min.x, min.y, min.x+size.x, min.y+size.y);
         for (int xi = 0; xi < size.x; xi++)
         {
