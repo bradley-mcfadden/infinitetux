@@ -51,6 +51,7 @@ public class LevelEditor extends JFrame
     private JLabel levelNameLabel;
     private JTextField nameField;
     private LevelEditView levelEditView;
+    private JPanel levelEditPanel;
     private JSlider marioSpawnSliderX;
     private TilePicker tilePicker;
     private EnemyPicker enemyPicker;
@@ -111,28 +112,20 @@ public class LevelEditor extends JFrame
         lowerPanel.add(hazardPicker);
 
         JPanel borderPanel = new JPanel(new BorderLayout());
-        JPanel levelEditPanel = new JPanel(new FlowLayout());
+        FlowLayout levelEditLayout = new FlowLayout();
+        levelEditLayout.setAlignment(FlowLayout.LEFT);
+        levelEditPanel = new JPanel(levelEditLayout);
         levelEditView = new LevelEditView(enemyPicker, tilePicker, hazardPicker);
         levelEditView.setActionCompleteListener(this);
         levelEditView.setFocusable(true);
         levelEditView.addKeyListener(this);
 
-        Dimension bounds = levelEditView.getMinimumSize();
-
-        Level level = levelEditView.getLevel();
-        marioSpawnSliderX = new JSlider(0, level.width - 1, Mario.DEFAULT_SPAWN_X);
+        marioSpawnSliderX = new JSlider();
         marioSpawnSliderX.setMinorTickSpacing(1);
-        marioSpawnSliderX.addChangeListener(this);
-        Dimension sliderBounds = new Dimension(bounds);
-        sliderBounds.height = marioSpawnSliderX.getMinimumSize().height;
-        marioSpawnSliderX.setMinimumSize(sliderBounds);
-        marioSpawnSliderX.setMaximumSize(sliderBounds);
-        marioSpawnSliderX.setPreferredSize(sliderBounds);
 
-        bounds.height += marioSpawnSliderX.getMinimumSize().height;
-        levelEditPanel.setMinimumSize(bounds);
-        levelEditPanel.setMaximumSize(bounds);
-        levelEditPanel.setPreferredSize(bounds);
+        buildEditPanelBounds();
+
+        marioSpawnSliderX.addChangeListener(this);
 
         levelEditPanel.add(levelEditView);
         levelEditPanel.add(marioSpawnSliderX);
@@ -346,6 +339,24 @@ public class LevelEditor extends JFrame
         });
     }
 
+    private void buildEditPanelBounds()
+    {
+        Dimension bounds = levelEditView.getMinimumSize();
+        Level level = levelEditView.getLevel();
+        Dimension sliderBounds = new Dimension(bounds);
+        sliderBounds.height = marioSpawnSliderX.getMinimumSize().height;
+        marioSpawnSliderX.setMinimumSize(sliderBounds);
+        marioSpawnSliderX.setMaximumSize(sliderBounds);
+        marioSpawnSliderX.setPreferredSize(sliderBounds);
+        marioSpawnSliderX.setValue(Mario.DEFAULT_SPAWN_X);
+        marioSpawnSliderX.setMinimum(0);
+        marioSpawnSliderX.setMaximum(level.width - 1);
+        bounds.height += marioSpawnSliderX.getMinimumSize().height;
+        levelEditPanel.setMinimumSize(bounds);
+        levelEditPanel.setMaximumSize(bounds);
+        levelEditPanel.setPreferredSize(bounds);
+    }
+
     /**
      * Handles user interface events.
      */
@@ -484,13 +495,9 @@ public class LevelEditor extends JFrame
                 if (startX > levelWidth || startX < 0) JOptionPane.showMessageDialog(null, "Invalid input for level start", "Please enter a number between 0 and " + levelWidth, JOptionPane.ERROR_MESSAGE);
                 int startY = 0;
                 level.resize(startX, startY, levelWidth, levelHeight);
-                levelEditView.repaint();
-                levelEditView.resize();
                 levelEditView.setLevel(level);
-
-                
+                buildEditPanelBounds();
                 spawnHighlight.setX(marioSpawnSliderX.getValue());
-                levelEditView.repaint();
             }
             if (e.getSource() == generateButton)
             {
@@ -500,6 +507,8 @@ public class LevelEditor extends JFrame
                     // Level level = LevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type);
                     Level level = OreLevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type, true, true);
                     updateLevel(level);
+                    buildEditPanelBounds();
+                    levelEditPanel.revalidate();
 
                     saveState();
                 }

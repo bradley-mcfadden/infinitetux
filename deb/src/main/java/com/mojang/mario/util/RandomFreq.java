@@ -44,7 +44,7 @@ public class RandomFreq {
              double tmp = 1.0 / Math.pow(counts[i] + 1, 2);
              intervals[i] = tmp + runningSum;
              runningSum += tmp;
-             System.out.printf("%.2f ", intervals[i]);
+             // System.out.printf("%.2f ", intervals[i]);
          }
          max = runningSum;
          Logger.i("RandomFreq", "ending updateIntervals");

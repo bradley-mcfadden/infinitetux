@@ -250,19 +250,39 @@ public class OreLevelGenerator
                         continue;
                     }
                     // Check enemy in test chunk's area for overlap with tiles or enemies in query chunk
-                    if (testComp.type == Component.ENEMY)
+                    if (testComp.type == Component.ENEMY || testComp.type == Component.TILE)
                     {
                         int tstCompW = testComp.ex - testComp.sx;
                         int tstCompH = testComp.ey - testComp.sy;
-                        for (int i = idx; i < tstCompW && !rejectTestChunk; i++)
+                        Logger.d("chunkFilter", String.format("Enemy at %d %d, checking to %d %d", idx, idy, idx+tstCompW, idy+tstCompH));
+                        
+                        int startY = Math.max(0, idy-1);
+                        for (int i = idx; i < idx + tstCompW && !rejectTestChunk; i++)
                         {
-                            for (int j = idy; j < tstCompH; j++)
+                            for (int j = startY; j < idy + tstCompH; j++)
                             {
-                                if (Component.fromByte(i, j, level.map[i][j]).type != Component.NULL 
-                                || Component.fromSpriteTemplate(i, j, level.spriteTemplates[i][j]).type != Component.NULL)
+                                Logger.d("chunkFilter", String.format("Testing for enemies from %d %d to %d %d", i - 2, j - 3, i + 2, j + 1));
+                                for (Component comp : Component.getSpriteTemplates(level, i - 2, j - 3, i + 2, j + 1))
                                 {
+                                    if (Component.overlaps(testComp, comp))
+                                    {
+                                        Logger.d("chunkFilter", String.format("Enemy at %d %d to %d %d in query chunk, REJECT", comp.sx, comp.sy, comp.ex, comp.ey));
+                                        rejectTestChunk = true;
+                                        break;
+                                    }
+                                }
+
+                                Component tstBlock = Component.fromByte(i, j, level.map[i][j]);
+                                Component tstEnemy = Component.fromSpriteTemplate(i, j, level.spriteTemplates[i][j]);
+                                if (/*tstBlock.type != Component.NULL || */tstEnemy.type != Component.NULL)
+                                {
+                                    Logger.d("chunkFilter", String.format("Enemy at %d %d in query chunk, REJECT", i, j));
                                     rejectTestChunk = true;
                                     break;
+                                }
+                                else
+                                {
+                                    Logger.d("chunkFilter", String.format("All clear at %d %d tstBlock %d tstEnemy %d", i, j, tstBlock.type, tstEnemy.type));
                                 }
                             }
                         }
@@ -296,7 +316,7 @@ public class OreLevelGenerator
                     {
                         SpriteTemplate lst, tst;
                         lst = level.spriteTemplates[idx][idy];
-                        tst = tdata.spriteTemplates[idx][idy];
+                        tst = tdata.spriteTemplates[xi][yi];
                         if (lst == tst)
                         {
                         } 
@@ -519,6 +539,42 @@ public class OreLevelGenerator
                 comp.ey = comp.sy + 1;
             }
             return comp;
+        }
+
+        public static List<Component> getSpriteTemplates(Level level, int sx, int sy, int ex, int ey)
+        {
+            int startX = Math.max(0, sx);
+            int endX = Math.min(ex, level.width);
+            int startY = Math.max(0, sy);
+            int endY = Math.min(ey, level.height);
+
+            List<Component> foundComponents = new ArrayList<>();
+            for (int x = startX; x < endX; x++) 
+            {
+                for (int y = startY; y < endY; y++) 
+                {
+                    SpriteTemplate st = level.getSpriteTemplate(x, y);
+                    if (st != null)
+                    {
+                        Component tmpComp = Component.fromSpriteTemplate(x, y, st);
+                        if (tmpComp.type == ENEMY)
+                            foundComponents.add(tmpComp);
+                    }
+                }
+            }
+            return foundComponents;
+        }
+
+        public static boolean overlaps(Component window, Component comp)
+        {
+            if (comp.sx < window.ex && comp.sx >= window.sx || comp.ex < window.ex && comp.ex >= window.sx) 
+            {
+                if (comp.sy < window.ey && comp.sy >= window.sy || comp.ey < window.ey && comp.ey >= window.sy)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // TODO: public List<Component> getHazards(Level level)
