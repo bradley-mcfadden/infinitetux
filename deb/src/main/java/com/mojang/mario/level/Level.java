@@ -5,7 +5,6 @@ import java.util.*;
 import com.mojang.mario.sprites.*;
 
 
-
 /**
  * Level - representation for a level as used by the level editor and
  * in game.
@@ -420,7 +419,7 @@ public class Level
             }
             dos.write(buffer);
         }
-        System.out.println();
+        // System.out.println();
         dos.close();
     }
 
@@ -818,7 +817,7 @@ public class Level
      */
     public void setArea(Level level, int x, int y)
     {
-        System.out.printf("setting area at %d %d\n", x,y );
+        // System.out.printf("setting area at %d %d\n", x,y );
         int w = level.width;
         int h = level.height;
         int ex = Math.min(x + w, width);
@@ -860,6 +859,14 @@ public class Level
         }
     }
 
+    /**
+     * safeSetArea copies level into the region from
+     * x,y to x+level.width, y+level.height but runs clipping
+     * first to prevent an ArrayIndexOutOfBoundsException
+     * @param level Level to copy from
+     * @param x x offset in this to copy to
+     * @param y y offset in this to copy to
+     */
     public void safeSetArea(Level level, int x, int y)
     {
         Point[] bounds = clip(level, x, y);
@@ -874,13 +881,20 @@ public class Level
             Point size = bounds[1];
             level.resize(min.x-x, min.y-y, size.x, size.y);
             mergeArea(level, min.x, min.y);
-            System.out.printf("new level segment is %d %d and %d %d\n", min.x, min.y, size.x, size.y);
+            // System.out.printf("new level segment is %d %d and %d %d\n", min.x, min.y, size.x, size.y);
         }
     }
 
+    /**
+     * clip level against the `window` of this.
+     * @param level Level to clip
+     * @param x x offset of level within this
+     * @param y y offset of level within this
+     * @return Four points describing new corners of level.
+     */
     public Point[] clip(Level level, int x, int y)
     {
-        System.out.printf("clipping level %d %d %d %d\n", x, y, level.width, level.height);
+        // System.out.printf("clipping level %d %d %d %d\n", x, y, level.width, level.height);
         int sy = y;
         int ey = y + level.height;
         int sx = x;
@@ -1017,12 +1031,13 @@ public class Level
                 }
             }
         }
-        System.out.println("After top clipping");
-        for (Point p : out)
+        // System.out.println("After top clipping");
+        /*for (Point p : out)
         {
             System.out.printf("%d,%d ", p.x, p.y);
         }
         System.out.println();
+        */
         if (out.size() > 0) 
         {
             int minX = Integer.MAX_VALUE;
@@ -1050,9 +1065,9 @@ public class Level
     /**
      * mergeArea over this one. Components in src that are
      * transparent are not written.
-     * @param src
-     * @param x
-     * @param y
+     * @param src Level to copy from.
+     * @param x x offset of area to copy into in this
+     * @param y y offset of area to copy into in this
      */
     public void mergeArea(Level src, int x, int y)
     {
@@ -1078,6 +1093,15 @@ public class Level
         }
     }
 
+    /**
+     * equals check if after offsetting other by x,y,
+     * the area from x,y to x+other.width,y+other.width matches
+     * this in the same area.
+     * @param other Level to compare against.
+     * @param x x offset of other
+     * @param y y offset of other
+     * @return True if area is the same in both subsections, false otherwise.
+     */
     public boolean equals(Level other, int x, int y)
     {
         Point[] bounds = clip(other, x, y);
@@ -1086,10 +1110,10 @@ public class Level
         Point min = bounds[0];
         Point size = bounds[1];
 
-        System.out.printf("Size of other %d %d %d %d\n", min.x, min.y, size.x, size.y);
+        // System.out.printf("Size of other %d %d %d %d\n", min.x, min.y, size.x, size.y);
         // System.out.printf("Attemping to resize segments w params %d %d %d %d\n", min.x, min.y, size.x, size.y);
         Level queryCopy = new Level(this);
-        System.out.println(queryCopy);
+        // System.out.println(queryCopy);
         queryCopy = queryCopy.getArea(x, y, size.x, size.y);
 
         Level testCopy = new Level(this);
@@ -1097,19 +1121,19 @@ public class Level
         testCopy = testCopy.getArea(min.x, min.y, size.x, size.y);
 
         // System.out.println("TEST COPY " + testCopy.width + " " + testCopy.height);
-        System.out.println(testCopy);
+        // System.out.println(testCopy);
 
         // System.out.println("QUERY COPY" + queryCopy.width + " " + queryCopy.height);
-        System.out.println(queryCopy);
+        // System.out.println(queryCopy);
 
-        System.out.printf("Checking area from %d %d to %d %d\n", min.x, min.y, min.x+size.x, min.y+size.y);
+        // System.out.printf("Checking area from %d %d to %d %d\n", min.x, min.y, min.x+size.x, min.y+size.y);
         for (int xi = 0; xi < size.x; xi++)
         {
             for (int yi = 0; yi < size.y; yi++)
             {
                 if (queryCopy.map[xi][yi] != testCopy.map[xi][yi])
                 {
-                    System.out.printf("not the same %d %d\n", xi, yi);
+                    // System.out.printf("not the same %d %d\n", xi, yi);
                     return false;
                 }
                 SpriteTemplate st1 = queryCopy.spriteTemplates[xi][yi];
@@ -1126,11 +1150,22 @@ public class Level
             }
         }
 
-        System.out.println("the same");
+        // System.out.println("the same");
 
         return true;
     }
 
+    /**
+     * isOutside returns whether or not other falls outside
+     * the bounds of this level, after being offset by x,y 
+     * 
+     * It returns true if any of other's four edges are not contained
+     * by this level.
+     * @param other Level to check against this edges 
+     * @param x x Offset of other within this
+     * @param y y Offset of other within this
+     * @return Returns true if any of other's edges are outside this.
+     */
     public boolean isOutside(Level other, int x, int y)
     {
         int sx = x;
@@ -1149,6 +1184,10 @@ public class Level
         }
     }
 
+    /**
+     * toString returns a formatted string of the level's map bytes, or
+     * tiles arranged as they would be in game.
+     */
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
@@ -1164,11 +1203,14 @@ public class Level
         return builder.toString();
     }
 
+    /**
+     * Point is a simple integer point class.
+     */
     public static class Point
     {
-        int x, y;
+        public int x, y;
 
-        Point(int x, int y)
+        public Point(int x, int y)
         {
             this.x = x;
             this.y = y;
