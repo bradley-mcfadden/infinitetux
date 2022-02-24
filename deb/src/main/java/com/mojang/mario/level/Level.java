@@ -1078,7 +1078,7 @@ public class Level
             for (int yi = y; yi < ey; yi++)
             {
                 byte b = src.map[xi-x][yi-y];
-                if (b != Tile.AIR)
+                if (b != Tile.AIR && map[xi][yi] != Tile.ANCHOR_POINT)
                 {
                     map[xi][yi] = b;
                     data[xi][yi] = src.data[xi-x][yi-y];

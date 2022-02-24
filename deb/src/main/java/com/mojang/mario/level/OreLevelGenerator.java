@@ -176,7 +176,7 @@ public class OreLevelGenerator
                 }
                 for (AnchorPoint ap : selectedChunk.anchors)
                 {
-                    if (!ap.equals(context))
+                    if (/*!ap.equals(context) ||*/ !anchorPoints.contains(ap))
                     {
                         anchorPoints.add(ap);
                     }
@@ -188,7 +188,7 @@ public class OreLevelGenerator
                 LevelView.show(level);
                 JOptionPane.showConfirmDialog(null, "Please");
                 // End remove me
-                
+
                 failedToFilter.clear();
             }
             shuffleContext();
@@ -284,6 +284,12 @@ public class OreLevelGenerator
             {
                 continue;
             }
+
+            // If placing this chunk has no effect, don't place it
+            if (level.equals(tdata, ox-a.x, oy-a.y))
+            {
+                continue;
+            }
             
             for (int xi = 0; xi < tdata.width && !rejectTestChunk; xi++)
             {
@@ -327,6 +333,7 @@ public class OreLevelGenerator
                                 Logger.d("chunkFilter", String.format("Testing for enemies from %d %d to %d %d", i - 2, j - 3, i + 2, j + 1));
                                 for (Component comp : Component.getSpriteTemplates(level, i - 2, j - 3, i + 2, j + 1))
                                 {
+                                    Logger.d("chunkFilter", String.format("Checking component at %d %d to %d %d", comp.sx, comp.sy, comp.ex, comp.ey));
                                     // If an overlap is found, reject
                                     if (Component.overlaps(testComp, comp))
                                     {
@@ -659,20 +666,26 @@ public class OreLevelGenerator
                 comp.type = ENEMY;
                 comp.sx = x;
                 comp.sy = y - 1;
-                if (st.getType() == Enemy.ENEMY_THWOMP)
+                switch (st.getType())
                 {
-                    comp.ex = comp.sx + 2;
-                    comp.ey = comp.sy + 3;
-                }
-                else if (st.getType() == Enemy.ENEMY_FLOWER)
-                {
-                    comp.ex = comp.sx + 2;
-                    comp.ey = comp.sy + 2;
-                }
-                else
-                {
-                    comp.ex = comp.sx + 1;
-                    comp.ey = comp.sy + 1;
+                    case Enemy.ENEMY_THWOMP:
+                        comp.ex = comp.sx + 2;
+                        comp.ey = comp.sy + 3;
+                        break;
+                    case Enemy.ENEMY_GREEN_KOOPA:
+                    case Enemy.ENEMY_RED_KOOPA:
+                        comp.ex = comp.sx + 1;
+                        comp.ey = comp.sy + 2;
+                        break;
+                    case Enemy.ENEMY_FLOWER:
+                        comp.ex = comp.sx + 2;
+                        comp.ey = comp.sy + 2;
+                        break;
+                    case Enemy.ENEMY_SPIKY:
+                    case Enemy.ENEMY_GOOMBA:
+                        comp.ex = comp.sx + 1;
+                        comp.ey = comp.sy + 1;
+                        break;
                 }
             }
             else 
