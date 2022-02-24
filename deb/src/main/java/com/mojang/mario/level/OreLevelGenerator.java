@@ -59,6 +59,21 @@ public class OreLevelGenerator
         return levelGenerator.createLevel(seed, difficulty, type);
     }    
 
+    /**
+     * createLevel with no starting point, no ending point, and using initial as the first anchor
+     * @param width Desired width of the level. 
+     * @param height Desired height of the level.
+     * @param seed Seed for the random number generators.
+     * @param initial Anchor point describing the first anchor point to expand from.
+     * @return A level of size, width x height
+     */
+    public static Level createLevel(int width, int height, long seed, AnchorPoint initial)
+    {
+        OreLevelGenerator levelGenerator = new OreLevelGenerator(width, height, false, false);
+        levelGenerator.addAnchorPoint(initial);
+        return levelGenerator.createLevel(seed, 1, LevelGenerator.TYPE_OVERGROUND);
+    }
+
     private OreLevelGenerator(int width, int height, boolean shouldBuildStart, boolean shouldBuildEnd)
     {
         Logger.setLevel(Logger.LEVEL_DEBUG);
@@ -169,8 +184,11 @@ public class OreLevelGenerator
                 usedAnchorPoints.add(context);
                 anchorPoints.remove(context);
 
+                // TODO Remove me
                 LevelView.show(level);
                 JOptionPane.showConfirmDialog(null, "Please");
+                // End remove me
+                
                 failedToFilter.clear();
             }
             shuffleContext();
@@ -471,6 +489,11 @@ public class OreLevelGenerator
         level.setBlock(level.width-10, floor-1, Tile.LEVEL_EXIT);
 
         return 5;
+    }
+
+    private void addAnchorPoint(AnchorPoint anchor)
+    {
+        this.anchorPoints.add(anchor);
     }
 
     // TODO: fill in the gaps underneath platforms, involves finding these gaps I suppose

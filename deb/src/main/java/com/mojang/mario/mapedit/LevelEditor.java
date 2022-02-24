@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -20,6 +21,7 @@ import javax.swing.filechooser.FileFilter;
 
 import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
+import com.mojang.mario.level.OreLevelGenerator.AnchorPoint;
 import com.mojang.mario.sprites.Mario;
 
 
@@ -501,17 +503,45 @@ public class LevelEditor extends JFrame
             }
             if (e.getSource() == generateButton)
             {
-                GenerateDialog.Results params = GenerateDialog.getDialog();
-                if (params != null)
+                // This block opens the `re-generate` dialog
+                if (levelEditView.getSelected() != null && selectButton.isSelected())
                 {
-                    // Level level = LevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type);
-                    Level level = OreLevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type, true, true);
-                    updateLevel(level);
-                    buildEditPanelBounds();
-                    levelEditPanel.revalidate();
+                    Highlight selection = levelEditView.getSelected();
+                    Level level = levelEditView.getLevel();
+                    GenerateDialog.Results results = GenerateDialog.getDialog(selection, level.width, level.height);
+                    if (results != null)
+                    {
+                        int selectX = selection.getX();
+                        int selectY = selection.getY();
+                        Random random = new Random();
+                        AnchorPoint initial = new AnchorPoint(
+                            results.startPlatX - selectX, 
+                            results.startPlatY - selectY, 
+                            false
+                        );
+                        Level chunk = OreLevelGenerator.createLevel(results.area.getW(), results.area.getH(), random.nextLong(), initial);
+                        level.setArea(chunk, selectX, selectY);
 
-                    saveState();
+                        updateLevel(level);
+                        saveState();
+                    }
                 }
+                // This block opens the `new-level` dialog
+                else
+                {
+                    GenerateDialog.Results params = GenerateDialog.getDialog();
+                    if (params != null)
+                    {
+                        // Level level = LevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type);
+                        Level level = OreLevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type, true, true);
+                        updateLevel(level);
+                        buildEditPanelBounds();
+                        levelEditPanel.revalidate();
+
+                        saveState();
+                    }
+                }
+                
             }
             if (e.getSource() == deleteButton)
             {
