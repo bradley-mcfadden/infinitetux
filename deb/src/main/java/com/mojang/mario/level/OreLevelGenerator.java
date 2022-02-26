@@ -510,7 +510,7 @@ public class OreLevelGenerator
      * AnchorPoint stores information about a point within a level, and whether or
      * not the point has been visited.
      */
-    public static class AnchorPoint {
+    public static class AnchorPoint extends Object{
         public int x;
         public int y;
         public boolean visited;
@@ -547,6 +547,12 @@ public class OreLevelGenerator
         public boolean equals(AnchorPoint other)
         {
             return this.x == other.x && this.y == other.y;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            // TODO Auto-generated method stub
+            return equals((AnchorPoint)obj);
         }
     }
 
@@ -723,8 +729,11 @@ public class OreLevelGenerator
                     if (st != null)
                     {
                         Component tmpComp = Component.fromSpriteTemplate(x, y, st);
+                        Component tmpBlock = Component.fromByte(x, y, level.map[x][y]);
                         if (tmpComp.type == ENEMY)
                             foundComponents.add(tmpComp);
+                        if (tmpBlock.type == TILE)
+                            foundComponents.add(tmpBlock);
                     }
                 }
             }

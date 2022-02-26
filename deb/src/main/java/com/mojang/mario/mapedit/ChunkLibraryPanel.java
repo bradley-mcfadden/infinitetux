@@ -68,15 +68,15 @@ public class ChunkLibraryPanel extends JPanel
         spacer.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         closeButton = new JButton("X");
 
+        titlePanel.add(BorderLayout.WEST, titleLabel);
+        titlePanel.add(BorderLayout.CENTER, spacer);
+        titlePanel.add(BorderLayout.EAST, closeButton);
+
         chunkPanel = new JPanel(null);
         chunkPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         JScrollPane chunkPane = new JScrollPane(chunkPanel);
         chunkPane.setMaximumSize(new Dimension(20 * 16, Integer.MAX_VALUE));
         chunkPane.setPreferredSize(new Dimension(20 * 16, Integer.MAX_VALUE));
-
-        titlePanel.add(BorderLayout.WEST, titleLabel);
-        titlePanel.add(BorderLayout.CENTER, spacer);
-        titlePanel.add(BorderLayout.EAST, closeButton);
         
         BorderLayout mainLayout = new BorderLayout();
         mainLayout.setVgap(2);
