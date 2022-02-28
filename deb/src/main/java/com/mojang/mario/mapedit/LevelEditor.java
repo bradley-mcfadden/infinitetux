@@ -22,6 +22,7 @@ import javax.swing.filechooser.FileFilter;
 import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
 import com.mojang.mario.level.OreLevelGenerator.AnchorPoint;
+import com.mojang.mario.mapedit.MessagePanel.Message;
 import com.mojang.mario.sprites.Mario;
 
 
@@ -64,6 +65,7 @@ public class LevelEditor extends JFrame
     private JCheckBox[] bitmapCheckboxes = new JCheckBox[8];
     private ChunkLibraryPanel chunkLibraryPanel;
     private ArrayList<Level> actionQueue;
+    private MessagePanel messagePanel;
     private int nextStatePtr;
 
     private File programDirectory;
@@ -131,9 +133,12 @@ public class LevelEditor extends JFrame
 
         levelEditPanel.add(levelEditView);
         levelEditPanel.add(marioSpawnSliderX);
-
+        messagePanel = new MessagePanel();
+        JPanel levelEditPanelParent = new JPanel(new BorderLayout());
+        levelEditPanelParent.add(BorderLayout.SOUTH, messagePanel);
+        levelEditPanelParent.add(BorderLayout.CENTER, new JScrollPane(levelEditPanel));
         JPanel innerContentPanel = new JPanel(new BorderLayout());
-        innerContentPanel.add(BorderLayout.CENTER, new JScrollPane(levelEditPanel));
+        innerContentPanel.add(BorderLayout.CENTER, levelEditPanelParent);
         innerContentPanel.add(BorderLayout.SOUTH, lowerPanel);
         JPanel innerBorderPanel = new JPanel(new BorderLayout());
         innerBorderPanel.add(BorderLayout.CENTER, innerContentPanel);

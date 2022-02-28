@@ -51,6 +51,10 @@ public class Art
     public static Image logo;
     public static Image titleScreen;
     public static Image cursor;
+    public static Image warning;
+    public static Image suggestion;
+    public static Image error;
+    public static Image info;
 
     public static SonarSample[] samples = new SonarSample[100];
 
@@ -82,6 +86,10 @@ public class Art
             endScene = cutImage(gc, "/endscene.gif", 96, 96);
             gameOver = cutImage(gc, "/gameovergost.gif", 96, 64);
             cursor = getImage(gc, "/eraser-sm.png");
+            warning = getImage(gc, "/warning.png");
+            error = getImage(gc, "/error.png");
+            suggestion = getImage(gc, "/suggestion.png");
+            info = getImage(gc, "/info.png");
 
             if (sound != null)
             {
