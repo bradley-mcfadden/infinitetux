@@ -2,6 +2,7 @@
 <project name="infinitetux" basedir="." default="main">
 
     <property name="src.dir"     value="src"/>
+    <property name="lib.dir" value="lib"/>
     <property name="code.dir" value="${src.dir}/main/java"/>
     <property name="resources.dir" value="${src.dir}/main/resources"/>
     <property name="build.dir"   value="build"/>
@@ -20,7 +21,13 @@
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${jar.temp.dir}"/>
         <!--<mkdir dir="${classes.dir}"/>-->
-        <javac srcdir="${code.dir}" destdir="${classes.dir}"/>
+        <javac srcdir="${code.dir}" destdir="${classes.dir}"> 
+            <classpath>
+                <fileset dir="${lib.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
     </target>
 
     <target name="jar" depends="compile">
@@ -40,6 +47,11 @@
         <java jar="${jar.dir}/${ant.project.name}.jar" fork="true">
             <arg value="-Xmx500m"/>
             <arg value="-Xms400m"/>
+            <classpath>
+                <fileset dir="${lib.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
         </java>
     </target>
 
