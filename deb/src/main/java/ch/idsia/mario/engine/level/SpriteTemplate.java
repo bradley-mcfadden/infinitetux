@@ -11,17 +11,22 @@ public class SpriteTemplate
     public Sprite sprite;
     public boolean isDead = false;
     private boolean winged;
-
-    public int getType() {
-        return type;
-    }
-
     private int type;
     
     public SpriteTemplate(int type, boolean winged)
     {
         this.type = type;
         this.winged = winged;
+    }
+
+    public int getType() 
+    {
+        return type;
+    }
+
+    public boolean getWinged() 
+    {
+        return winged;
     }
     
     public void spawn(LevelScene world, int x, int y, int dir)

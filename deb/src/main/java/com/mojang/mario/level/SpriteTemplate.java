@@ -15,8 +15,7 @@ public class SpriteTemplate
     public int lastVisibleTick = -1;
     public Sprite sprite;
     public boolean isDead = false;
-    private boolean winged;
-    
+    private boolean winged;  
     private int type;
     
     /**
@@ -187,5 +186,14 @@ public class SpriteTemplate
     public int getType()
     {
         return this.type;
+    }
+
+    /**
+     * getWinged returned value of winged.
+     * @return Whether or not this unit is winged.
+     */
+    public boolean getWinged()
+    {
+        return this.winged;
     }
 }
