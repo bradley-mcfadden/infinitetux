@@ -14,7 +14,7 @@ import java.util.List;
  * Time: 2:44:59 PM
  */
 public class MultiDifficultyProgressTask implements Task {
-
+    private EvaluationInfo lastResult;
     private EvaluationOptions options;
     private int startingSeed = 0;
     private int[] difficulties = {0, 3, 5, 10};
@@ -34,6 +34,7 @@ public class MultiDifficultyProgressTask implements Task {
             Evaluator evaluator = new Evaluator(options);
             List<EvaluationInfo> results = evaluator.evaluate();
             EvaluationInfo result = results.get(0);
+            lastResult = result;
             double thisDistance = result.computeDistancePassed();
             fitnesses[i + 1] = thisDistance;
             distanceTravelled += thisDistance;
@@ -54,5 +55,10 @@ public class MultiDifficultyProgressTask implements Task {
 
     public EvaluationOptions getOptions() {
         return options;
+    }
+
+    @Override
+    public EvaluationInfo getLastResult() {
+        return lastResult;
     }
 }

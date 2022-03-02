@@ -1,6 +1,7 @@
 package ch.idsia.ai.tasks;
 
 import ch.idsia.ai.agents.Agent;
+import ch.idsia.tools.EvaluationInfo;
 import ch.idsia.tools.EvaluationOptions;
 
 /**
@@ -11,6 +12,8 @@ import ch.idsia.tools.EvaluationOptions;
  * Package: ch.idsia.ai.tasks
  */
 public interface Task {
+    public EvaluationInfo getLastResult();
+
     public double[] evaluate (Agent controller);
 
     public void setOptions (EvaluationOptions options);

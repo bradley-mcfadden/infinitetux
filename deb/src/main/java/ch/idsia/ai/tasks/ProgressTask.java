@@ -15,7 +15,7 @@ import java.util.List;
  * Package: ch.idsia.ai.tasks
  */
 public class ProgressTask implements Task {
-
+    private EvaluationInfo lastResult;
     private EvaluationOptions options;
 
     public ProgressTask(EvaluationOptions evaluationOptions) {
@@ -35,6 +35,7 @@ public class ProgressTask implements Task {
             //if (result.marioStatus == Mario.STATUS_WIN )
             //    Easy.save(options.getAgent(), options.getAgent().getName() + ".xml");
             distanceTravelled += result.computeDistancePassed();
+            lastResult = result;
         }
         distanceTravelled = distanceTravelled / results.size();
         return new double[]{distanceTravelled};
@@ -46,6 +47,11 @@ public class ProgressTask implements Task {
 
     public EvaluationOptions getOptions() {
         return options;
+    }
+
+    @Override
+    public EvaluationInfo getLastResult() {
+        return lastResult;
     }
 
 }

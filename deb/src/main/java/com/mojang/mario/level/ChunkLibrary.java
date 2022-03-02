@@ -178,6 +178,7 @@ public class ChunkLibrary {
     {
         long start = System.currentTimeMillis();
         File chunksDirectory = new File(ref.programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
+        System.out.println("Looking for chunks in " + chunksDirectory);
         File[] chunkDirs = chunksDirectory.listFiles();
         if (chunkDirs != null)
         {

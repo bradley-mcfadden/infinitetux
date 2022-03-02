@@ -1,6 +1,7 @@
 package ch.idsia.mario.simulation;
 
 import ch.idsia.ai.agents.Agent;
+import ch.idsia.mario.engine.level.Level;
 import ch.idsia.utils.ParameterContainer;
 
 /**
@@ -15,6 +16,7 @@ import ch.idsia.utils.ParameterContainer;
 public class SimulationOptions extends ParameterContainer
 {
     protected Agent agent;
+    protected Level level;
 //    protected MarioComponent marioComponent = null;
 
     public static int currentTrial = 1;
@@ -34,6 +36,7 @@ public class SimulationOptions extends ParameterContainer
         ret.setLevelLength(getLevelLength());
         ret.setLevelRandSeed(getLevelRandSeed());
         ret.setLevelType(getLevelType());
+        ret.setLevel(getLevel());
 //        ret.setMarioComponent(marioComponent);
         ret.setVisualization(isVisualization());
         ret.setPauseWorld(isPauseWorld());
@@ -56,6 +59,16 @@ public class SimulationOptions extends ParameterContainer
     public void setAgent(Agent agent) {
 //        setParameterValue("-ag", s(agent));
         this.agent = agent;
+    }
+
+    public Level getLevel() {
+        return this.level;
+    }
+
+    public void setLevel(Level level) {
+        System.out.printf("called setLevel() in SimulationOptions");
+        System.out.println(level == null);
+        this.level = level;
     }
 
     // TODO? LEVEL_TYPE enum?
@@ -128,7 +141,7 @@ public class SimulationOptions extends ParameterContainer
         return i(getParameterValue("-mm"));
     }
 
-    private void setMarioMode(int marioMode) {
+    public void setMarioMode(int marioMode) {
         setParameterValue("-mm", s(marioMode));
     }
 

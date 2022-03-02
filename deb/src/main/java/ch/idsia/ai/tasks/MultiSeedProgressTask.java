@@ -14,7 +14,7 @@ import java.util.List;
  * Time: 11:37:47 PM
  */
 public class MultiSeedProgressTask implements Task {
-
+    private EvaluationInfo lastResult;
     private EvaluationOptions options;
     private int startingSeed = 0;
     private int numberOfSeeds = 3;
@@ -33,6 +33,7 @@ public class MultiSeedProgressTask implements Task {
             Evaluator evaluator = new Evaluator(options);
             List<EvaluationInfo> results = evaluator.evaluate();     
             EvaluationInfo result = results.get(0);
+            lastResult = result;
             distanceTravelled += result.computeDistancePassed();
         }
         distanceTravelled = distanceTravelled / numberOfSeeds;
@@ -53,5 +54,10 @@ public class MultiSeedProgressTask implements Task {
 
     public EvaluationOptions getOptions() {
         return options;
+    }
+
+    @Override
+    public EvaluationInfo getLastResult() {
+        return lastResult;
     }
 }

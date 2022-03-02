@@ -1,5 +1,7 @@
 package ch.idsia.mario.simulation;
 
+import com.mojang.mario.util.Logger;
+
 import ch.idsia.ai.agents.Agent;
 import ch.idsia.mario.engine.GlobalOptions;
 import ch.idsia.mario.engine.MarioComponent;
@@ -41,13 +43,25 @@ public class BasicSimulator implements Simulation
 
     public EvaluationInfo simulateOneLevel()
     {
+        System.out.println("Called simulateOneLevel");
         Mario.resetStatic(simulationOptions.getMarioMode());        
         prepareMarioComponent();
         marioComponent.setZLevelScene(simulationOptions.getZLevelMap());
         marioComponent.setZLevelEnemies(simulationOptions.getZLevelEnemies());
-        marioComponent.startLevel(simulationOptions.getLevelRandSeed(), simulationOptions.getLevelDifficulty()
-                                 , simulationOptions.getLevelType(), simulationOptions.getLevelLength(),
-                                  simulationOptions.getTimeLimit());
+        System.out.print("value of getLevel() ");
+        System.out.println(simulationOptions.getLevel()==null);
+        if (simulationOptions.getLevel() != null)
+        {
+            System.out.println("Using given level ");
+            marioComponent.startLevel(simulationOptions.getLevel());
+        }
+        else
+        {
+            System.out.println("Creating level ");
+            marioComponent.startLevel(simulationOptions.getLevelRandSeed(), simulationOptions.getLevelDifficulty(), 
+                    simulationOptions.getLevelType(), simulationOptions.getLevelLength(),
+                    simulationOptions.getTimeLimit());
+        }
         marioComponent.setPaused(simulationOptions.isPauseWorld());
         marioComponent.setZLevelEnemies(simulationOptions.getZLevelEnemies());
         marioComponent.setZLevelScene(simulationOptions.getZLevelMap());

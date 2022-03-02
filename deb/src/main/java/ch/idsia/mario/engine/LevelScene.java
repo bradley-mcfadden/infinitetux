@@ -589,11 +589,20 @@ public class LevelScene extends Scene implements SpriteContext
         return ret;
     }
 
+    public void setLevel(Level level)
+    {
+        if (this.level != null)
+        {
+            throw new IllegalArgumentException("Do not call setLevel() after scene has been initialized.");
+        }
+        this.level = level;
+    }
+
     public void init()
     {
         try
         {
-            Level.loadBehaviors(new DataInputStream(LevelScene.class.getResourceAsStream("resources/tiles.dat")));
+            Level.loadBehaviors(new DataInputStream(LevelScene.class.getResourceAsStream("/tiles.dat")));
         }
         catch (IOException e)
         {
@@ -607,7 +616,10 @@ public class LevelScene extends Scene implements SpriteContext
          else
          {*/
 //        level = LevelGenerator.createLevel(320, 15, levelSeed);
-        level = LevelGenerator.createLevel(levelLength, 15, levelSeed, levelDifficulty, levelType);
+        if (level == null) 
+        {
+            level = LevelGenerator.createLevel(levelLength, 15, levelSeed, levelDifficulty, levelType);
+        }
         //        }
 
         /*        if (recorder != null)
@@ -632,7 +644,7 @@ public class LevelScene extends Scene implements SpriteContext
         sprites.add(mario);
         startTime = 1;
 
-        timeLeft = totalTime*15;
+        timeLeft = totalTime; //*15;
 
         tick = 0;
     }
@@ -655,8 +667,10 @@ public class LevelScene extends Scene implements SpriteContext
 
     public void tick()
     {
-        if (GlobalOptions.TimerOn)
-                timeLeft--;
+        if (GlobalOptions.TimerOn) {
+            timeLeft--;
+            System.out.println("Tick down " + timeLeft);
+        }
         if (timeLeft==0)
         {
             mario.die();

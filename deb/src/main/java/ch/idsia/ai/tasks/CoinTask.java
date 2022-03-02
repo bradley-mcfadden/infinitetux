@@ -1,6 +1,7 @@
 package ch.idsia.ai.tasks;
 
 import ch.idsia.ai.agents.Agent;
+import ch.idsia.tools.EvaluationInfo;
 import ch.idsia.tools.EvaluationOptions;
 
 /**
@@ -24,5 +25,11 @@ public class CoinTask implements Task {
 
     public EvaluationOptions getOptions() {
         return options;
+    }
+
+    @Override
+    public EvaluationInfo getLastResult() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

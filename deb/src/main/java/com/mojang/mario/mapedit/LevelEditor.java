@@ -12,6 +12,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -19,11 +20,16 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import com.mojang.mario.Art;
 import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
 import com.mojang.mario.level.OreLevelGenerator.AnchorPoint;
 import com.mojang.mario.mapedit.MessagePanel.Message;
 import com.mojang.mario.sprites.Mario;
+import com.mojang.mario.util.LevelTester;
+import com.mojang.mario.util.Logger;
+
+import ch.idsia.tools.EvaluationInfo;
 
 
 /**
@@ -67,6 +73,7 @@ public class LevelEditor extends JFrame
     private ArrayList<Level> actionQueue;
     private MessagePanel messagePanel;
     private int nextStatePtr;
+    private SwingWorker<EvaluationInfo, String> lastLevelPlayer;
 
     private File programDirectory;
     private String workingDirectory;
@@ -90,7 +97,8 @@ public class LevelEditor extends JFrame
         setupDirectory();
         try
         {
-            Level.loadBehaviors(new DataInputStream(new FileInputStream("tiles.dat")));
+            // Level.loadBehaviors(new DataInputStream(new FileInputStream("tiles.dat")));
+            Level.loadBehaviors(new DataInputStream(LevelEditor.class.getResourceAsStream("/tiles.dat")));
         }
         catch (Exception e)
         {
@@ -445,6 +453,7 @@ public class LevelEditor extends JFrame
                 Level level = levelEditView.getLevel();
                 level.save(new File(saveLocation));
                 levelTester.testLevel(level, spawnHighlight.getX(), spawnHighlight.getY());
+                // LevelTester.test(level, LevelTester.ASTAR_AGENT);
             }       
             if (e.getSource() == buildButton)
             {
@@ -711,8 +720,55 @@ public class LevelEditor extends JFrame
                 actionQueue.remove(i);
             }
         }
-        actionQueue.add(new Level(levelEditView.getLevel()));
+        Level level = levelEditView.getLevel();
+        actionQueue.add(level);
         nextStatePtr++;
+
+        SwingWorker<EvaluationInfo, String> worker = new SwingWorker<EvaluationInfo, String>() {
+
+            @Override
+            protected EvaluationInfo doInBackground() throws Exception {
+                return LevelTester.test(level, LevelTester.ASTAR_AGENT);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    updateEvaluationInfo(get());
+                } catch (InterruptedException | ExecutionException ie) {
+                    Logger.e("LevelEditor", "Worker thread interrupted.");
+                }
+            }
+        };
+        if (lastLevelPlayer != null && !lastLevelPlayer.isDone() && !lastLevelPlayer.isCancelled())
+        {
+            lastLevelPlayer.cancel(true);
+        }
+        worker.execute();
+        worker = lastLevelPlayer;
+    }
+
+    /**
+     * updateEvaluationInfo refreshes the MessagesPanel off the last run of the lastLevelPlayer
+     * @param info The results of playing the level.
+     */
+    public void updateEvaluationInfo(EvaluationInfo info)
+    {
+        Level level = levelEditView.getLevel();
+        if (info.lengthOfLevelPassedCells < level.xExit - 1) 
+        {
+            System.out.println("Level may be unplayable");
+            messagePanel.addKeyedMessage(
+                EditorMessageKeys.LEVEL_PLAYABLE, 
+                Message.ERROR, 
+                String.format(
+                    "Agent was only able to reach tile %d, while exit is at tile %d", 
+                    info.lengthOfLevelPassedCells, level.xExit-1));
+        }
+        else
+        {
+            messagePanel.removeKeyedMessage(EditorMessageKeys.LEVEL_PLAYABLE);
+        }
     }
 
     /**

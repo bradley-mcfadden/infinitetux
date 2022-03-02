@@ -114,7 +114,6 @@ public class Level
 
     public static void loadBehaviors(DataInputStream dis) throws IOException
     {
-        System.out.println(Level.TILE_BEHAVIORS==null);
         dis.readFully(Level.TILE_BEHAVIORS);
     }
 

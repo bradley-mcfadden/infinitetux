@@ -12,11 +12,11 @@
     </properties>
     <build>
         <sourceDirectory>${src.dir}</sourceDirectory>
-   <resources>
-     <resource>
-       <directory>deb/src/main/resources</directory>
-     </resource>
-   </resources>        
+        <resources>
+            <resource>
+            <directory>deb/src/main/resources</directory>
+            </resource>
+        </resources>        
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

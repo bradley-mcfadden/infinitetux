@@ -24,12 +24,15 @@ public class LevelAdapter {
             for (int j = 0; j < srcLevel.height; j++)
             {
                 com.mojang.mario.level.SpriteTemplate srcSt = srcLevel.spriteTemplates[i][j];
-                int type = srcSt.getType();
-                // Only consider enemies between Red Koopa and Flower
-                if (type >= 0 && type < 5) 
+                if (srcSt != null) 
                 {
-                    ch.idsia.mario.engine.level.SpriteTemplate dstSt = new ch.idsia.mario.engine.level.SpriteTemplate(srcSt.getType(), srcSt.getWinged()); 
-                    dstLevel.spriteTemplates[i][j] = dstSt;
+                    int type = srcSt.getType();
+                    // Only consider enemies between Red Koopa and Flower
+                    if (type >= 0 && type < 5) 
+                    {
+                        ch.idsia.mario.engine.level.SpriteTemplate dstSt = new ch.idsia.mario.engine.level.SpriteTemplate(srcSt.getType(), srcSt.getWinged()); 
+                        dstLevel.spriteTemplates[i][j] = dstSt;
+                    }
                 }
             }
         }

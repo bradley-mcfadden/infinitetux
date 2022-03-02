@@ -1,18 +1,16 @@
 package ch.idsia.mario.engine;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.File;
-import java.util.Iterator;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
+
 
 
 public class Art
@@ -31,9 +29,19 @@ public class Art
     public static Image[][] gameOver;
     public static Image logo;
     public static Image titleScreen;
-    final static String curDir = System.getProperty("user.dir");
-    final static String img = curDir + "/img/";
+    public static Image cursor;
+    public static Image warning;
+    public static Image suggestion;
+    public static Image error;
+    public static Image info;
 
+    private static Color translucent = new Color(0,0,0,0);
+
+    private static boolean artInit;
+    private static boolean soundInit;
+    
+
+    /*
     public static void init(GraphicsConfiguration gc)
     {
         try
@@ -116,6 +124,71 @@ public class Art
                 Graphics2D g = (Graphics2D) image.getGraphics();
                 g.setComposite(AlphaComposite.Src);
                 g.drawImage(source, -x * xSize, -y * ySize, null);
+                g.dispose();
+                images[x][y] = image;
+            }
+        }
+
+        return images;
+    }
+    */
+
+    public static void init(GraphicsConfiguration gc)
+    {
+        if (soundInit && artInit) return;
+        try
+        {
+            mario = cutImage(gc, "/mariosheet.png", 32, 32);
+            smallMario = cutImage(gc, "/smallmariosheet.png", 16, 16);
+            fireMario = cutImage(gc, "/firemariosheet.png", 32, 32);
+            enemies = cutImage(gc, "/enemysheet.png", 16, 32);
+            items = cutImage(gc, "/itemsheet.png", 16, 16);
+            level = cutImage(gc, "/mapsheet.png", 16, 16);
+            map = cutImage(gc, "/worldmap.png", 16, 16);
+            particles = cutImage(gc, "/particlesheet.png", 8, 8);
+            bg = cutImage(gc, "/bgsheet.png", 32, 32);
+            logo = getImage(gc, "/logo.gif");
+            titleScreen = getImage(gc, "/title.gif");
+            font = cutImage(gc, "/font.gif", 8, 8);
+            endScene = cutImage(gc, "/endscene.gif", 96, 96);
+            gameOver = cutImage(gc, "/gameovergost.gif", 96, 64);
+            cursor = getImage(gc, "/eraser-sm.png");
+            warning = getImage(gc, "/warning.png");
+            error = getImage(gc, "/error.png");
+            suggestion = getImage(gc, "/suggestion.png");
+            info = getImage(gc, "/info.png");
+
+            artInit = true;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static Image getImage(GraphicsConfiguration gc, String imageName) throws IOException
+    {
+        BufferedImage source = ImageIO.read(Art.class.getResourceAsStream(imageName));
+        Image image = gc.createCompatibleVolatileImage(source.getWidth(), source.getHeight(), Transparency.BITMASK);
+        Graphics2D g = (Graphics2D) image.getGraphics();
+        g.setComposite(AlphaComposite.Src);
+        g.drawImage(source, 0, 0, translucent, null);
+        g.dispose();
+        return image;
+    }
+
+    private static Image[][] cutImage(GraphicsConfiguration gc, String imageName, int xSize, int ySize) throws IOException
+    {
+        Image source = getImage(gc, imageName);
+        Image[][] images = new Image[source.getWidth(null) / xSize][source.getHeight(null) / ySize];
+        for (int x = 0; x < source.getWidth(null) / xSize; x++)
+        {
+            for (int y = 0; y < source.getHeight(null) / ySize; y++)
+            {
+                Image image = gc.createCompatibleVolatileImage(xSize, ySize, Transparency.BITMASK);
+                Graphics2D g = (Graphics2D) image.getGraphics();
+                g.setComposite(AlphaComposite.Src);
+                g.drawImage(source, -x * xSize, -y * ySize, translucent, null);
                 g.dispose();
                 images[x][y] = image;
             }

@@ -14,7 +14,7 @@ import java.util.List;
  * Time: 11:21:12 PM
  */
 public class StochasticProgressTask implements Task {
-
+    private EvaluationInfo lastResult;
     private EvaluationOptions options;
     private int startingSeed = 0;
     private int numberOfSeeds = 3;
@@ -32,6 +32,7 @@ public class StochasticProgressTask implements Task {
             Evaluator evaluator = new Evaluator(options);
             List<EvaluationInfo> results = evaluator.evaluate();
             EvaluationInfo result = results.get(0);
+            lastResult = result;
             distanceTravelled += result.computeDistancePassed();
         }
         distanceTravelled = distanceTravelled / numberOfSeeds;
@@ -52,6 +53,11 @@ public class StochasticProgressTask implements Task {
 
     public EvaluationOptions getOptions() {
         return options;
+    }
+
+    @Override
+    public EvaluationInfo getLastResult() {
+        return lastResult;
     }
 
 }
