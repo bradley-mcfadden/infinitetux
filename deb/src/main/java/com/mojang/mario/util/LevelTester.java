@@ -44,7 +44,7 @@ public class LevelTester {
         Task task = new ProgressTask(options);
         options.setMarioMode(0);
         options.setMaxFPS(true);
-        options.setVisualization(true);
+        options.setVisualization(false);
         options.setNumberOfTrials(2);
         options.setMatlabFileName("");
         options.setLevelRandSeed((int) (Math.random () * Integer.MAX_VALUE));

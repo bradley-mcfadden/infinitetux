@@ -173,7 +173,11 @@ public class LevelEditor extends JFrame
                 }    
             }
         });
-        borderPanel.add(BorderLayout.EAST, chunkLibraryPanel);
+
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.add(chunkLibraryPanel, "Chunk Library");
+
+        borderPanel.add(BorderLayout.EAST, tabs);
         borderPanel.add(BorderLayout.CENTER, innerBorderPanel);
 
         spawnHighlight = levelEditView.addHighlight(marioSpawnSliderX.getValue(), Mario.DEFAULT_SPAWN_Y, 1, 15, Highlight.GREEN, "Test spawn");

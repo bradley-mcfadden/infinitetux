@@ -2,8 +2,14 @@ package com.mojang.mario.level;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
+import com.mojang.mario.util.Logger;
 
 /**
  * ChunkLibrary manages chunks internally and provides
@@ -11,13 +17,23 @@ import java.util.List;
  */
 public class ChunkLibrary {
     
+    private static final String[] TAGS = {"place last"};
     private List<LoadingFinishedListener> lfListeners;
     private List<Level> chunks;
+    private Map<Level, List<String>> tags;
     private File programDirectory;
 
+    private static final String CHUNK_TAG_FILE_NAME = "tags.txt";
     private static final String CHUNK_PARENT_DIR_NAME = "chunks";
     private static ChunkLibrary ref;
 
+    private ChunkLibrary(File programDirectory)
+    {
+        this.programDirectory = programDirectory;
+        chunks = new ArrayList<>();
+        lfListeners = new ArrayList<>();
+        tags = new HashMap<>();
+    }
 
     /**
      * init is called to set up the ChunkLibrary. Can be called several
@@ -28,10 +44,7 @@ public class ChunkLibrary {
     {
         if (ref == null)
         {
-            ref = new ChunkLibrary();
-            ref.programDirectory = programDirectory;
-            ref.chunks = new ArrayList<>();
-            ref.lfListeners = new ArrayList<>();
+            ref = new ChunkLibrary(programDirectory);
         }
     }
 
@@ -46,6 +59,7 @@ public class ChunkLibrary {
         if (ref != null)
         {
             ref.chunks.add(chunk);
+            ref.tags.put(chunk, new ArrayList<>());
         }
         else
         {
@@ -64,6 +78,7 @@ public class ChunkLibrary {
         {
             int i = ref.chunks.indexOf(chunk);
             ref.chunks.remove(chunk);
+            ref.tags.remove(chunk);
 
             File chunksDirectory = new File(ref.programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
             File levelDirectory = new File(String.format("%s%s%03d", chunksDirectory, File.separator, i));
@@ -82,6 +97,85 @@ public class ChunkLibrary {
             throw new IllegalStateException("ChunkLibrary has not been initialized");
         }
     }
+
+    /**
+     * getAllowedTags for chunks to be marked with.
+     * @return String[] of valid tags
+     */
+    public static String[] getAllowedTags() 
+    {
+        return TAGS;
+    }
+
+    /**
+     * getTags for chunk
+     * @param chunk Chunk to check for tags 
+     * @return List of tags for chunk, or null if chunk does not exist in the library.
+     * @throws IllegalStateException if ChunkLibrary has not been loaded.
+     */
+    public static List<String> getTags(Level chunk) {
+        if (ref != null)
+        {
+            List<String> chunkTags = ref.tags.get(chunk);
+            return chunkTags;
+        }
+        else
+        {
+            throw new IllegalStateException("ChunkLibrary has not been initialized");
+        }
+    }
+
+    /**
+     * addTag to current chunk
+     * @param chunk Chunk to set tag for
+     * @param tag Tag to set on chunk
+     * @throws IllegalStateException if ChunkLibrary has not been loaded.
+     */
+    public static void addTag(Level chunk, String tag) 
+    {
+        if (ref != null)
+        {
+            List<String> chunkTags = ref.tags.get(chunk);
+            if (chunkTags == null)
+            {
+                return;
+            }
+            else
+            {
+                chunkTags.add(tag);
+            }
+        }
+        else
+        {
+            throw new IllegalStateException("ChunkLibrary has not been initialized");
+        }
+    }
+
+    /**
+     * removeTag from current chunk
+     * @param chunk Chunk to remove tag from
+     * @param tag Tag to remove from chunk
+     * @throws IllegalStateException if ChunkLibrary has not been loaded.
+     */
+    public static void removeTag(Level chunk, String tag) 
+    {
+        if (ref != null)
+        {
+            List<String> chunkTags = ref.tags.get(chunk);
+            if (chunkTags == null)
+            {
+                return;
+            }
+            else
+            {
+                chunkTags.remove(tag);
+            }
+        }
+        else
+        {
+            throw new IllegalStateException("ChunkLibrary has not been initialized");
+        }
+    } 
 
     /**
      * getChunks return a list of chunks that have been loaded.
@@ -119,9 +213,50 @@ public class ChunkLibrary {
             chunkDir.mkdirs();
             try {
                 chunk.save(chunkDir);
+                saveTags(chunk, chunkDir);
             } catch (IOException ie) {
                 System.err.println(ie);
             }
+        }
+    }
+
+    private static void saveTags(Level chunk, File chunkDirectory)
+    {
+        List<String> chunkTags = ref.tags.get(chunk);
+        File tagsFile = new File(chunkDirectory.getPath() + File.separatorChar + CHUNK_TAG_FILE_NAME);
+        PrintWriter stream = null;
+        try {
+            stream = new PrintWriter(tagsFile);
+            for (String tag : chunkTags) 
+            {
+                stream.println(tag);
+            }
+        } catch (IOException ie) {
+            Logger.e("ChunkLibrary", "IOException while writing file " + ie.getCause());
+        } finally {
+            stream.close();
+        }
+    }
+
+    private static void loadTags(Level chunk, File chunkDirectory)
+    {
+        File tagsFile = new File(chunkDirectory.getPath() + File.separatorChar + CHUNK_TAG_FILE_NAME);
+        Scanner stream = null;
+        if (tagsFile.exists())
+        {
+            try {
+                stream = new Scanner(tagsFile);
+                List<String> chunkTags = ref.tags.get(chunk);
+                while (stream.hasNextLine())
+                {
+                    String tag = stream.nextLine();
+                    chunkTags.add(tag);
+                }
+            } catch (IOException ie) {
+                Logger.e("ChunkLibrary", "IOException while reading file " + ie.getCause());
+            } finally {
+                stream.close();
+            } 
         }
     }
 
@@ -159,6 +294,7 @@ public class ChunkLibrary {
                     if (chunk != null)
                     {
                         addChunk(chunk);
+                        loadTags(chunk, chunkDir);
                     }
                 }
             }
@@ -205,6 +341,7 @@ public class ChunkLibrary {
                     if (result != null)
                     {
                         addChunk(result);
+                        loadTags(result, tmpLoader.getChunkDirectory());
                     }
                 } catch (InterruptedException ie) {
                     System.err.println("Thread " + i + " interrupted while joining");
@@ -251,6 +388,11 @@ public class ChunkLibrary {
         public Level getResult()
         {
             return result;
+        }
+
+        public File getChunkDirectory() 
+        {
+            return chunkFolderName;
         }
     }
 

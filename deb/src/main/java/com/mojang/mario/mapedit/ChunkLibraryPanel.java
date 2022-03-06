@@ -25,15 +25,17 @@ public class ChunkLibraryPanel extends JPanel
     implements ActionListener, ChunkLibrary.LoadingFinishedListener, LevelView.ClickListener {
     
     private JPanel chunkPanel;
-    private JButton closeButton;
     private JButton addButton;
     private JButton removeButton;
-    private JButton tagButton;
-
+    private JButton addTagButton;
+    private JButton removeTagButton;
+    
     private List<LevelView> chunks;
     private LevelView currentSelection;
     private SelectionChangedListener selectionChangedListener;
     private LevelEditor editor;
+
+    private DefaultListModel<String> selectionTagListModel;
 
     private boolean areChunksLoaded;
     private int chunkPanelOffset;
@@ -61,17 +63,6 @@ public class ChunkLibraryPanel extends JPanel
     private void buildLayout()
     {
         JPanel topPanel = new JPanel();
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        JLabel titleLabel = new JLabel("Chunk Library");
-        titlePanel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
-        JLabel spacer = new JLabel("    \n    ");
-        spacer.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        closeButton = new JButton("X");
-
-        titlePanel.add(BorderLayout.WEST, titleLabel);
-        titlePanel.add(BorderLayout.CENTER, spacer);
-        titlePanel.add(BorderLayout.EAST, closeButton);
-
         chunkPanel = new JPanel(null);
         chunkPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         JScrollPane chunkPane = new JScrollPane(chunkPanel);
@@ -86,32 +77,56 @@ public class ChunkLibraryPanel extends JPanel
         topLayout.setVgap(2);
         topPanel.setLayout(topLayout);
 
-        topPanel.add(BorderLayout.NORTH, titlePanel);
+        // topPanel.add(BorderLayout.NORTH, titlePanel);
         topPanel.add(BorderLayout.SOUTH, buildButtonPanel());
+
+        JPanel selectionPanel = buildSelectionPanel();
+        selectionPanel.setMaximumSize(new Dimension(20 * 16, Integer.MAX_VALUE));
+        selectionPanel.setPreferredSize(new Dimension(20 * 16, selectionPanel.getPreferredSize().height));
+        selectionPanel.setBorder(BorderFactory.createTitledBorder("Tags for Selected Chunk"));
 
         add(BorderLayout.NORTH, topPanel);
         add(BorderLayout.CENTER, chunkPane);
-
-        closeButton.addActionListener(this);
+        add(BorderLayout.SOUTH, selectionPanel);
     }
 
     private JPanel buildButtonPanel()
     {
-        addButton = new JButton("Add");
-        removeButton = new JButton("Remove");
-        tagButton = new JButton("Tag");
+        addButton = new JButton("Add Chunk");
+        removeButton = new JButton("Remove Chunk");
 
         removeButton.setEnabled(false);
-        tagButton.setEnabled(false);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 0));
+        JPanel buttonPanel = new JPanel(new GridLayout(0, 2));
         buttonPanel.add(addButton);
         buttonPanel.add(removeButton);
-        buttonPanel.add(tagButton);
 
         removeButton.addActionListener(this);
-        tagButton.addActionListener(this);
         return buttonPanel;
+    }
+
+    private JPanel buildSelectionPanel()
+    {
+        JPanel selectionPanel = new JPanel(new BorderLayout());
+        JPanel selectionPanelContent = new JPanel(new GridLayout(0, 1));
+        selectionTagListModel = new DefaultListModel<>();
+        JList<String> selectionTagList = new JList<>();
+        selectionTagList.setModel(selectionTagListModel);
+        // selectionTagList.setVisibleRowCount(5);
+        selectionPanelContent.add(new JScrollPane(selectionTagList));
+        JPanel selectionPanelControl = new JPanel(new GridLayout(0, 2));
+        addTagButton = new JButton("Add Tag");
+        removeTagButton = new JButton("Remove Tag");
+        selectionPanelControl.add(addTagButton);
+        selectionPanelControl.add(removeTagButton);
+
+        addTagButton.addActionListener(this);
+        removeTagButton.addActionListener(this);
+
+        selectionPanel.add(BorderLayout.NORTH, selectionPanelControl);
+        selectionPanel.add(BorderLayout.CENTER, selectionPanelContent);
+
+        return selectionPanel;
     }
 
     /**
@@ -270,13 +285,28 @@ public class ChunkLibraryPanel extends JPanel
 
     @Override
     public void clickPerformed(LevelView source) {
+        Level sChunk = source.getLevel();
+
         removeButton.setEnabled(true);
+        addTagButton.setEnabled(true);
+
+        boolean hasTags = ChunkLibrary.getTags(sChunk).size() > 0;
+        removeTagButton.setEnabled(hasTags);
+
         for (LevelView chunk : chunks)
         {
             chunk.clearHighlight();
         }
         currentSelection = source;
         source.setHighlight();
+
+        // clear tags
+        selectionTagListModel.clear();
+        for (String tag : ChunkLibrary.getTags(sChunk))
+        {
+            selectionTagListModel.addElement(tag);
+        }
+
         notifySelectionChangedListener();
         if (editor != null)
         {
@@ -287,20 +317,57 @@ public class ChunkLibraryPanel extends JPanel
     @Override
     public void actionPerformed(ActionEvent e) 
     {
-        if (e.getSource() == closeButton) 
-        {
-            setVisible(false);
-            if (editor != null)
-            {
-                editor.setEditingMode(LevelEditor.MODE_SELECT);
-            }
-        }
         if (e.getSource() == removeButton)
         {
             if (currentSelection != null)
             {
                 removeChunk(currentSelection);
             }
+        }
+        if (e.getSource() == addTagButton)
+        {
+            if (currentSelection != null)
+            {
+                addTag(currentSelection);
+            }
+        }
+        if (e.getSource() == removeTagButton)
+        {
+            if (currentSelection != null)
+            {
+                removeTag(currentSelection);
+            }
+        }
+    }
+
+    private void addTag(LevelView chunk) 
+    {
+        String[] tags = ChunkLibrary.getAllowedTags();
+        String defaultTag = tags[0];
+        String selection = (String)JOptionPane.showInputDialog(null, "Select a tag to add to selection", "Add tag to selection", JOptionPane.PLAIN_MESSAGE, null, tags, defaultTag);
+
+        if (selection != null) 
+        {
+            ChunkLibrary.addTag(chunk.getLevel(), selection);
+            removeTagButton.setEnabled(true);
+            selectionTagListModel.addElement(selection);
+        }
+    }
+
+    private void removeTag(LevelView chunk)
+    {
+        Level level = chunk.getLevel();
+        List<String> tags = ChunkLibrary.getTags(level);
+        String defaultTag = tags.get(0);
+        String selection = (String)JOptionPane.showInputDialog(null, "Select a tag to remove from selection", "Remove tag from selection", JOptionPane.PLAIN_MESSAGE, null, tags.toArray(), defaultTag);
+
+        if (selection != null)
+        {
+            if (tags.size() == 1)
+                removeTagButton.setEnabled(false);
+            
+            ChunkLibrary.removeTag(level, selection);
+            selectionTagListModel.removeElement(selection);
         }
     }
 
