@@ -39,13 +39,14 @@ import ch.idsia.tools.EvaluationInfo;
  */
 public class LevelEditor extends JFrame 
     implements ActionListener, ChangeListener, KeyListener, 
-    LevelEditView.ActionCompleteListener
+    LevelEditView.ActionCompleteListener, SelectAreaChangedListener
 {
     private static final long serialVersionUID = 7461321112832160393L;
 
     private JButton testButton;
     private JButton resizeButton;
-    private JButton generateButton;
+    private JButton generateLevelButton;
+    private JButton generateSelectButton;
     private JButton deleteButton;
     private JRadioButton selectButton;
     private JRadioButton buildButton;
@@ -131,6 +132,7 @@ public class LevelEditor extends JFrame
         levelEditView.setActionCompleteListener(this);
         levelEditView.setFocusable(true);
         levelEditView.addKeyListener(this);
+        levelEditView.addSelectAreaChangedListener(this);
 
         marioSpawnSliderX = new JSlider();
         marioSpawnSliderX.setMinorTickSpacing(1);
@@ -160,6 +162,7 @@ public class LevelEditor extends JFrame
         chunkLibraryPanel.setSelectionChangedListener(levelEditView);
         chunkLibraryPanel.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+        levelEditView.addSelectAreaChangedListener(chunkLibraryPanel);
         chunkLibraryPanel.getAddChunkButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Highlight selection = levelEditView.getSelected();
@@ -264,11 +267,16 @@ public class LevelEditor extends JFrame
     {
         testButton = new JButton("Test");
         resizeButton = new JButton("Resize");
-        generateButton = new JButton("Generate");
+        generateLevelButton = new JButton("Generate Level");
+        generateSelectButton = new JButton("Regenerate Selection");
         deleteButton = new JButton("Delete");
         selectButton = new JRadioButton("Select");
         buildButton = new JRadioButton("Build", true);
         chunkButton = new JRadioButton("Chunk");
+
+        deleteButton.setEnabled(false);
+        generateSelectButton.setEnabled(false);
+
         ButtonGroup toolGroup = new ButtonGroup();
         File levelDirectory = new File(programDirectory.getPath() + "/levels");
         levelDirectory.mkdirs();
@@ -280,7 +288,8 @@ public class LevelEditor extends JFrame
         coordinates = new JLabel(coordinateText, 10);
         testButton.addActionListener(this);
         resizeButton.addActionListener(this);
-        generateButton.addActionListener(this);
+        generateLevelButton.addActionListener(this);
+        generateSelectButton.addActionListener(this);
         deleteButton.addActionListener(this);
         selectButton.addActionListener(this);
         buildButton.addActionListener(this);
@@ -298,7 +307,8 @@ public class LevelEditor extends JFrame
         panel.add(deleteButton);
         panel.add(testButton);
         panel.add(resizeButton);
-        panel.add(generateButton);
+        panel.add(generateLevelButton);
+        panel.add(generateSelectButton);
         panel.add(coordinates);
         return panel;
     }
@@ -519,47 +529,43 @@ public class LevelEditor extends JFrame
                 buildEditPanelBounds();
                 spawnHighlight.setX(marioSpawnSliderX.getValue());
             }
-            if (e.getSource() == generateButton)
+            if (e.getSource() == generateLevelButton)
+            {
+                // This block opens the `new-level` dialog
+                GenerateDialog.Results params = GenerateDialog.getDialog();
+                if (params != null)
+                {
+                    // Level level = LevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type);
+                    Level level = OreLevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type, true, true);
+                    updateLevel(level);
+                    buildEditPanelBounds();
+                    levelEditPanel.revalidate();
+
+                    saveState();
+                }
+            }
+            if (e.getSource() == generateSelectButton)
             {
                 // This block opens the `re-generate` dialog
-                if (levelEditView.getSelected() != null && selectButton.isSelected())
+                Highlight selection = levelEditView.getSelected();
+                Level level = levelEditView.getLevel();
+                GenerateDialog.Results results = GenerateDialog.getDialog(selection, level.width, level.height);
+                if (results != null)
                 {
-                    Highlight selection = levelEditView.getSelected();
-                    Level level = levelEditView.getLevel();
-                    GenerateDialog.Results results = GenerateDialog.getDialog(selection, level.width, level.height);
-                    if (results != null)
-                    {
-                        int selectX = selection.getX();
-                        int selectY = selection.getY();
-                        Random random = new Random();
-                        AnchorPoint initial = new AnchorPoint(
-                            results.startPlatX - selectX, 
-                            results.startPlatY - selectY, 
-                            false
-                        );
-                        Level chunk = OreLevelGenerator.createLevel(results.area.getW(), results.area.getH(), random.nextLong(), initial);
-                        level.setArea(chunk, selectX, selectY);
+                    int selectX = selection.getX();
+                    int selectY = selection.getY();
+                    Random random = new Random();
+                    AnchorPoint initial = new AnchorPoint(
+                        results.startPlatX - selectX, 
+                        results.startPlatY - selectY, 
+                        false
+                    );
+                    Level chunk = OreLevelGenerator.createLevel(results.area.getW(), results.area.getH(), random.nextLong(), initial);
+                    level.setArea(chunk, selectX, selectY);
 
-                        updateLevel(level);
-                        saveState();
-                    }
+                    updateLevel(level);
+                    saveState();
                 }
-                // This block opens the `new-level` dialog
-                else
-                {
-                    GenerateDialog.Results params = GenerateDialog.getDialog();
-                    if (params != null)
-                    {
-                        // Level level = LevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type);
-                        Level level = OreLevelGenerator.createLevel(params.width, params.height, params.seed, params.difficulty, params.type, true, true);
-                        updateLevel(level);
-                        buildEditPanelBounds();
-                        levelEditPanel.revalidate();
-
-                        saveState();
-                    }
-                }
-                
             }
             if (e.getSource() == deleteButton)
             {
@@ -867,5 +873,19 @@ public class LevelEditor extends JFrame
         System.out.println("Launched app in " + (end - start) + " ms");
         editor.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         editor.buildWindowAdapter();
+    }
+
+    @Override
+    public void onSelectAreaChanged(Highlight select) {
+        if (select == null)
+        {
+            generateSelectButton.setEnabled(false);
+            deleteButton.setEnabled(false);
+        }
+        else
+        {
+            generateSelectButton.setEnabled(true);
+            deleteButton.setEnabled(true);
+        }
     }
 }

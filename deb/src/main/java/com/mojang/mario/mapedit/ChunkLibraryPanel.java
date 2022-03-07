@@ -22,7 +22,7 @@ import com.mojang.mario.level.LevelGenerator;
  * and removeChunk() methods.
  */
 public class ChunkLibraryPanel extends JPanel 
-    implements ActionListener, ChunkLibrary.LoadingFinishedListener, LevelView.ClickListener {
+    implements ActionListener, ChunkLibrary.LoadingFinishedListener, LevelView.ClickListener, SelectAreaChangedListener {
     
     private JPanel chunkPanel;
     private JButton addButton;
@@ -94,7 +94,7 @@ public class ChunkLibraryPanel extends JPanel
     {
         addButton = new JButton("Add Chunk");
         removeButton = new JButton("Remove Chunk");
-
+        addButton.setEnabled(false);
         removeButton.setEnabled(false);
 
         JPanel buttonPanel = new JPanel(new GridLayout(0, 2));
@@ -116,7 +116,9 @@ public class ChunkLibraryPanel extends JPanel
         selectionPanelContent.add(new JScrollPane(selectionTagList));
         JPanel selectionPanelControl = new JPanel(new GridLayout(0, 2));
         addTagButton = new JButton("Add Tag");
+        addTagButton.setEnabled(false);
         removeTagButton = new JButton("Remove Tag");
+        removeTagButton.setEnabled(false);
         selectionPanelControl.add(addTagButton);
         selectionPanelControl.add(removeTagButton);
 
@@ -244,6 +246,16 @@ public class ChunkLibraryPanel extends JPanel
     public JButton getAddChunkButton()
     {
         return addButton;
+    }
+
+    public void setAddVisible(boolean isVisible) 
+    {
+
+    }
+
+    public void setRemoveVisible(boolean isVisible)
+    {
+
     }
 
     /**
@@ -398,5 +410,17 @@ public class ChunkLibraryPanel extends JPanel
         frame.setSize(300, 300);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    @Override
+    public void onSelectAreaChanged(Highlight selection) {
+        if (selection == null)
+        {
+            addButton.setEnabled(false);
+        }
+        else
+        {
+            addButton.setEnabled(true);
+        }
     }
 }

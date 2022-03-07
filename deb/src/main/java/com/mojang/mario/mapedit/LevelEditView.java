@@ -28,6 +28,7 @@ public class LevelEditView extends JComponent
     private LevelRenderer levelRenderer;
     private Level level;
     private ActionCompleteListener actionCompleteListener;
+    private ArrayList<SelectAreaChangedListener> selectAreaChangedListener;
 
     private int xTile = -1;
     private int yTile = -1;
@@ -50,6 +51,7 @@ public class LevelEditView extends JComponent
     {
         level = new Level(256, 15);
         highlights = new ArrayList<>();
+        selectAreaChangedListener = new ArrayList<>();
         Dimension size = new Dimension(level.width * 16, level.height * 16);
         setPreferredSize(size);
         setMinimumSize(size);
@@ -463,6 +465,7 @@ public class LevelEditView extends JComponent
     {
         clearSelection();
         lastSelect = addHighlight(x, y, w, h, Highlight.YELLOW, String.format("%d,%d to %d,%d", x, y, x+w, y+h));
+        notifySelectAreaChangedListener();
     }
 
     /**
@@ -474,6 +477,7 @@ public class LevelEditView extends JComponent
         {
             removeHighlight(lastSelect);
             lastSelect = null;
+            notifySelectAreaChangedListener();
         }
     }
 
@@ -484,6 +488,23 @@ public class LevelEditView extends JComponent
         if (selection == null)
         {
             removeHighlight(chunkTarget);
+        }
+    }
+
+    /**
+     * addSelectAreaChangedListener to notify when selected area changes
+     * @param listener Listener to notify when area changes
+     */
+    public void addSelectAreaChangedListener(SelectAreaChangedListener listener)
+    {
+        selectAreaChangedListener.add(listener);
+    }
+
+    private void notifySelectAreaChangedListener()
+    {
+        for (SelectAreaChangedListener listener : selectAreaChangedListener)
+        {
+            listener.onSelectAreaChanged(lastSelect);
         }
     }
 
