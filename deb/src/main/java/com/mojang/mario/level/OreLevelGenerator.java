@@ -23,6 +23,7 @@ import com.mojang.mario.util.Logger;
 public class OreLevelGenerator 
 {
     private static long lastSeed;
+    private static final double RATIO_LAST_TO_EXPAND = 0.1;
 
     private boolean shouldBuildStart;
     private boolean shouldBuildEnd;
@@ -76,7 +77,7 @@ public class OreLevelGenerator
 
     private OreLevelGenerator(int width, int height, boolean shouldBuildStart, boolean shouldBuildEnd)
     {
-        Logger.setLevel(Logger.LEVEL_DEBUG);
+        Logger.setLevel(Logger.LEVEL_INFO);
 
         this.width = width;
         this.height = height;
@@ -89,14 +90,15 @@ public class OreLevelGenerator
 
         for (Level level : ChunkLibrary.getChunks())
         {
+            List<String> tags = ChunkLibrary.getTags(level);
             Chunk chunk = Chunk.fromLevel(level);
-            if (chunk.anchors.size() >= 2)
-            {
-                chunkListStart.add(chunk);
-            }
-            else if (chunk.anchors.size() == 1)
+            if (tags.contains("place last"))
             {
                 chunkListEnd.add(chunk);
+            }
+            else
+            {
+                chunkListStart.add(chunk);
             }
         }
     }
@@ -163,8 +165,13 @@ public class OreLevelGenerator
                     ap.x = context.x + ap.x - chunkStart.x;
                     ap.y = context.y + ap.y - chunkStart.y;
 
+                    // If anchor points are out of bounds, don't add them
                     if (ap.x > level.width || ap.y >= level.height || ap.y < 0)
                     {
+                        toRemove.add(ap);
+                    }
+                    // If anchor points overlap existing anchor points, then don't add them
+                    if (anchorPoints.contains(ap)) {
                         toRemove.add(ap);
                     }
                     Logger.i("ORE", String.format("Moving anchor point to %d %d\n", ap.x, ap.y));
@@ -185,8 +192,8 @@ public class OreLevelGenerator
                 anchorPoints.remove(context);
 
                 // TODO Remove me
-                LevelView.show(level);
-                JOptionPane.showConfirmDialog(null, "Please");
+                // LevelView.show(level);
+                // JOptionPane.showConfirmDialog(null, "Please");
                 // End remove me
 
                 failedToFilter.clear();
@@ -195,6 +202,16 @@ public class OreLevelGenerator
         }
         
         anchorPoints.addAll(usedAnchorPoints);
+        Collections.shuffle(anchorPoints);
+
+        // trim the list of anchor points to a 10th of its size
+        ArrayList<AnchorPoint> tmpAnchorPoints = new ArrayList<AnchorPoint>();
+        int n = (int)Math.ceil(anchorPoints.size() * RATIO_LAST_TO_EXPAND);
+        for (int i = 0; i < n; i++)
+        {
+            tmpAnchorPoints.add(anchorPoints.get(i));
+        }
+        anchorPoints = tmpAnchorPoints;
     }
 
     /**
@@ -203,7 +220,7 @@ public class OreLevelGenerator
      */
     private int buildStart()
     {
-        int floor = height - 3 - random.nextInt(4);
+        int floor = 7; //height - 3 - random.nextInt(4);
         for (int x = 0; x < 5; x++)
         {
             for (int y = floor; y < height; y++) 
@@ -277,144 +294,148 @@ public class OreLevelGenerator
             // def of a component: non-null SpriteTemplate, blocking tile
             boolean rejectTestChunk = false;
 
-            AnchorPoint a = testChunk.anchors.get(0);
-
-            // If any part of the test chunk is outside the level, do not place it
-            if (level.isOutside(tdata, ox-a.x, oy-a.y))
+            // For each anchor point in the test chunk
+            for (AnchorPoint a : testChunk.anchors)
             {
-                continue;
-            }
-
-            // If placing this chunk has no effect, don't place it
-            if (level.equals(tdata, ox-a.x, oy-a.y))
-            {
-                continue;
-            }
-            
-            for (int xi = 0; xi < tdata.width && !rejectTestChunk; xi++)
-            {
-                for (int yi = 0; yi < tdata.height && !rejectTestChunk; yi++)
+                // If any part of the test chunk is outside the level, do not place it
+                if (level.isOutside(tdata, ox-a.x, oy-a.y))
                 {
-                    // def of a component: non-null SpriteTemplate, blocking tile
-                    // no block in the test chunk at this point
-                    Component testComp = Component.fromByte(xi, yi, tdata.map[xi][yi]);
-                    if (testComp.type == Component.NULL)
-                    {
-                        testComp = Component.fromSpriteTemplate(xi, yi, tdata.spriteTemplates[xi][yi]);
-                    }
-                    // no enemies in the test chunk at this point either, so don't test
-                    if (testComp.type == Component.NULL)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    // idx, idy is the top left corner of the testChunk when placed in the queryChunk
-                    int idx = ox - a.x + xi;
-                    int idy = oy - a.y + yi;
-                    if (idx < 0 || idx >= level.width || idy < 0 || idy >= level.height) 
+                // If placing this chunk has no effect, don't place it
+                if (level.equals(tdata, ox-a.x, oy-a.y))
+                {
+                    continue;
+                }
+                
+                for (int xi = 0; xi < tdata.width && !rejectTestChunk; xi++)
+                {
+                    for (int yi = 0; yi < tdata.height && !rejectTestChunk; yi++)
                     {
-                        continue;
-                    }
-                    // Check enemy in test chunk's area for overlap with tiles or enemies in query chunk
-                    if (testComp.type == Component.ENEMY || testComp.type == Component.TILE)
-                    {
-                        // Size of the test component
-                        int tstCompW = testComp.ex - testComp.sx;
-                        int tstCompH = testComp.ey - testComp.sy;
-                        Logger.d("chunkFilter", String.format("Enemy at %d %d, checking to %d %d", idx, idy, idx+tstCompW, idy+tstCompH));
-                        
-                        // For each tile in the test chunk, check a 5x5 area for sprite templates, and a 1x1 area for tiles
-                        int startY = Math.max(0, idy-1);
-                        for (int i = idx; i < idx + tstCompW && !rejectTestChunk; i++)
+                        // def of a component: non-null SpriteTemplate, blocking tile
+                        // no block in the test chunk at this point
+                        Component testComp = Component.fromByte(xi, yi, tdata.map[xi][yi]);
+                        if (testComp.type == Component.NULL)
                         {
-                            for (int j = startY; j < idy + tstCompH; j++)
+                            testComp = Component.fromSpriteTemplate(xi, yi, tdata.spriteTemplates[xi][yi]);
+                        }
+                        // no enemies in the test chunk at this point either, so don't test
+                        if (testComp.type == Component.NULL)
+                        {
+                            continue;
+                        }
+
+                        // idx, idy is the top left corner of the testChunk when placed in the queryChunk
+                        int idx = ox - a.x + xi;
+                        int idy = oy - a.y + yi;
+                        if (idx < 0 || idx >= level.width || idy < 0 || idy >= level.height) 
+                        {
+                            continue;
+                        }
+                        // Check enemy in test chunk's area for overlap with tiles or enemies in query chunk
+                        if (testComp.type == Component.ENEMY || testComp.type == Component.TILE)
+                        {
+                            // Size of the test component
+                            int tstCompW = testComp.ex - testComp.sx;
+                            int tstCompH = testComp.ey - testComp.sy;
+                            Logger.d("chunkFilter", String.format("Enemy at %d %d, checking to %d %d", idx, idy, idx+tstCompW, idy+tstCompH));
+                            
+                            // For each tile in the test chunk, check a 5x5 area for sprite templates, and a 1x1 area for tiles
+                            int startY = Math.max(0, idy-1);
+                            for (int i = idx; i < idx + tstCompW && !rejectTestChunk; i++)
                             {
-                                // Check 5x5 area for sprite templates
-                                Logger.d("chunkFilter", String.format("Testing for enemies from %d %d to %d %d", i - 2, j - 3, i + 2, j + 1));
-                                for (Component comp : Component.getSpriteTemplates(level, i - 2, j - 3, i + 2, j + 1))
+                                for (int j = startY; j < idy + tstCompH; j++)
                                 {
-                                    Logger.d("chunkFilter", String.format("Checking component at %d %d to %d %d", comp.sx, comp.sy, comp.ex, comp.ey));
-                                    // If an overlap is found, reject
-                                    if (Component.overlaps(testComp, comp))
+                                    // Check 5x5 area for sprite templates
+                                    Logger.d("chunkFilter", String.format("Testing for enemies from %d %d to %d %d", i - 2, j - 3, i + 2, j + 1));
+                                    for (Component comp : Component.getSpriteTemplates(level, i - 2, j - 3, i + 2, j + 1))
                                     {
-                                        Logger.d("chunkFilter", String.format("Enemy at %d %d to %d %d in query chunk, REJECT", comp.sx, comp.sy, comp.ex, comp.ey));
+                                        Logger.d("chunkFilter", String.format("Checking component at %d %d to %d %d", comp.sx, comp.sy, comp.ex, comp.ey));
+                                        // If an overlap is found, reject
+                                        if (Component.overlaps(testComp, comp))
+                                        {
+                                            Logger.d("chunkFilter", String.format("Enemy at %d %d to %d %d in query chunk, REJECT", comp.sx, comp.sy, comp.ex, comp.ey));
+                                            rejectTestChunk = true;
+                                            break;
+                                        }
+                                    }
+
+                                    Component tstBlock = Component.fromByte(i, j, level.map[i][j]);
+                                    Component tstEnemy = Component.fromSpriteTemplate(i, j, level.spriteTemplates[i][j]);
+                                    // Reject if an enemy is at position i,j in queryChunk
+                                    if (/*tstBlock.type != Component.NULL || */tstEnemy.type != Component.NULL)
+                                    {
+                                        Logger.d("chunkFilter", String.format("Enemy at %d %d in query chunk, REJECT", i, j));
                                         rejectTestChunk = true;
                                         break;
                                     }
-                                }
-
-                                Component tstBlock = Component.fromByte(i, j, level.map[i][j]);
-                                Component tstEnemy = Component.fromSpriteTemplate(i, j, level.spriteTemplates[i][j]);
-                                // Reject if an enemy is at position i,j in queryChunk
-                                if (/*tstBlock.type != Component.NULL || */tstEnemy.type != Component.NULL)
-                                {
-                                    Logger.d("chunkFilter", String.format("Enemy at %d %d in query chunk, REJECT", i, j));
-                                    rejectTestChunk = true;
-                                    break;
-                                }
-                                else
-                                {
-                                    Logger.d("chunkFilter", String.format("All clear at %d %d tstBlock %d tstEnemy %d", i, j, tstBlock.type, tstEnemy.type));
+                                    else
+                                    {
+                                        Logger.d("chunkFilter", String.format("All clear at %d %d tstBlock %d tstEnemy %d", i, j, tstBlock.type, tstEnemy.type));
+                                    }
                                 }
                             }
                         }
-                    }
-                    // Check for overlap between blocks
-                    // Component queryComp = Component.fromByte(ox - a.x + xi, oy - a.y + yi, level.map[ox-a.x+xi][oy-a.y+yi]);
-                    Component queryComp = Component.fromByte(idx, idy, level.map[idx][idy]);
-                    if (queryComp.type == Component.NULL)
-                    {
-                        
-                    }
-                    else 
-                    {
-                        if (level.map[idx][idy] == tdata.map[xi][yi])
+                        // Check for overlap between blocks
+                        // Component queryComp = Component.fromByte(ox - a.x + xi, oy - a.y + yi, level.map[ox-a.x+xi][oy-a.y+yi]);
+                        Component queryComp = Component.fromByte(idx, idy, level.map[idx][idy]);
+                        if (queryComp.type == Component.NULL)
                         {
-                        }
-                        // Reject due to non-matching blocks
-                        else
-                        {
-                            Logger.i("ORE", String.format("Overlap found, must reject: solid block at %d %d", idx, idy));
-                            rejectTestChunk = true;
-                            break;
-                        }
-                    }
-                    // Check for overlap between enemies
-                    // If there is an enemy sprite in query chunk
-//                    if (Component.fromSpriteTemplate(ox - a.x + xi, oy - a.y + yi, level.spriteTemplates[ox-a.x+xi][oy-a.y+yi]).type == Component.NULL)
-                    if (Component.fromSpriteTemplate(idx, idy, level.spriteTemplates[idx][idy]).type == Component.NULL)
-                    {  
-                    }
-                    else 
-                    {
-                        SpriteTemplate lst, tst;
-                        lst = level.spriteTemplates[idx][idy];
-                        tst = tdata.spriteTemplates[xi][yi];
-                        if (lst == tst)
-                        {
-                        } 
-                        // If the queryChunk sprite is the same as the testChunk sprite
-                        else if (lst!=null && tst!=null && lst.getType() == tst.getType())
-                        {
+                            
                         }
                         else 
                         {
-                            Logger.i("ORE", String.format("Overlap found, must reject: enemy at %d %d", idx, idy));
-                            rejectTestChunk = true;
-                            break;
+                            if (level.map[idx][idy] == tdata.map[xi][yi])
+                            {
+                            }
+                            // Reject due to non-matching blocks
+                            else
+                            {
+                                Logger.i("ORE", String.format("Overlap found, must reject: solid block at %d %d", idx, idy));
+                                rejectTestChunk = true;
+                                break;
+                            }
+                        }
+                        // Check for overlap between enemies
+                        // If there is an enemy sprite in query chunk
+    //                    if (Component.fromSpriteTemplate(ox - a.x + xi, oy - a.y + yi, level.spriteTemplates[ox-a.x+xi][oy-a.y+yi]).type == Component.NULL)
+                        if (Component.fromSpriteTemplate(idx, idy, level.spriteTemplates[idx][idy]).type == Component.NULL)
+                        {  
+                        }
+                        else 
+                        {
+                            SpriteTemplate lst, tst;
+                            lst = level.spriteTemplates[idx][idy];
+                            tst = tdata.spriteTemplates[xi][yi];
+                            if (lst == tst)
+                            {
+                            } 
+                            // If the queryChunk sprite is the same as the testChunk sprite
+                            else if (lst!=null && tst!=null && lst.getType() == tst.getType())
+                            {
+                            }
+                            else 
+                            {
+                                Logger.i("ORE", String.format("Overlap found, must reject: enemy at %d %d", idx, idy));
+                                rejectTestChunk = true;
+                                break;
+                            }
                         }
                     }
+                    if (rejectTestChunk)
+                    {
+                        break;
+                    }
                 }
-                if (rejectTestChunk)
-                {
-                    break;
-                }
-            }
 
-            // If chunk is not rejected, add to test chunk to matched chunks
-            if (!rejectTestChunk)
-            {
-                filteredChunks.add(matchedChunk);
+                // If chunk is not rejected, add to test chunk to matched chunks
+                if (!rejectTestChunk)
+                {
+                    Chunk matched = matchedChunk.copy();
+                    matched.matchedAnchor = a;
+                    filteredChunks.add(matched);
+                }
             }
         }
         return filteredChunks;
@@ -447,7 +468,7 @@ public class OreLevelGenerator
      */
     private AnchorPoint chunkIntegration(AnchorPoint context, Chunk selection)
     {
-        AnchorPoint a = selection.anchors.get(0);
+        AnchorPoint a = selection.matchedAnchor;
         Logger.i("ORE", String.format("Leftmost anchor point in integrated chunk %d %d", a.x, a.y));
         Logger.i("ORE", String.format("Placing integrated chunk at %d %d", context.x - a.x, context.y - a.y));
         level./*safeS*/mergeArea(selection.segment, context.x - a.x, context.y - a.y);
@@ -561,6 +582,7 @@ public class OreLevelGenerator
      */
     private static class Chunk {
         private static int idCounter = 0;
+        public AnchorPoint matchedAnchor;
         public int id;
         public Level segment;
         public ArrayList<AnchorPoint> anchors;
@@ -692,6 +714,9 @@ public class OreLevelGenerator
                         comp.ex = comp.sx + 1;
                         comp.ey = comp.sy + 1;
                         break;
+                    default:
+                        comp.ex = comp.sx + 2;
+                        comp.ey = comp.sy + 2;
                 }
             }
             else 

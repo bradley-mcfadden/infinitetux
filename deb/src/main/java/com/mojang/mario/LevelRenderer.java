@@ -90,10 +90,18 @@ public class LevelRenderer
         {
             for (int y = yTileStart; y <= yTileEnd; y++)
             {
-                int b = level.getBlock(x, y) & 0xff;
+                int b1 = level.getBlock(x, y);
+                int b = b1 & 0xff;
                 if (((Level.TILE_BEHAVIORS[b]) & Level.BIT_ANIMATED) == 0)
                 {
-                    g.drawImage(Art.level[b % 16][b / 16], (x << 4) - xCam, (y << 4) - yCam,translucent, null);
+                    if (!isLevelEditor && (b1 == Tile.ANCHOR_POINT || b1 == Tile.LEVEL_EXIT))
+                    {
+
+                    }
+                    else
+                    { 
+                        g.drawImage(Art.level[b % 16][b / 16], (x << 4) - xCam, (y << 4) - yCam,translucent, null);
+                    }
                 }
                 SpriteTemplate t =  level.getSpriteTemplate(x, y);
                 if (t != null && isLevelEditor)
@@ -141,7 +149,7 @@ public class LevelRenderer
             for (int y = yCam / 16; y < (yCam + height) / 16; y++)
             {
                 byte b = level.getBlock(x, y);
-
+                
                 if (((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_ANIMATED) > 0)
                 {
                     int animTime = (tick / 3) % 4;
@@ -158,7 +166,9 @@ public class LevelRenderer
                     int yo = 0;
                     if (x >= 0 && y >= 0 && x < level.width && y < level.height) yo = level.data[x][y];
                     if (yo > 0) yo = (int) (Math.sin((yo - alpha) / 4.0f * Math.PI) * 8);
+                    
                     g.drawImage(Art.level[(b % 16) / 4 * 4 + animTime][b / 16], (x << 4) - xCam, (y << 4) - yCam - yo,translucent, null);
+                    
                 }
                 /*                else if (b == Level.TILE_BONUS)
                  {
