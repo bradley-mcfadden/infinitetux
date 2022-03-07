@@ -241,7 +241,14 @@ public class OreLevelGenerator
             {
                 if (y > floor + 1)
                 {
-                    level.setBlock(x, y, Tile.FLOOR_DECORATIVE);
+                    if (x == 7 - 1) 
+                    {
+                        level.setBlock(x, y, Tile.FLOOR_RIGHT_BLOCK);
+                    }
+                    else
+                    {
+                        level.setBlock(x, y, Tile.FLOOR_DECORATIVE);
+                    }
                 }
                 else
                 {

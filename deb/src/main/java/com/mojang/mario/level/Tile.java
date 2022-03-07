@@ -17,6 +17,8 @@ public interface Tile {
     byte FLOOR_RIGHT_CORNER = (byte)-126;
     byte LEVEL_EXIT = (byte)-1;
     byte FLOOR_DECORATIVE = (byte)-125;
+    byte FLOOR_LEFT_BLOCK = (byte)-112;
+    byte FLOOR_RIGHT_BLOCK = (byte)-110;
     byte ICE = (byte)9;
     byte BULLET_BILL_TOP = (byte)14;
     byte BULLET_BILL_MID = (byte)30;
