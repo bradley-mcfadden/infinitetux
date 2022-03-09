@@ -3,6 +3,8 @@ package ch.idsia.tools;
 import ch.idsia.mario.engine.sprites.Mario;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -38,6 +40,7 @@ public class EvaluationInfo
     public int levelRandSeed = MagicNumberUndef;
     public int marioMode = MagicNumberUndef;
     public int killsTotal = MagicNumberUndef;
+    public List<ActionTrace> actions;
 
     public double computeBasicFitness()
     {

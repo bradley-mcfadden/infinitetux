@@ -64,6 +64,8 @@ public class EnemyPicker extends JPanel implements ActionListener {
         thwompButton = new JRadioButton(THWOMP);
         noneButton = new JRadioButton(NONE);
 
+        thwompButton.setVisible(false);
+
         redKoopaButton.setVerticalAlignment(SwingConstants.TOP);
         greenKoopaButton.setVerticalAlignment(SwingConstants.TOP);
         goombaButton.setVerticalAlignment(SwingConstants.TOP);

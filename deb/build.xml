@@ -44,11 +44,15 @@
     </target>
 
     <target name="run" depends="jar">
-        <java jar="${jar.dir}/${ant.project.name}.jar" fork="true">
+        <java classname="${main-class}" fork="true">
             <arg value="-Xmx500m"/>
             <arg value="-Xms400m"/>
+            <arg value="${main-class}"/>
             <classpath>
                 <fileset dir="${lib.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="${jar.dir}">
                     <include name="**/*.jar" />
                 </fileset>
             </classpath>

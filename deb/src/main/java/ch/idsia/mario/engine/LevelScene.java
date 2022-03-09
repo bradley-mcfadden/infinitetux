@@ -75,6 +75,11 @@ public class LevelScene extends Scene implements SpriteContext
         killedCreaturesByShell = 0;
     }
 
+    public int getTick()
+    {
+        return tick;
+    }
+
     private String mapElToStr(int el)
     {
         String s = "";

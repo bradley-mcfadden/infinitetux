@@ -20,12 +20,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import com.mojang.mario.Art;
 import com.mojang.mario.TestLevelFrameLauncher;
 import com.mojang.mario.level.*;
 import com.mojang.mario.level.OreLevelGenerator.AnchorPoint;
 import com.mojang.mario.mapedit.MessagePanel.Message;
 import com.mojang.mario.sprites.Mario;
+import com.mojang.mario.util.LevelStats;
 import com.mojang.mario.util.LevelTester;
 import com.mojang.mario.util.Logger;
 
@@ -71,6 +71,7 @@ public class LevelEditor extends JFrame
     private TestLevelFrameLauncher levelTester;
     private JCheckBox[] bitmapCheckboxes = new JCheckBox[8];
     private ChunkLibraryPanel chunkLibraryPanel;
+    private StatsPanel statsPanel;
     private ArrayList<Level> actionQueue;
     private MessagePanel messagePanel;
     private int nextStatePtr;
@@ -118,6 +119,7 @@ public class LevelEditor extends JFrame
 
         enemyPicker = new EnemyPicker(this);
         hazardPicker = new HazardPicker(this);
+        hazardPicker.setVisible(false);
 
         JPanel lowerPanel = new JPanel(new GridLayout(1, 3));
         lowerPanel.add(tilePickerPanel);
@@ -177,8 +179,11 @@ public class LevelEditor extends JFrame
             }
         });
 
+        statsPanel = new StatsPanel();
+
         JTabbedPane tabs = new JTabbedPane();
         tabs.add(chunkLibraryPanel, "Chunk Library");
+        tabs.add(statsPanel, "Level Overview");
 
         borderPanel.add(BorderLayout.EAST, tabs);
         borderPanel.add(BorderLayout.CENTER, innerBorderPanel);
@@ -779,6 +784,8 @@ public class LevelEditor extends JFrame
         {
             messagePanel.removeKeyedMessage(EditorMessageKeys.LEVEL_PLAYABLE);
         }
+        statsPanel.setAgentDataset(LevelStats.getAgentActionXY(info));
+        statsPanel.setComponentDataset(LevelStats.getLevelDistributionXY(level));
     }
 
     /**

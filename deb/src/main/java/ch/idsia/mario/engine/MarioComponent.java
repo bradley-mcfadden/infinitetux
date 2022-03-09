@@ -6,6 +6,7 @@ import ch.idsia.mario.engine.level.Level;
 import ch.idsia.mario.engine.level.LevelGenerator;
 import ch.idsia.mario.engine.sprites.Mario;
 import ch.idsia.mario.environments.Environment;
+import ch.idsia.tools.ActionTrace;
 import ch.idsia.tools.EvaluationInfo;
 import ch.idsia.tools.GameViewer;
 import ch.idsia.tools.tcp.ServerAgent;
@@ -119,6 +120,8 @@ public class MarioComponent extends JComponent implements Runnable, /*KeyListene
         Graphics g = null;
         Graphics og = null;
 
+        ArrayList<ActionTrace> actions = new ArrayList<>();
+
         image = createVolatileImage(320, 240);
         g = getGraphics();
         og = image.getGraphics();
@@ -175,8 +178,19 @@ public class MarioComponent extends JComponent implements Runnable, /*KeyListene
             else
             {
                 System.err.println("Null Action received. Skipping simulation...");
+                action = new boolean[5];
                 stop();
             }
+            actions.add(new ActionTrace(
+                ((LevelScene) scene).getTick(),
+                new int[]{
+                    action[0]?1:0,
+                    action[1]?1:0,
+                    action[2]?1:0,
+                    action[3]?1:0,
+                    action[4]?1:0
+                }
+            ));
 
 
             //Apply action;
@@ -259,6 +273,7 @@ public class MarioComponent extends JComponent implements Runnable, /*KeyListene
         evaluationInfo.totalFramesPerfomed = frame;
         evaluationInfo.marioMode = mario.getMode();
         evaluationInfo.killsTotal = mario.world.killedCreaturesTotal;
+        evaluationInfo.actions = actions;
 //        evaluationInfo.Memo = "Number of attempt: " + Mario.numberOfAttempts;
         if (agent instanceof ServerAgent && mario.keys != null /*this will happen if client quits unexpectedly in case of Server mode*/)
             ((ServerAgent)agent).integrateEvaluationInfo(evaluationInfo);
@@ -279,7 +294,8 @@ public class MarioComponent extends JComponent implements Runnable, /*KeyListene
     }
 
     public void startLevel(Level level) {
-        scene = new LevelScene(graphicsConfiguration, this, 0L, 1, LevelGenerator.TYPE_OVERGROUND, level.width, level.xExit * 2);
+        // TODO figure out if this time limit is appropriate
+        scene = new LevelScene(graphicsConfiguration, this, 0L, 1, LevelGenerator.TYPE_OVERGROUND, level.width, level.xExit * 4);
         levelScene = ((LevelScene) scene);
         levelScene.setLevel(level);
         scene.init();
