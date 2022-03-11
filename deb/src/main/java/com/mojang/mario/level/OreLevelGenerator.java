@@ -196,7 +196,7 @@ public class OreLevelGenerator
                 // JOptionPane.showConfirmDialog(null, "Please");
                 // End remove me
 
-                failedToFilter.clear();
+                // failedToFilter.clear();
             }
             shuffleContext();
         }
@@ -299,11 +299,12 @@ public class OreLevelGenerator
             int oy = context.y;
             //2 for each component in the test chunk
             // def of a component: non-null SpriteTemplate, blocking tile
-            boolean rejectTestChunk = false;
 
             // For each anchor point in the test chunk
             for (AnchorPoint a : testChunk.anchors)
             {
+                boolean rejectTestChunk = false;
+
                 // If any part of the test chunk is outside the level, do not place it
                 if (level.isOutside(tdata, ox-a.x, oy-a.y))
                 {
@@ -442,6 +443,7 @@ public class OreLevelGenerator
                     Chunk matched = matchedChunk.copy();
                     matched.matchedAnchor = a;
                     filteredChunks.add(matched);
+                    break;
                 }
             }
         }
@@ -458,12 +460,15 @@ public class OreLevelGenerator
      */
     private Chunk chunkSelection(List<Chunk> compatibleChunks)
     {
-        int i = randomGen.get();
+        // int i = randomGen.get();
+        /*
         while (i > compatibleChunks.size() - 1) 
         {
             i = randomGen.get();
         }
         randomGen.updateValue(i);
+        */
+        int i = random.nextInt(compatibleChunks.size());
         return compatibleChunks.get(i);
     }
 
