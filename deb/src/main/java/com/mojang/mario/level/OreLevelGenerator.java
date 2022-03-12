@@ -174,26 +174,30 @@ public class OreLevelGenerator
                     if (anchorPoints.contains(ap)) {
                         toRemove.add(ap);
                     }
-                    Logger.i("ORE", String.format("Moving anchor point to %d %d\n", ap.x, ap.y));
+                    Logger.i("ORE", String.format("Moving anchor point to %d %d", ap.x, ap.y));
                 }
                 for (AnchorPoint ap : toRemove)
                 {
-                    Logger.i("ORE", String.format("Clipping anchor at %d %d\n", ap.x, ap.y));
+                    Logger.i("ORE", String.format("Clipping anchor at %d %d", ap.x, ap.y));
                     selectedChunk.anchors.remove(ap);
                 }
+                Logger.i("ORE", "Anchors before adding chunk:" + anchorPoints.toString());
                 for (AnchorPoint ap : selectedChunk.anchors)
                 {
-                    if (/*!ap.equals(context) ||*/ !anchorPoints.contains(ap))
+                    if (/*!ap.equals(context) ||*/ !anchorPoints.contains(ap) && !usedAnchorPoints.contains(ap))
                     {
                         anchorPoints.add(ap);
                     }
                 }
+                Logger.i("ORE", "Anchors after adding chunk:" + anchorPoints.toString());
+
+
                 usedAnchorPoints.add(context);
                 anchorPoints.remove(context);
 
                 // TODO Remove me
-                // LevelView.show(level);
-                // JOptionPane.showConfirmDialog(null, "Please");
+                LevelView.show(level);
+                JOptionPane.showConfirmDialog(null, "Please");
                 // End remove me
 
                 // failedToFilter.clear();
@@ -587,6 +591,12 @@ public class OreLevelGenerator
             // TODO Auto-generated method stub
             return equals((AnchorPoint)obj);
         }
+
+        @Override
+        public String toString()
+        {
+            return "Anchor: " + this.x + " " + this.y;
+        }
     }
 
     /**
@@ -675,7 +685,7 @@ public class OreLevelGenerator
             if (((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_UPPER) > 0 ||
                     ((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_ALL) > 0 ||
                     ((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_LOWER) > 0 ||
-                    b == Tile.ANCHOR_POINT)
+                    b == Tile.ANCHOR_POINT || b == Tile.PRESERVE_POINT)
             {
                 comp.type = TILE;
             }

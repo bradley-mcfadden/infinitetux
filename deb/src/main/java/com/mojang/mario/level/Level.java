@@ -539,7 +539,8 @@ public class Level
         }
         else
         {
-            map[xExit][yExit] = (byte)0;
+            if (map[xExit][yExit] == Tile.LEVEL_EXIT) 
+                map[xExit][yExit] = (byte)0;
             map[x][y] = b;
             setLevelExit(x, y);
         }
@@ -617,7 +618,7 @@ public class Level
      */
     public void setLevelExit(int x, int y)
     {
-        setBlock(xExit, yExit, (byte)0);
+        // setBlock(xExit, yExit, (byte)0);
         xExit = x;
         yExit = y;
     }
@@ -1078,7 +1079,7 @@ public class Level
             for (int yi = y; yi < ey; yi++)
             {
                 byte b = src.map[xi-x][yi-y];
-                if (b != Tile.AIR && map[xi][yi] != Tile.ANCHOR_POINT)
+                if (b != Tile.AIR && (map[xi][yi] != Tile.ANCHOR_POINT && map[xi][yi] != Tile.PRESERVE_POINT))
                 {
                     map[xi][yi] = b;
                     data[xi][yi] = src.data[xi-x][yi-y];

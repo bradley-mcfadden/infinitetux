@@ -94,7 +94,7 @@ public class LevelRenderer
                 int b = b1 & 0xff;
                 if (((Level.TILE_BEHAVIORS[b]) & Level.BIT_ANIMATED) == 0)
                 {
-                    if (!isLevelEditor && (b1 == Tile.ANCHOR_POINT || b1 == Tile.LEVEL_EXIT))
+                    if (!isLevelEditor && (b1 == Tile.ANCHOR_POINT || b1 == Tile.LEVEL_EXIT || b1 == Tile.PRESERVE_POINT))
                     {
 
                     }

@@ -1,5 +1,6 @@
 package com.mojang.mario.util;
 
+import com.mojang.mario.level.Tile;
 
 /**
  * LevelAdapter contains methods for converting between ch.idsia Levels and com.mojang.mario Levels.
@@ -16,10 +17,22 @@ public class LevelAdapter {
         
         for (int i = 0; i < srcLevel.width; i++)
         {
-            // map, data, sprites
-            System.arraycopy(srcLevel.map[i], 0, dstLevel.map[i], 0, srcLevel.height);
-            System.arraycopy(srcLevel.data[i], 0, dstLevel.data[i], 0, srcLevel.height);
+            // map, data
+            // System.arraycopy(srcLevel.map[i], 0, dstLevel.map[i], 0, srcLevel.height);
+            // System.arraycopy(srcLevel.data[i], 0, dstLevel.data[i], 0, srcLevel.height);
+            for (int j = 0; j < srcLevel.height; j++)
+            {
+                byte b = srcLevel.map[i][j];
+                if (b == Tile.ANCHOR_POINT || b == Tile.PRESERVE_POINT)
+                {
 
+                }
+                else
+                {
+                    dstLevel.map[i][j] = b;
+                    dstLevel.data[i][j] = b;
+                }
+            }
             // sprites
             for (int j = 0; j < srcLevel.height; j++)
             {
