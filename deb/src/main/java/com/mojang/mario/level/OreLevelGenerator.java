@@ -77,7 +77,7 @@ public class OreLevelGenerator
 
     private OreLevelGenerator(int width, int height, boolean shouldBuildStart, boolean shouldBuildEnd)
     {
-        Logger.setLevel(Logger.LEVEL_INFO);
+        // Logger.setLevel(Logger.LEVEL_INFO);
 
         this.width = width;
         this.height = height;
@@ -192,12 +192,12 @@ public class OreLevelGenerator
                 Logger.i("ORE", "Anchors after adding chunk:" + anchorPoints.toString());
 
 
-                usedAnchorPoints.add(context);
-                anchorPoints.remove(context);
+                // usedAnchorPoints.add(context);
+                // anchorPoints.remove(context);
 
                 // TODO Remove me
-                LevelView.show(level);
-                JOptionPane.showConfirmDialog(null, "Please");
+                // LevelView.show(level);
+                // JOptionPane.showConfirmDialog(null, "Please");
                 // End remove me
 
                 // failedToFilter.clear();
@@ -227,11 +227,15 @@ public class OreLevelGenerator
         int floor = 7; //height - 3 - random.nextInt(4);
         for (int x = 0; x < 5; x++)
         {
-            for (int y = floor; y < height; y++) 
+            for (int y = 0; y < height; y++) 
             {
                 if (y > floor)
                 {
                     level.setBlock(x, y, Tile.FLOOR_DECORATIVE);
+                }
+                else if (y < floor)
+                {
+                    level.setBlock(x, y, Tile.PRESERVE_POINT);
                 }
                 else
                 {
@@ -241,7 +245,7 @@ public class OreLevelGenerator
         }
         for (int x = 5; x < 7; x++)
         {
-            for (int y = floor + 1; y < height; y++)
+            for (int y = 0; y < height; y++)
             {
                 if (y > floor + 1)
                 {
@@ -253,6 +257,10 @@ public class OreLevelGenerator
                     {
                         level.setBlock(x, y, Tile.FLOOR_DECORATIVE);
                     }
+                }
+                else if (y < floor + 1)
+                {
+                    level.setBlock(x, y, Tile.PRESERVE_POINT);
                 }
                 else
                 {
@@ -399,6 +407,7 @@ public class OreLevelGenerator
                         else 
                         {
                             if (level.map[idx][idy] == tdata.map[xi][yi])
+                            //if (Level.TILE_BEHAVIORS[level.map[idx][idy] & 0xff] == Level.TILE_BEHAVIORS[level.map[xi][yi] & 0xff])
                             {
                             }
                             // Reject due to non-matching blocks
@@ -682,10 +691,11 @@ public class OreLevelGenerator
         public static Component fromByte(int x, int y, byte b)
         {
             Component comp = new Component();
-            if (((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_UPPER) > 0 ||
+            if (b != Tile.AIR)
+            /*if (((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_UPPER) > 0 ||
                     ((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_ALL) > 0 ||
                     ((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_LOWER) > 0 ||
-                    b == Tile.ANCHOR_POINT || b == Tile.PRESERVE_POINT)
+                    b == Tile.ANCHOR_POINT || b == Tile.PRESERVE_POINT) */
             {
                 comp.type = TILE;
             }

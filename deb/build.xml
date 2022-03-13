@@ -11,6 +11,7 @@
     <property name="jar.temp.dir" value="${build.dir}/infinitetux"/>
     <property name="dist.dir" value="dist"/>
     <property name="main-class"  value="com.mojang.mario.mapedit.LevelEditor"/>
+    <property name="compare-class" value="com.mojang.mario.stats.CompareOreNotch"/>
 
     <target name="clean">
         <delete dir="${build.dir}"/>
@@ -48,6 +49,22 @@
             <arg value="-Xmx500m"/>
             <arg value="-Xms400m"/>
             <arg value="${main-class}"/>
+            <classpath>
+                <fileset dir="${lib.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="${jar.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="compare" depends="jar">
+        <java classname="${compare-class}" fork="true">
+            <arg value="-Xmx500m"/>
+            <arg value="-Xms400m"/>
+            <arg value="${compare-class}"/>
             <classpath>
                 <fileset dir="${lib.dir}">
                     <include name="**/*.jar" />

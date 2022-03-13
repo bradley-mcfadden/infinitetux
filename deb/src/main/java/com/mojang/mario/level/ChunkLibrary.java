@@ -276,31 +276,7 @@ public class ChunkLibrary {
         } 
         else 
         {
-            long start = System.currentTimeMillis();
-
-            File chunksDirectory = new File(ref.programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
-            File[] chunkDirs = chunksDirectory.listFiles();
-            if (chunkDirs != null)
-            {
-                for (File chunkDir : chunkDirs)
-                {
-                    Level chunk = null; 
-                    try {
-                        System.out.println("Next chunk " + chunkDir.getName());
-                        chunk = Level.load(chunkDir);
-                    } catch (IOException ie) {
-                        System.err.println(ie);
-                    }
-                    if (chunk != null)
-                    {
-                        addChunk(chunk);
-                        loadTags(chunk, chunkDir);
-                    }
-                }
-            }
-
-            long end = System.currentTimeMillis();
-            System.out.println("Loaded levels in " + (end - start) + " ms");
+            loadChunksNoThreading();
         }
         // int i =11;
         for (LoadingFinishedListener lf : ref.lfListeners)
@@ -308,6 +284,35 @@ public class ChunkLibrary {
             // System.out.println(i++ +"");
             lf.onLoadingFinished();
         }
+    }
+
+    public static void loadChunksNoThreading()
+    {
+        long start = System.currentTimeMillis();
+
+        File chunksDirectory = new File(ref.programDirectory.getPath() + File.separatorChar + CHUNK_PARENT_DIR_NAME);
+        File[] chunkDirs = chunksDirectory.listFiles();
+        if (chunkDirs != null)
+        {
+            for (File chunkDir : chunkDirs)
+            {
+                Level chunk = null; 
+                try {
+                    System.out.println("Next chunk " + chunkDir.getName());
+                    chunk = Level.load(chunkDir);
+                } catch (IOException ie) {
+                    System.err.println(ie);
+                }
+                if (chunk != null)
+                {
+                    addChunk(chunk);
+                    loadTags(chunk, chunkDir);
+                }
+            }
+        }
+
+        long end = System.currentTimeMillis();
+        System.out.println("Loaded levels in " + (end - start) + " ms");
     }
 
     private static void loadChunksThreaded()

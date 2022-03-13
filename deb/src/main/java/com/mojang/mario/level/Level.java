@@ -1204,6 +1204,84 @@ public class Level
         return builder.toString();
     }
 
+    @Override
+    public int hashCode()
+    {
+        int code = 0;
+        // check tile data, ignoring PRESERVE_POINT, HAZARD, EXIT
+        // check sprites
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                // tiles
+                int b1 = map[x][y];
+                if (b1 != Tile.ANCHOR_POINT && b1 != Tile.PRESERVE_POINT && b1 != Tile.LEVEL_EXIT)
+                {
+                    code += b1;
+                }
+                
+
+                SpriteTemplate st1 = spriteTemplates[x][y];
+                int code1 = st1==null?-1:st1.getType();
+                
+                code += code1;
+            }
+        }
+
+        return code;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        // System.out.println("Called level.equals");
+        Level other = (Level)o;
+        // first check bounds
+        if (other.width != width && other.height != this.height)
+        {
+            return false;
+        }
+        // check tile data, ignoring PRESERVE_POINT, HAZARD, EXIT
+        // check sprites
+        boolean matching = true;
+        for (int x = 0; x < width && matching; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                // tiles
+                int b1 = map[x][y];
+                int b2 = other.map[x][y];
+                if (b1 == b2 
+                || (b1 == Tile.PRESERVE_POINT || b1 == Tile.ANCHOR_POINT || b1 == Tile.LEVEL_EXIT)
+                || (b2 == Tile.PRESERVE_POINT || b2 == Tile.ANCHOR_POINT || b2 == Tile.LEVEL_EXIT)) {
+
+                }
+                else
+                {
+                    matching = false;
+                    break;
+                }
+
+                SpriteTemplate st1 = spriteTemplates[x][y];
+                SpriteTemplate st2 = other.spriteTemplates[x][y];
+                int code1 = st1==null?-1:st1.getType();
+                int code2 = st2==null?-1:st2.getType();
+                if (code1 == code2)
+                {
+
+                }
+                else
+                {
+                    matching = false;
+                    break;
+                }
+            }
+        }
+
+        return matching;
+    }
+
     /**
      * Point is a simple integer point class.
      */

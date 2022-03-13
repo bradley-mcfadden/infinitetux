@@ -15,7 +15,7 @@ public class Logger {
     public static final int LEVEL_DEBUG = 3;
     public static final int LEVEL_INFO = 4;
 
-    private static int level = LEVEL_ERROR;
+    private static int level = -1000;
 
     /**
      * setLevel Set logging level to any of the named values
@@ -23,7 +23,7 @@ public class Logger {
      * @throws IllegalArgumentException if a value other than a log level is given.
      */
     public static void setLevel(int level)
-    {
+    {/*
         switch(level) 
         {
         case LEVEL_ERROR:
@@ -34,7 +34,7 @@ public class Logger {
             break;
         default:
             throw new IllegalArgumentException("setLevel() called without using one of the Logger constants");
-        }
+        }*/
     }
 
     /**
@@ -44,7 +44,7 @@ public class Logger {
      */
     public static void e(String tag, String message) 
     {
-        if (level >= LEVEL_ERROR)
+        if (Logger.level >= LEVEL_ERROR)
         {
             System.out.printf("%s:E %s\n", tag, message);
         }
@@ -57,7 +57,7 @@ public class Logger {
      */
     public static void d(String tag, String message) 
     {
-        if (level >= LEVEL_DEBUG)
+        if (Logger.level >= LEVEL_DEBUG)
         {
             System.out.printf("%s:D %s\n", tag, message);
         }
@@ -70,7 +70,7 @@ public class Logger {
      */
     public static void i(String tag, String message) 
     {
-        if (level >= LEVEL_INFO)
+        if (Logger.level >= LEVEL_INFO)
         {
             System.out.printf("%s:I %s\n", tag, message);
         }
@@ -83,7 +83,7 @@ public class Logger {
      */
     public static void w(String tag, String message) 
     {
-        if (level >= LEVEL_WARN)
+        if (Logger.level >= LEVEL_WARN)
         {
             System.out.printf("%s:W %s\n", tag, message);
         }

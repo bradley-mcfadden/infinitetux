@@ -752,6 +752,7 @@ public class LevelEditor extends JFrame
                     updateEvaluationInfo(get());
                 } catch (InterruptedException | ExecutionException ie) {
                     Logger.e("LevelEditor", "Worker thread interrupted.");
+                    ie.printStackTrace();
                 }
             }
         };

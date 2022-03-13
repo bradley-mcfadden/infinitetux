@@ -507,7 +507,7 @@ public class GenerateDialog extends JPanel
 
     public static void main(String[] args)
     {
-        Logger.setLevel(Logger.LEVEL_DEBUG);
+        // Logger.setLevel(Logger.LEVEL_DEBUG);
         Results results = getDialog(new Highlight(20, 5, 20, 10, Highlight.BLUE, ""), 300, 15);
         if (results != null)
         {
