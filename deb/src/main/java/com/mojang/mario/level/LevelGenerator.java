@@ -70,7 +70,7 @@ public class LevelGenerator
 
         int length = 0;
         length += buildStraight(0, level.width, true);
-        while (length < level.width - 64)
+        while (length < level.width - 16)
         {
             length += buildZone(length, level.width - length);
         }

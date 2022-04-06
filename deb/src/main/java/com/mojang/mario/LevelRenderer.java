@@ -104,7 +104,7 @@ public class LevelRenderer
                     }
                 }
                 SpriteTemplate t =  level.getSpriteTemplate(x, y);
-                if (t != null && isLevelEditor)
+                if (t != null  && isLevelEditor)
                 {
                     byte enemyCode = (byte)(t.getCode() & (byte)0x7F);
                     if (enemyCode == (byte)Enemy.ENEMY_NULL)
@@ -179,7 +179,10 @@ public class LevelRenderer
                  g.drawImage(Art.mapSprites[(4 + animTime)][0], (x << 4) - xCam, (y << 4) - yCam - yo, null);
                  }*/
 
-                if (renderBehaviors)
+                 
+                //if (renderBehaviors)
+                //{
+                if (isLevelEditor)
                 {
                     if (((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_BLOCK_UPPER) > 0)
                     {
@@ -222,6 +225,7 @@ public class LevelRenderer
                     if (((Level.TILE_BEHAVIORS[b & 0xff]) & Level.BIT_ANIMATED) > 0)
                     {
                     }
+                //}
                 }
             }
     }

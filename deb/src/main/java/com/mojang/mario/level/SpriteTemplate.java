@@ -53,7 +53,7 @@ public class SpriteTemplate
      */
     public SpriteTemplate(byte code)
     {
-        Logger.setLevel(Logger.LEVEL_DEBUG);
+        // Logger.setLevel(Logger.LEVEL_DEBUG);
         this.type = code & 0x0F;
         this.winged = ((code >> 7) & 0x01) == 1;
         Logger.d("SpriteTemplate", String.format("%d %d %s", code, this.type, this.winged));

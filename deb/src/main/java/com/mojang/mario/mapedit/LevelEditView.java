@@ -481,6 +481,13 @@ public class LevelEditView extends JComponent
         }
     }
 
+    public void setRenderMode(boolean isLevelEditor) 
+    {
+        levelRenderer.renderBehaviors = isLevelEditor;
+        levelRenderer.repaint(0, 0, level.width, level.height);
+        repaint();
+    }
+
     @Override
     public void onSelectionChanged(LevelView selection) {
         selectedChunk = selection;

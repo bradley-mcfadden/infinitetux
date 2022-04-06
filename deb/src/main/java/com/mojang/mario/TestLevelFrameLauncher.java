@@ -34,8 +34,9 @@ public class TestLevelFrameLauncher implements LevelEndListener, WindowListener 
         frame.setLocation((screenSize.width-frame.getWidth())/2, (screenSize.height-frame.getHeight())/2);
         frame.setVisible(true);
 
-        mario.start();
         Mario.resetStatic();
+        mario.start();
+        // Mario.resetStatic();
         frame.addKeyListener(mario);
         frame.addFocusListener(mario);
         frame.addWindowListener(this);

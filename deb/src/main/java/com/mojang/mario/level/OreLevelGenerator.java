@@ -110,7 +110,7 @@ public class OreLevelGenerator
     
         lastSeed = seed;
         random = new Random(seed);
-        level = new Level(width, height);
+        level = new Level(width-15, height);
 
         if (shouldBuildStart)
         {

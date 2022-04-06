@@ -1,15 +1,19 @@
 package com.mojang.mario.mapedit;
 
+import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.Robot;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -214,6 +218,33 @@ public class LevelView extends JComponent
         frame.pack();
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    public static void showAndCapture(Level level, int id)
+    {
+        JFrame frame = new JFrame("Level View");
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new LevelView(level));
+        frame.setContentPane(panel);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        BufferedImage imagebuf = null;
+        try {
+            imagebuf = new Robot().createScreenCapture(panel.getBounds());
+        } catch (Exception e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }  
+        Graphics2D graphics2D = imagebuf.createGraphics();
+        panel.paint(graphics2D);
+        try {
+            ImageIO.write(imagebuf, "jpeg", new File("save" + id + ".jpeg"));
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            System.out.println("error");
+        }
     }
 
     public static void main(String[] args)

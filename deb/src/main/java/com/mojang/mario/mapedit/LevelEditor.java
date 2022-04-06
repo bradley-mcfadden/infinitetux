@@ -358,8 +358,21 @@ public class LevelEditor extends JFrame
         editMenu.add(undoActionItem);
         editMenu.add(redoActionItem);
 
+        JMenu viewMenu = new JMenu("View");
+        JCheckBoxMenuItem renderBehavioursItem = new JCheckBoxMenuItem("Render behaviours", true);
+
+        renderBehavioursItem.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                levelEditView.setRenderMode(((JCheckBoxMenuItem)event.getSource()).isSelected());
+            }
+        });
+
+        viewMenu.add(renderBehavioursItem);
+
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
+        menuBar.add(viewMenu);
         return menuBar;
     }
 
