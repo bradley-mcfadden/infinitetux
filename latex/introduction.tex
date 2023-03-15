@@ -60,7 +60,7 @@ with memory limitations. Roguelike games such as \emph{Hades}, and \emph{Risk of
 commonly use procedural generation. The wide variety of encounters to explore due to the
 stochastic nature of procedural content generation can be very engaging, and in the case of
 games like \emph{Spelunky}, it can take hundreds of games to explore the entire procedural
-space \cite{kazemi2011b}. In commercial platforming games, it is not very common to see
+space \cite{kazemi2009b}. In commercial platforming games, it is not very common to see
 procedural generation used \cite{compton2006}, in spite of the increase in the amount of
 content, replayability value, and development time saved by its use.
 
@@ -124,3 +124,222 @@ such an interesting undertaking. Furthermore, the rules and actions present in p
 are often simple (for instance, the primary actions in Super Mario Bros. are running and
 jumping), but creative level geometry and enemy placement can lead to a large variety of
 enjoyable content, despite the limited actions \cite{dahlskog2012}.
+
+
+\subsection{Procedural generation for platformers in a selection of games}
+
+There have been several interesting platformer games that have used procedural content 
+generation. To start, two notably openly available platformers that incorporate content
+generators are \emph{Infinite Mario Bros.} and Spelunky.
+
+Infinite Mario Bros. has been frequently used in the past by the research community
+\cite{shaker2011}. It is a public domain clone of the original Super Mario Bros. game. The
+asserts are still proprietary, so this report will use \emph{InfiniteTux}, which is a version
+of Infinite Mario Bros. using open-source assets. In InfiniteTux, levels are generated
+automatically, and they slowly scale in difficulty by increasing the frequency of more
+difficult terrain and adding more challenging enemies. Terrain generation proceeds in
+several passes. First, the base of the level is generated from left to right by placing
+human-authored platformer patterns in a random fashion. Each chunk has a small amount of
+variety to it as well, but two chunks of the same category are generally very similar.
+Some chunks are weighted higher than others depending on the difficulty parameter.
+
+In \autoref{fig:ift-chunks}, the various chunks that InfiniteTux's generator uses are given.
+From left to right, there are straight, hill straight, jump, tubes and cannones. Straight is
+the most common chunk. Jumps, tubes, and cannons are considered by the generator to be more
+difficult terrain, so these are added more often when it is desirable to increase the game's
+difficulty.
+
+\begin{figure}[h]
+    \includegraphics[width=\textwidth]{img/fig2-notch-chunks.png}
+    \caption{Possible chunk types in \emph{InfiniteTux}}
+    \label{fig:ift-chunks}
+\end{figure}
+
+A level is constructed by connecting enough chunks to fill the desired level width. The
+chunks are chosen in a random fashion, with weights making some more common than others.
+After placing these initial chunks, a second pass over the level is performed. For every
+straight and hill straight chunk, a line of enemies can be added. It is also possible that
+coins, a series of reward blocks are placed, as is the case in the leftmost image of 
+\autoref{fig:ift-chunks}. The placed enemies depend on the difficulty of the level. More
+difficult enemies hurt Mario when he jumps on them, avoid falling off ledges, or have wings,
+providing them a jumping attack and an extra point of health. In \autoref{fig:ift-levels},
+two levels generated with the same difficulty are shown. Notice that patterns repeat
+frequently, like having a ceiling above several coins, the use of hills, and the flat
+appearance of the two worlds. There appears to be a low amount of variety in the procedural
+space of this generator. However, the generator is very reliable. Adjacent chunks are never
+generated more than a few blocks above or below the previous, and celings cannot extend to
+the last tile of a chunk, so each level is guaranteed to be winnable.
+
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{img/fig3-notch-levels.png}
+    \caption{Two levels generated with similar parameters in \emph{InfiniteTux}}
+    \label{fig:ift-levels}
+\end{figure}
+
+Spelunky is a very different game than InfiniteTux, but the two geenrators share many
+similarities. The gameplay of Spelunky encourages exploration, and allows more ways for a
+player to traverse the space, including destroying large amounts of terrain with bombs, and
+using ropes to ascend high walls. As a result, it is easy to guarantee that a Spelunky
+level is winnable. Spelunky always starts the player at the top of the screen, and the exit
+is at the bottom, so rooms can be chosen in such a way that there is a guaranteed path
+downward toward the exit. Levels in Spelunky are composed of 16 equally sized chunks
+arranged in a 4x4 grid \cite[49-51]{shaker2016}. The chunks contain hooks that subsequent
+passes of th generator use to place enemies, traps, or rewards. Due to playability
+constraints, it is possible for a player to recall every level configuration in
+approximately 500 playthroughs of the game \cite{kazemi2009a}. An example annotated
+level is provided in \autoref{fig:spelunky}, which has each chunk numbered by its type, 
+and a red line indicating a path to the end of level.
+
+\begin{figure}[h]
+    \includegraphics[width=0.8\levelwidth]{img/fig4-spelunky.png}
+    \caption{Level generated in \emph{Spelunky}. From \cite{kazemi2009a}}
+    \label{fig:spelunky}
+\end{figure}
+
+\thesubsection{Procedural generation for platformers in research}
+Compton & Mateas produced one of the first conceptual models for platformer game levels
+\cite{compton2006}. In turn, their model is inspired by a model from music theory for
+representing complex patterns in African and African American music. The model separates
+platformer levels into atomic components, such as platforms, hills, and vines. In other
+research, components are referred to as "beats" \cite{dahlskog2012, smith2008}. Beats are
+grouped into patterns, chunks, or rhythm groups \cite{dahlskog2012}, which are sequences of
+gameplay terminated by a break in rhythm. Rhythm groups can be combined into a unit called a
+cell, which is one or more separate patterns placed together in a linear sequence. Cells can
+be connected in a variety of ways, which produces a non-linear level. The researchers also
+define a level design algorithm based around the rhythm model. The algorithm proceeds by
+creating a context-free grammar to represent cells and rhythm groups. Each cell is connected
+with some possible pattern like a branch, or a parallel pattern. Within each cell, zero or
+more rhythm groups are placed, each with its own series of beats. A grammer that implements
+this algortihm is later created by Shaker et al. \cite{shaker2012}. Later, Smith et al.
+published work that extended the rhythm group model to be more complete \cite{smith2008}.
+Their research clarifies the meaning of rhythm group to be more precise. A rhythm group ends
+when there is a change in the rhythm of a level, such as if the player has reached a safe
+zone from a previously unsafe zone. In \autoref{fig:hk}, a cell of \emph{Hollow Knight} is
+shown with its rhythm groups represented by non-overlapping green regions.
+
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{img/fig-hk-rhythm.png}
+    \caption{A single-cell level from \emph{Hollow Knight}}
+    \label{fig:hk}
+\end{figure}
+
+The individual rhythm groups of the cell in \autoref{fig:hk} are described in detail:
+\begin{enumerate}
+    \item The player starts on the right hand side of the screen. The rhythm group extends out until the statue.
+    \item The player must wall jump alongside the ceiling's right angles. The rhythm group ends after the saw blade, as they can stall here by nail-jumping on the saw for a break.
+    \item The player reaches this rhythm group after wall jumping and dashing to it. They must avoid the moving saw blade along the wall. The rhythm group ends at the peak of the wall, as they can wall jump until ready for the next part.
+    \item This rhythm group contains two flies that the player must bounce on to traverse it. Ite ends after the double jump off the second fly to reach the wall.
+    \item This rhythm group extends from the wall in the top right, to the area above the moving saw blades. The player must use their dash and bounce off the flies, until reaching the left wall.
+    \item Here, the player must slip past the moving saw without hitting the static saw. Then, they can rest by jumping against the wall.
+    \item In this rhythm group, the player must bounce off the saw blades and slip through the narrow passage until reaching the statue.
+    \item This rhythm group contains the status and the long dash wall.
+    \item This rhythm group contains the 4 vertical walls. The player must climb each wall and dash to the next one.
+    \item This rhythm group contains 5 flies that the player must bounce on, and dash between.
+    \item The last rhythm group is the final platform containing the cell exit.
+\end{enumerate}
+
+Smith would later create a level generator based around the extended rhythm framework 
+\cite{smith2011}. The \emph{Launchpad} generator outlined in the work uses two grammars, one
+for generating beats, in the form of actions that the player performs. Beats have a start
+time and a duration. The next part of the generation phase is geometry generation that
+creates a level from the generated beats. Snice generation by grammars is fast compared to
+other methods, a large number of levels are created, and two critics that evaluate the levels
+find a optimal level that is playable and not flat. Important conclusions from this work
+include the call for quantitative evaluations of analysing levels, instead of qualitative
+measures, as well as the use of difficulty analysis in a generator.
+
+An extension to Launchpad is \emph{Polymorph} \cite{jennings-teats2010}, which is a game
+that uses Launcpad for dynamic difficulty adjustment. A limitation of Polymorph that is
+cited by the authors is that difficulty is measured per beat, and does not consider how
+adjacent beats might interact with each other to become more challenging. As an example,
+jumping from a moving platform onto a platform containing a moving enemy is more complex
+than landing on an empty platform, or avoiding the enemy without having to dismount the
+platform.
+
+Another interesting application of Smith et al. was \emph{Tanagra}, a "mixed-initiative
+design tool...in which a human and computer work together to produce a level" 
+\cite{smith2010}. Tanagra is pictured in \autoref{fig:tanagra}. Tanagra allows a human
+designer to work with a procedural generator, while validating level playability, generating
+alternative designs, and allowing re-generation of specific level segments. To describe it
+in terms of the procedural generation framework \cite{togelius2011}, Tanagra is offline,
+constructive, and uses mixed-authorship. A notable feature of Tanagra is the beat editor.
+Where most level editors operate by placing individual tiles, Tanagra allows its users to
+modify its generated beats as a whole. Level generation in Tanagra proceeds as follows:
+1) Generate a level, 2) Respond to designer input by placing a moving existing geometry, 3)
+Respond to the designer by modifying the beats of the level, 4) Ensure all levels are
+playable. The authors call for additional extensions to Tanagra, including some form of
+automatic difficulty analysis, the ability to view level paths, and support for more types
+of rhythm groups.
+
+\begin{figure}[h]
+    \includegraphics[width=\levelwidth]{img/fig:tanagra}
+    \caption{Interface of \emph{Tanagra}. From \cite{smith2010}}
+    \label{fig:tanagra}
+\end{figure}
+
+In 2010, the Mario AI Championship was held \cite{shaker2011}. The competition had several
+tracks, including participants competing to create agents that could play procedurally
+generated levels well, and participants competing to create level generators that produced
+the most enjoyable experience, as determined by pairwise comparisons using 15 judges.
+Six teams participated in the competion, each contributing to the report to document their
+methodology.
+
+The winner was Ben Weber, who created the "Probabilistic Multipass Generator". His approach
+involved five passes from left to right over a level, which created the ground, hills, 
+pipes, enemies, blocks, and then coins. each pass, some event is chosen from a uniform
+distribution. A constraint exists that limits events so that the level remains playable.
+
+Players were asked to play levels before testing the generators, and gameplay metrics were
+available to competitors to incorporate into their algorithms. Shimizu and Hashiyama used
+the player data to estimate a player's skill level, and to describe how likely they were to
+break blocks, collect coins, and kill enemies. Sections of human-authored content were then
+strung togther according to the player's playstyle. Shimizu and Hashiyama cited that the
+benefits of this approach were a better fitting between a player's playstyle and skill, and
+no complex fitness function. The authors state that the primary weakness is that the
+expressivity of the levels is limited by the chunks available.
+
+The next approach was by Sorenson and Pasquier, and is detailed in \cite{sorenson2010}.
+Their method used an evolutionary algorithm to generate rhythm groups, which uses a fitness
+function that estimates the difficulty of a rhythm group according to the margin of error
+associated with jumps. At the same time, the fitness function is biased to select levels 
+where the challenge alternates between successive rhythm groups. They assessed their model
+on how successful it was at generating levels with a similar difficulty curve to the first
+four levels Super Mario Bros., under the assumption that these first four levels are 
+examples of well-designed Mario levels. Their generation took several hours, using an 
+initial population of 200 individual levels evolving for 10,000 generations. For any
+interactive software, this amount of delay is unacceptable, so the approach is more suited
+for use in an offline generator.
+
+Another intersting level generation approach was Peter Mawhorter's entry, which is expanded
+upon in \cite{mawhorter2010}. The authors describe their approach as occupancy-regulated
+extension (ORE). They use a variety of chunks, which are annotated with a frequency in which
+they will be selected, and have additional metadata for the generator in the form of 
+"anchors". Anchors represent possible places that the player might occupy in a chunk, and the
+generator tries to preserve these places. Three main steps occur in the generation process.
+Context selection chooses an existing anchor point in the level to expand starting with the
+two intial anchors that mark the beginning and end of a level. Next, chunk selection occurs,
+which determines which chunk from the library should be placed into the context. The last 
+step is to integrate the chunk into the existing level. Post processing steps are also 
+applied to generated levels to ensure that constraints are repsected, such as power-ups not
+being too close together. The ORE generator occasionally produces some emergent or clever
+level design. In \autoref{fig:clever-ore}, a strange powerup block was placed that only 
+allows small Mario to reach or as normal Mario with a crouch-jump. The authors state that
+the strength of their algorithm is game independence, since the generator only considers
+anchor points, and the post-processing controls game-dependent constraints. They also state
+that tagging the chunk libarry with keywords that provide some more information about each
+chunk in the library may allow difficulty to be incorporated into generation. The authors
+mention that ORE could easily be adapter into a collaborative or mixed-initiative system,
+as the generation could interrupted as long as anchor points are preserved. Some of
+weaknesses cited include the large chunk library needed for variety in the level; the
+authors 42 chunks , which were all human-authored. Additionally, there is no strict
+guarantee that the generated levels are playable.
+
+\begin{figure}[h]
+    \includegraphics[width=\levelwidth]{img/fig7-ore.png}
+    \caption{Example of emergent behaviour in ORE's generated levels}
+    \label{fig:clever-ore}
+\end{figure}
+
+\thesubsection{Computers in the creative process}
+
+\thesubsection{Functional and usability requirements}
