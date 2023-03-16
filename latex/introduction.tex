@@ -424,3 +424,115 @@ therefore the outcome initiative is managed entirely by the user.
 \end{figure}
 
 \thesubsection{Functional and usability requirements}
+
+For any interactive object or piece of software, it is important to consider the effect that
+the interaction has on the user, and to design for a positive experience. A well-designed
+interactive system is easy to understand, provides helpful feedback to its users about the
+task, maps its controls in a sensible way, and clearly signifies how its controls can be used
+to produce the desired effect \cite{norman2013}. Level editors as software fall under the
+umbrella of interactive software, and as such are sensitive to these requirements.
+
+A system's usefulness can be divided intor two areas, the utility it provides with its
+functions, and its usability. Usability generally refers to the system's front end, while
+utility refers to its back end. Many systems have utility, but less have usability. Nielsen
+first proposed that a system's usability can be broken down into five areas which include
+learnability, memorability, efficiency, satisfaction, and how successful the system is at
+dealing with errors \cite[p22]{nielsen1994}. Learnability refers to the challenge associated
+with the first time a user interacts with a system. Memorability refers to how easy it is
+to remember how to use a system. An efficient system allows the user to perform their work
+quickly, and is careful not to waste the user's time. A satisfying system feels pleasant to
+usem perhaps by having a pleasant visual design, or by the user feeling that the system
+helped them with their task. A system that effectively manages its errors provides helpful
+error messages when appropriate, and tries to limit the amount of errors that can be made by 
+the user.
+
+A system's usability can be evaluated by how well it matches the ten usability heuristics
+proposed by Nielsen in \cite{nielsen2005}. The heuristics attempt to measure the usability
+principles outlined above, and include:
+
+\begin{description}
+    \item [Visibility of system status] The system should keep the user informed about its state, and provide feedback within a reasonable amount of time.
+    \item [Match between system and real world] The system should use concepts and terminology that thte user would know. Information should appear in a natural and logical manner.
+    \item [User control and freedom] Users often make mistakes, so the system should always allow the user to cancel actions, undo or redo, and be able to navigate backward.
+    \item [Consistency and standards] The system should use standard language for common actions, and the same words should be used for the same actions.
+    \item [Error prevention] A usable system constrains the number of errors a user can make.
+    \item [Recognition rather than recall] The system should make relevant information visible to reduce the user's memory load. When possible, instructions should be available.
+    \item [Flexibility and efficiency] Shortcuts should be provided in order for advanced users to save time.
+    \item [Aesthetic and minimalist design] The system should only include features that add to the usability. Information that is not needed for the task should not be shown, as it can distract from relevant information.
+    \item [Error recognition and recovery] Error messages should be clear and precise, and suggest a way to recover from or fix the error.
+    \item [Help and documentation] Extra help should be easy to access, clear, and helpful.
+\end{description}
+
+These usability heuristics provide a set of best practices to follow when designing a user
+interface. Usability is important in designing a level editor, because one of the main
+goals is to aid designers in the process of levle design. A system with a lot of utility that
+results in desirable outcomes may be discarded by users if they have a poor experience 
+interacting with it \cite[p10]{norman2013}.
+
+The method of interaction differs among software. In most level editors, designers interact
+with a representation of the level, and iterate on their design by adding elements one at a
+time. Often, these elements are accessed from a palette, as in popular level editors like
+\emph{Halo Reach}'s forge mode, or Super Mario Maker. The designer often sees the components
+as they appear in game, and can manipulate their position and properties through the interface
+by using various tools. This type of interaction is called direct manipulation. Direct
+manipulation was first by Schneiderman in \cite{schneiderman1983}. Schneiderman observed
+office works using single line editors versus using display eeditors, where many lines could
+be seen at once, and feedback on changes was immediate. Direct manipulation tasks involve
+several characteristics. A continuous representation of the final object needs to be
+available. Actions should be performed via button presses or mouse movement instead of by
+text commands. Operations should be rapid, incremental, and reversible. The combination
+of these properties leads to a high desirable outcome: experts can rapidly complete tasks,
+users feel in control over the system, and users receive immediate feedback on the effect of
+their actions, leading to the ability to experiment with their approach. Additionally, users
+feel comfortable experimenting with the system because the cost of making a mistake is very
+low. Most level editors meet the criteria for qualifying as a direct manipulation task, but it
+can be hard to convey information about the experience that the level creates for the user
+unless the designer plays it, so the cost of making a mistake is higher in terms of time lost,
+which may lead to less experimentation on the part of the designer due to time constraints.
+
+In a chapter about designing tools for game design, Rouse states,
+\begin{quote}
+In order to create superior content, the design team will need to be equipped with 
+well-designed, robust game creation tools. Therefore, one can conclude that designing a
+good game is about designing good game creation tools \cite[p392]{rouse2004}.
+\end{quote}
+
+In the rest of the chapter, Rouse outlines a number of requirements for any level-editing tool.
+The first requirement is similar to Nielsen's usability principle of visibility. The designer
+should be able to see the world being created while in the process of creating it. Level
+editors should also provide the designer with extra information about the level, not
+normally visible in game. The level editor in Halo: Reach allows the designer to see spawning
+information about the objects they have placed. The Tanagra content generator provides
+information about the pacing of the level to the user in the form of a beat timeline, which
+visually represents the rhythm of the level \cite{smith2010}. A more dense beat timeline 
+indicates a faster-paced level, since each beat is a player action like waiting or jumping.
+Another helpful addition to level editors is the ability to immediately playtest the 
+in-progress level. It is well-known that testing is a critical part of any software 
+development, and this is particularly true for games, as gameplay is usually considered
+the most important feature of a game. A final requirement is that a level editor should allow
+the designer full control over all gameplay critical sections of a level. Without full control
+over these sections, the level designer may become frustrated by seemingly arbitrary 
+limitations getting in the way of their work.
+
+THe goal of this project is to investigate how to design a system that can assist level
+designers in creating better levels. As the general task of "creating better levels in video
+games" is quite broad, the scope of this project will be imited to the platform game genre.
+A significant amount of research has been spent analysing and developing level generators for
+platformers, and given the 12-week period available for the project, it makes the most
+sense to stick to the platformer genre. First, procedural generation methods will be examined
+in-depth. Then, the use of computers in the creative process will be covered. It is also
+important to cover the requirements of interactive systems in general, and then narrow in on
+these requirements with respect to level editors. From these requirements, and the research
+in the previous sections, a system will be proposed and implemented. The system will be a
+level editor for InfiniteTux that aids the level designer in the design process, with the goal
+of using procedural content generation. 
+
+InfiniteTux was chosen for several reasons. As previously stated, InfiniteTux shares its
+mechanics with Super Mario Bros., which has seen extensive attention in research due to
+its popularity and events such as The Mario AI Championship. Another reason to improve
+InfiniteTux is that the code is openly available under the GPL license. InfiniteTux is
+implemented in Java, which is a language that is familiar to many programmers. Lastly, 
+InfiniteTux already features an unfinished level editor, and an interface for generating
+levels for the game. Specific functional requirements will be outlined later. After the
+implementation of the system, it will be evaluated by how well it meets these functional 
+requirements, as well as the amount of variation present between its generated levels.
