@@ -342,4 +342,85 @@ guarantee that the generated levels are playable.
 
 \thesubsection{Computers in the creative process}
 
+Computers have supported people creators for some time. Software that helps users in design
+tasks is commonly referred to as computer-aided design software, or CAD. The motivating
+ideas behind CAD are to provide users with a way of visualising their designs on the
+computer, and to have the computer aid in applying constraints to the work
+\cite{lawson1997}. Lawson & Loke argue that computers could do more to facilitate their
+user's creativity in the design process, and provide three ways in which CAD systems could
+contribute: "man/machine roles in creative thought", "parallel lines of thought", and "mind
+sharing".
+
+In order to play a greater role in creative thought for a task, CAD systems can provide the
+user with suggestions or new ideas that could enhance the quality of the design. In the
+context of a level editor, the user could receive suggestions for enemy placement or
+recommend that a power-up be placed. An example of such a system is \emph{rlbrush} \cite{delarosa2021},
+which is a level editor for \emph{Sokoban}, a tile-based game where the goal is to push
+boxes into holes. Its interface provides the user with several suggestions that can
+optionally be implemented, but not with any rationale about why its suggestions were given.
+The system is shown in \autoref{fig:rlbrush}, and several different suggestions are visible
+above the working canvas.
+
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{img/fig8-rlbrush.png}
+    \caption{Interface of the \emph{rlbrush} editor for \emph{Sokoban}. From \cite{delarosa2021}}.
+    \label{fig:rlbrush}.
+\end{figure}
+
+Parallel lines of thought refers to a system playing more than one role in the design 
+process at a time. Several roles are outlined, including critic, collaborator, and informer.
+Existing level editors have had the software operate as a collaborator before \cite{guzdial2019, liapis2013, smith2010}.
+Of the software, \emph{Sentient Sketchbook} operates as both a critic and a collaborator. It
+enforces playability and informs the user of the fairness of the current map, while also
+generating many alternatives as iterations on the user's design. The idea of CAD software
+playing different roles was also discussed by Lubart \cite{lubart2005}. In the work, four
+different roles are outlined: nanny, where the system guides the user, colleague:, where the
+system works with the user, pen-pal, where the system helps the user to communicate their
+ideas to others, and coach, where the computer acts as an expert system that helps to teach
+the user.
+
+The last point is mind sharing, which refers to the notion that two minds working together
+are greater than the sum of their parts. This relates to CAD systems that learn from their
+mistakes and successes, and learn the habits of their user to create better suggestions.
+The \emph{Morai Maker} system described in \cite{guzdial2019} used three different types of
+agents that aimed to learn their user's designs, and used this information to automatically
+add to the user's levels. According to the study, the participants saw that the system could
+bring value to their levels, and it would take the form of a collaborator, nanny, or manager.
+The collaborator and anny works were similar to what had been described in Lubart's work.
+The manager role arose from participants feeling that the system was giving them instructions,
+or evaluating their performance.
+
+When the user and system co-operate on a task, the system can be described as a "mixed-
+initiative system", as both the system and user work together towards a goal \cite[p191-200]{shaker2016}.
+Some systems placed more emphasis on the human role, while others more on the computer role.
+A procedural content generator for levels that accepts some parameters at the start of the
+process technically has the user take some initiative, but the majority of the work is done
+by the content generation algorithm. Similarly, in the field of CAD, tools like \emph{Blender}
+allow a user to rapidly create 3D models, and the computer can automate some work, but the effort
+is mostly on the user's end. Mixed-initiative systems can also be characterised by how they
+handle three types of initiative: task initiative, speaker initiative, and outcome initiative.
+Speaker initiative refers to the mechanism for determining when the user takes a turn on
+the task, verssu when the system takes its turn. The spearker initiative of the ORE level
+generator \cite{mawhorter2010} would be a form of turn taking. The level generator does its
+work, then the user decides whether or not to re-generate any sections. Outcome initiative
+refers to the process of deciding how the work of the problem solution should be divided.
+
+\emph{Baba is Y'all} is an example of a mixed-initiative system where the user and system
+interact in a more equal manner \cite{charity2020}. An image of the interface is provided in
+\autoref{fig:biy}. The system is able to make suggestions based on the history of all levels
+that have been created by every user. It provides suggestions for rules to implement into
+the game that have't been thoroughly explored. It is also capable of helping players find
+levels with similar mechanics to struggling players. Baba is Y'all demonstrates speaker
+initiative by allowing the user to work on a level and providing suggestions. The
+suggestions happen asynchronously while the user edits, so the user would have to end their
+turn for the system to incorporate its suggestions. In regards to the outcome initiative of
+Baba is Y'all, the user decides whether or not to incorporate the system's suggestions, so
+therefore the outcome initiative is managed entirely by the user.
+
+\begin{figure}[h]
+    \includegraphics[width=\levelwidth]{img/fig-biy.png}
+    \caption{Inteface of \emph{Baba is Y'all}}
+    \label{fig:biy}
+\end{figure}
+
 \thesubsection{Functional and usability requirements}
