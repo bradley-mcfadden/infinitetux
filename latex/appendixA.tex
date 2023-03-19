@@ -1,0 +1,55 @@
+\chapter*{Appendix A: mORE Level Generation Algorithm}
+
+\begin{lstlisting}[basicstyle=\footnotesize]
+// createLevel by expanding anchor points within level 
+// with compatible chunks from the first set chunk 
+// library.
+// Halts when no more chunks can be placed at any anchor 
+// point, then repeats for the second set of chunks. 
+// A chunk is a small level fragment.
+PROCEDURE createLevel(
+    chunkLibrary: {firstSet, secondSet}
+) {
+  create a starting platform
+  create an initial anchor point
+
+  // set of all anchors
+  anchorPoints <- {startingAnchor} // set of all anchors
+  // set of all anchors that cannot be expanded
+  terminalAnchors <- {} 
+  FOR EACH (currentChunkSet IN chunkLibrary) {
+    //loop until all anchor points are terminal
+    WHILE (terminalAnchors.size() < anchorPoints.size()) {
+      anchorToExpand <- anchorPoints.selectRandom()
+      // get chunks that can be placed at the selected 
+      // anchor without overwriting existing level 
+      // geometry or "KEEP" spaces
+      compatibleChunks <- filter(
+        chunkChunkSet, anchorToExpand
+      )
+
+      IF (compatibleChunks.size() = 0) {
+        terminalAnchors.add(anchorToExpand)
+      } ELSE {
+        selectedChunk <- compatibleChunks.selectRandom()
+        intergratedChunk <- integrateChunk(
+            selectedChunk, anchorToExpand)
+
+        FOR EACH (
+          anchorPoint IN integratedChunk.anchorPoints
+        ) {
+          anchorPoints.add(anchor)
+        }    
+      }
+
+      anchorPoints <- anchorPoints.union(terminalAnchors)
+      anchorPoints <- anchorPoints.subset(
+                        0, anchorPoints.size() / 10
+                      )
+      terminalAnchors <- {}
+    }
+  }
+
+  create an ending platform
+} END createLevel
+\end{lstlisting}

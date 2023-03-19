@@ -1,4 +1,4 @@
-\section{Introduction}
+\chapter{Introduction}
 
 Among all the tasks when designing a game, level design choices are some of the
 most important \cite{blezinski2000, smith2008}. A well-designed level pushes a games' mechanics to its limits,
@@ -81,13 +81,15 @@ generator adapts to different groups of players. Content generators that use evo
 algorithms or gramars make use of a generate and test approach, while chunk-based generation
 approaches are normally constructive.
 
-\begin{longtable}[c]{| c | c | c |}
-\caption{Taxonomy of procedural content generation\label{long}}\\
+\begin{table}[ht]
+\caption{Taxonomy of procedural content generation}
 \label{table:pcg-taxonomy}
+\begin{tabularx}{\textwidth}{| l | X | X |}
+
 \hline
-Property of generator & \multicolumn{2}{| c |}{Possible values of property}\\
+Property of generator & Possible values of property & tick\\
 \hline
-\endhead
+
 Moment of content creation & Online - Content created during playtime & Offline - Content is either created separately, or during development.\\
 \hline
 Type of content & Necessary - The produced content is required to play the game. & Optional - The game is playable without the generated content.\\
@@ -96,13 +98,15 @@ Dimension of control & Random - The generator is not controllable by a user to a
 \hline
 Applicability & Generic - The generator's output can be used in many contexts, or is applied to many different conditions. & Adapative - The content of the genetor adapts to different conditions.\\
 \hline
-Reproducibility & Stochastic - Knowing the input conditions of the generator is not sufficient for prediciting the output. & Deterministic - KNowing the input conditions of the generator is sufficient to predict its output.\\
+Reproducibility & Stochastic - Knowing the input conditions of the generator is not sufficient for prediciting the output. & Deterministic - Knowing the input conditions of the generator is sufficient to predict its output.\\
 \hline
 Level of authorship & Mixed - The generator may require or optionally use input from a user. & Automatic - The generator is capable of producing content autonomously.\\
 \hline
 Production approach & Generate and test - The generator constructs a large number of potential solutions and searches for an optimal selection. & Constructive - The generator sequentially constructs an acceptable solution.\\
 \hline
-\end{longtable}
+
+\end{tabularx}
+\end{table}
 
 Platformer games are often the subject of papers on level generation for video games. A
 platformer is a set of physics-based dexterity challenges that are viewed from the side
@@ -150,6 +154,7 @@ difficult terrain, so these are added more often when it is desirable to increas
 difficulty.
 
 \begin{figure}[h]
+    \centering
     \includegraphics[width=\textwidth]{img/fig2-notch-chunks.png}
     \caption{Possible chunk types in \emph{InfiniteTux}}
     \label{fig:ift-chunks}
@@ -171,6 +176,7 @@ generated more than a few blocks above or below the previous, and celings cannot
 the last tile of a chunk, so each level is guaranteed to be winnable.
 
 \begin{figure}[h]
+    \centering
     \includegraphics[width=\linewidth]{img/fig3-notch-levels.png}
     \caption{Two levels generated with similar parameters in \emph{InfiniteTux}}
     \label{fig:ift-levels}
@@ -191,13 +197,14 @@ level is provided in \autoref{fig:spelunky}, which has each chunk numbered by it
 and a red line indicating a path to the end of level.
 
 \begin{figure}[h]
-    \includegraphics[width=0.8\levelwidth]{img/fig4-spelunky.png}
+    \centering
+    \includegraphics[width=0.8\linewidth]{img/fig4-spelunky.png}
     \caption{Level generated in \emph{Spelunky}. From \cite{kazemi2009a}}
     \label{fig:spelunky}
 \end{figure}
 
 \thesubsection{Procedural generation for platformers in research}
-Compton & Mateas produced one of the first conceptual models for platformer game levels
+Compton and Mateas produced one of the first conceptual models for platformer game levels
 \cite{compton2006}. In turn, their model is inspired by a model from music theory for
 representing complex patterns in African and African American music. The model separates
 platformer levels into atomic components, such as platforms, hills, and vines. In other
@@ -218,7 +225,8 @@ zone from a previously unsafe zone. In \autoref{fig:hk}, a cell of \emph{Hollow 
 shown with its rhythm groups represented by non-overlapping green regions.
 
 \begin{figure}[h]
-    \includegraphics[width=\linewidth]{img/fig-hk-rhythm.png}
+    \centering
+    \includegraphics[width=\linewidth]{img/fig5-hk-rhythm.png}
     \caption{A single-cell level from \emph{Hollow Knight}}
     \label{fig:hk}
 \end{figure}
@@ -228,7 +236,7 @@ The individual rhythm groups of the cell in \autoref{fig:hk} are described in de
     \item The player starts on the right hand side of the screen. The rhythm group extends out until the statue.
     \item The player must wall jump alongside the ceiling's right angles. The rhythm group ends after the saw blade, as they can stall here by nail-jumping on the saw for a break.
     \item The player reaches this rhythm group after wall jumping and dashing to it. They must avoid the moving saw blade along the wall. The rhythm group ends at the peak of the wall, as they can wall jump until ready for the next part.
-    \item This rhythm group contains two flies that the player must bounce on to traverse it. Ite ends after the double jump off the second fly to reach the wall.
+    \item This rhythm group contains two flies that the player must bounce on to traverse it. It ends after the double jump off the second fly to reach the wall.
     \item This rhythm group extends from the wall in the top right, to the area above the moving saw blades. The player must use their dash and bounce off the flies, until reaching the left wall.
     \item Here, the player must slip past the moving saw without hitting the static saw. Then, they can rest by jumping against the wall.
     \item In this rhythm group, the player must bounce off the saw blades and slip through the narrow passage until reaching the statue.
@@ -272,7 +280,8 @@ automatic difficulty analysis, the ability to view level paths, and support for 
 of rhythm groups.
 
 \begin{figure}[h]
-    \includegraphics[width=\levelwidth]{img/fig:tanagra}
+    \centering
+    \includegraphics[width=\linewidth]{img/fig6-tanagra.png}
     \caption{Interface of \emph{Tanagra}. From \cite{smith2010}}
     \label{fig:tanagra}
 \end{figure}
@@ -335,18 +344,19 @@ authors 42 chunks , which were all human-authored. Additionally, there is no str
 guarantee that the generated levels are playable.
 
 \begin{figure}[h]
-    \includegraphics[width=\levelwidth]{img/fig7-ore.png}
+    \centering
+    \includegraphics[width=\linewidth]{img/fig7-ore.png}
     \caption{Example of emergent behaviour in ORE's generated levels}
     \label{fig:clever-ore}
 \end{figure}
 
-\thesubsection{Computers in the creative process}
+\subsection{Computers in the creative process}
 
 Computers have supported people creators for some time. Software that helps users in design
 tasks is commonly referred to as computer-aided design software, or CAD. The motivating
 ideas behind CAD are to provide users with a way of visualising their designs on the
 computer, and to have the computer aid in applying constraints to the work
-\cite{lawson1997}. Lawson & Loke argue that computers could do more to facilitate their
+\cite{lawson1997}. Lawson and Loke argue that computers could do more to facilitate their
 user's creativity in the design process, and provide three ways in which CAD systems could
 contribute: "man/machine roles in creative thought", "parallel lines of thought", and "mind
 sharing".
@@ -362,6 +372,7 @@ The system is shown in \autoref{fig:rlbrush}, and several different suggestions 
 above the working canvas.
 
 \begin{figure}[h]
+    \centering
     \includegraphics[width=\linewidth]{img/fig8-rlbrush.png}
     \caption{Interface of the \emph{rlbrush} editor for \emph{Sokoban}. From \cite{delarosa2021}}.
     \label{fig:rlbrush}.
@@ -418,12 +429,13 @@ Baba is Y'all, the user decides whether or not to incorporate the system's sugge
 therefore the outcome initiative is managed entirely by the user.
 
 \begin{figure}[h]
-    \includegraphics[width=\levelwidth]{img/fig-biy.png}
+    \centering
+    \includegraphics[width=\linewidth]{img/fig9-biy.png}
     \caption{Inteface of \emph{Baba is Y'all}}
     \label{fig:biy}
 \end{figure}
 
-\thesubsection{Functional and usability requirements}
+\subsection{Functional and usability requirements}
 
 For any interactive object or piece of software, it is important to consider the effect that
 the interaction has on the user, and to design for a positive experience. A well-designed

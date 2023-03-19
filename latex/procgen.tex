@@ -1,7 +1,7 @@
 \documentclass[12pt]{report}
 
 % Paper size, margins
-\usepackage[a5paper,total={148mm,210mm}]{geometry}
+\usepackage[a5paper,total={138mm,200mm}]{geometry}
 
 % For creating figures
 \usepackage{graphicx}
@@ -17,15 +17,19 @@
 % for code blocks
 \usepackage{listings}
 
+% multi-page tables
+\usepackage{longtable}
+\usepackage{tabularx}
+
 \title{A Collaborative Procedural Content Generator for 2D Platform Games}
-\author{Bradley McFadden\\
+\author{
+Bradley McFadden\\
 COSC4086-EL02 Project\\
-\\
-A project submitted in partial fulfilment of the requirements for the degree of Bachelor of Computer Science\\
 \\
 Bharti School of Engineering and Computer Science\\
 Laurentian University\\
-Sudbury, ON. Canada}
+Sudbury, ON. Canada
+}
 \date{\today}
 
 % Options for rule and separator size of figure boxes
@@ -46,7 +50,7 @@ Sudbury, ON. Canada}
 \include{introduction}
 \include{methodology}
 \include{results}
-\include{concolusions}
+\include{conclusions}
 \include{bibliography}
 \include{appendixA}
 

@@ -1,1 +1,89 @@
-\thesection{Conclusions & Future Work}
+\chapter{Conclusions \& Future Work}
+
+During this project, procedural generation was discussed in depth. Several approaches for
+generating levels for 2D platformer games were examined. Additionally, the role of computers
+in the creative process was discussed. Functionality and usability requirements were
+researched to improve the utility of the designed application. From this initial research,
+a system was implemented that would allow a level designer to work collaboratively to create
+interesting InfiniteTux levels.
+
+The goals of this project were to create a level editor that helps a game designer create
+varied levels for a game quickly, by working collaboratively. In these regards, I consider
+the system a success. The system allows the game designer to quickly iterate through
+ideas by using a procedural generation apraoch that was shown to have increased variation
+over the default generation algorithm for two of three tile sizes. By adding a few additions
+to the chunk library, the user can augment the system to generate levels with much more
+variety. The level editor provides the user to participate in the level generation process
+with a fair amount of initiative being shared between the level designer and the system.
+The user is able to modify the most basic unit that the generator works with - chunks -, and
+is also free to modify the level on a per-tile basis. If the user is unhappy with the output,
+they can immediately re-generate a level or a subsection of a level, to view more 
+alternatives. A fair amount of power is still held by the designer. The designer must take
+the initiative to start changes on a level, to tell the system when it should take its turn,
+and make necessary adjustments. 
+
+Most of the focus on the project was spent on level generation, when much more can go into
+facilitating the designer's creativity than having varied levels to be inspired by, or
+influence over the generation. One of the original visions of this project was to make
+editing levels as easy as writing code in an integrated development environment (IDE). Many
+IDEs provide the programmer with several different suggestions at a time. Warnings are
+provided when the programmer may cause a runtime error, or performs an unsafe operation. 
+Suggestions nudege the user toward btter style, or using newer and safer features.
+Currently, the improved editor for InfiniteTux just provides warnins about potential
+playability issues to the user. One could imagine that in the future, suggestions are given
+about repositioning level elements to create a better rhythm, or using hills instead of
+solid tiles to give the user multiple paths.
+
+This work has contributed to the field of procedural generation, and of mixed-initiative
+systems by incorporating a procedural generation system into a level editor to improve the
+level editing task by reducing the creative and manual effort required by the user. The
+implications of this contribution suggest that a similar approach could be applied to other
+creative tasks such as drawing, the generation of music, or perhaps generating models of
+terrain. A fair amount of effort has been devoted to the specific field of platformer games,
+in order to gain an understanding of their structure and existing methods for procedurally
+creating content for these games. If a collaborative system were to be developed for any of
+the listed domains, the developers should also research existing generation methods in the
+domain, in order to find an approach that would have similar strengths to that of the mORE
+generator. A few notable strengths of mORE are its ability to overlap content, to be able to
+work with the user by allowing its content library to be modified, and by taking turns with 
+the user to generate and re-generate sections of a level.
+
+Another implication of this project is that it would prove advantageous to be able to adapt
+an existing content generator, instead of writing an implemenetation of a closed-source 
+system. If this were done, much more time could be spent on the portion of the system that
+collaborates with the user. This may allow more focus to be given to the collaboration 
+between the user and the system, so that there could be a better dialogue between them. As
+it stands, the current system is analytical, where instead it could provide interpretation
+along with its analysis. However, the content generator part of the system would need to
+have an understanding of the context of the content that it produces, which may hinder its
+ability to quickly produce results and generate ideas for the user. Perhaps the generator
+could be separated into two parts, where a content analyzer determines improvements that
+could be made after the generator does its work. Either way, this contetn analyzer component
+would be interesting to expand on in further research.
+
+To expand on the system's ability to provide suggestions to the user, it would be
+interesting if the user could first design several levels that the system analyses, and
+when asked for suggestions, the system could use a metric like KL-Divergence to generate
+levels until some threshold of acceptable difference from the user's levels is reached.
+In other words, the system could analyse the designer's behaviour, and attempt to produce
+levels or suggestions for areas that are nitentionally very different to what the designer
+would produce themselves. This feature could serve to produce ideas for the designer that
+they may not be able to think of themselves.
+
+A common problem often encountered during the selection of the generator and during 
+considerations of what extra information to provide the user with, is that is seems to be
+very difficult to define what makes a level fun. A single level generation approach is not
+dominant over others, as indicated in the wide variety of approaches explored during the
+introduction of this report. More research could be done on both platformer games and level
+generation approaches to determine both what is fun in a platformer game, and how these
+findings can be applied to level generation to create engaging levels.
+
+Future work could extend further than using user-defined chunks to generate levels.
+Perhaps, the program could generate these chunks, or the user could act as a supervisor for
+a system that learns to create interesting levels. The current system is highly context
+dependent. For each game that it's used with, a new chunk library would need to be created
+by a designer familiar with the game. However, the part of the algorithm that places level
+geometry could require changes if some tiles or level components in another game are not
+1x1 in size, as they are in InfiniteTux. Regardless, it would be interesting to see this
+approach to level editing made more general so it could be applied to a variety of games, and
+not just limited to 2D tile-based platformers.
