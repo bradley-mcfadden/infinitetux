@@ -1,7 +1,7 @@
 \documentclass[12pt]{report}
 
 % Paper size, margins
-\usepackage[a5paper,total={138mm,200mm}]{geometry}
+\usepackage[a5paper,total={138mm,200mm},hmargin={1cm},vmargin={2cm}]{geometry}
 
 % For creating figures
 \usepackage{graphicx}
@@ -20,6 +20,7 @@
 % multi-page tables
 \usepackage{longtable}
 \usepackage{tabularx}
+\usepackage{tabularray}
 
 \title{A Collaborative Procedural Content Generator for 2D Platform Games}
 \author{
@@ -41,8 +42,7 @@ Sudbury, ON. Canada
 \thispagestyle{empty}
 
 \maketitle
-\listoftables
-\listoffigures
+\tableofcontents
 \newpage
 
 \pagenumbering{arabic}

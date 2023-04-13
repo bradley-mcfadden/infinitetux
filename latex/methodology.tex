@@ -26,11 +26,11 @@ breakable by the player, all of which is critical information for the level desi
 last part of the level editor is the top row, which shows the level name, cursor position
 in tile coordinates, and has controls for file management.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.8\linewidth]{img/fig11-ift-editor.png}
     \caption{Existing level editor for \emph{InfiniteTux}}
-    \label{fig:more-chunks}
+    \label{fig:ift-editor}
 \end{figure}
 
 Before starting the implementation of the level editor, it is reasonable to create a list
@@ -102,30 +102,20 @@ chunks are combined in an overlapping manner by anchor points. A few key differe
 worth mentioning, and are detailed in \autoref{table:ore-v-more}. For reference, the mORE
 algorithm is described as pseudocode in Appendix A.
 
-\begin{table}[h]
-    \caption{Differences between ORE and mORE}
-    \label{table:ore-v-more}
-
-    \begin{tabularx}{\textwidth}{| l | X | X |}
-    \hline
-    Characteristic & ORE & mORE\\
-    \hline
-    Chunk representation & Text file with its own encoding, allowing some extra information like whether a solid tile is part of the ground or a platform. & Text file using the same encoding as InfiniteTux, with the exception of anchors and preserved spaces.\\
-    \hline
-    Clipping & Parts of the test chunk that are out of bounds of the level are discarded. & If any part of the test chunk is out of the level, the whole chunk is discarded.\\
-    \hline
-    Number of passes & One pass, but extended artificially by the generator adding additional anchor points when it runs out. & Two passes, with two separate sets of chunks working with the same anchors.\\
-    \hline
-    Chunk tags & Uses tags for frequency that a particular chunk should be selected. & Uses tags to separate chunk library into first and last sets.\\
-    \hline
-    Chunk library & Uses two libraries, one of 22 chunks and one of 20 chunks. & Uses one library of chunks that can be expanded by the user.\\
-    \hline
-    Post-processing & Uses post-processing to decorate the level, to fill in areas beneath the ground tiles. It is also used to evenly distribute power-ups across the level. & No post-processing is used.\\
-    \hline
-    Running time & 15 seconds for a complete level of 256x15 tiles. & 5 seconds for a complete level of 256x15 tiles.\\
-    \hline
-\end{tabularx}
-\end{table}
+\begin{longtblr}[
+    caption = {Differences between ORE and mORE},
+    label = {table:ore-v-more},
+]{|c|X|X|} \hline
+    Characteristic & ORE & mORE \\\hline
+    Chunk representation & Text file with its own encoding, allowing some extra information like whether a solid tile is part of the ground or a platform. & Text file using the same encoding as InfiniteTux, with the exception of anchors and preserved spaces. \\\hline
+    Clipping & Parts of the test chunk that are out of bounds of the level are discarded. & If any part of the test chunk is out of the level, the whole chunk is discarded. \\\hline
+    Number of passes & One pass, but extended artificially by the generator adding additional anchor points when it runs out. & Two passes, with two separate sets of chunks working with the same anchors. \\\hline
+    Chunk tags & Uses tags for frequency that a particular chunk should be selected. & Uses tags to separate chunk library into first and last sets. \\\hline
+    Chunk library & Uses two libraries, one of 22 chunks and one of 20 chunks. & Uses one library of chunks that can be expanded by the user. \\\hline
+    Post-processing & Uses post-processing to decorate the level, to fill in areas beneath the ground tiles. It is also used to evenly distribute power-ups across the level. & No post-processing is used. \\\hline
+    Running time & 15 seconds for a complete level of 256x15 tiles. & 5 seconds for a complete level of 256x15 tiles. \\\hline
+%\end{tabularx}
+\end{longtblr}
 
 The chunk library that mORE uses is important, because any content it creates is an
 interconnected whole of the chunks in the library. For this project, the chunk library is

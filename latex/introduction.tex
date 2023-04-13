@@ -38,10 +38,10 @@ apparent by other software that has lowered the barrier for entry in the game de
 industry such as the wide variety of open source game engines, intelligent development
 environments, visual programming interfaces, and frameworks available to developers.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.8\textwidth]{img/fig1-mm-editor.jpg}
-    \caption Interface of \emph{Super Mario Maker}'s level editor.
+    \caption{\emph{Super Mario Maker}'s level editor.}
     \label{fig:mm-editor}
 \end{figure}
 
@@ -81,32 +81,26 @@ generator adapts to different groups of players. Content generators that use evo
 algorithms or gramars make use of a generate and test approach, while chunk-based generation
 approaches are normally constructive.
 
-\begin{table}[ht]
-\caption{Taxonomy of procedural content generation}
-\label{table:pcg-taxonomy}
-\begin{tabularx}{\textwidth}{| l | X | X |}
+%\begin{table}[ht]
+%\caption{Taxonomy of procedural content generation}
+%\label{table:pcg-taxonomy}
+%\begin{tabularx}{\textwidth}{| l | X | X |}
 
+\begin{longtblr}[
+    caption = {Taxonomy of procedural content generation},
+    label = {table:pcg-taxonomy},
+]{|c|X|X|}
 \hline
-Property of generator & Possible values of property & tick\\
-\hline
-
-Moment of content creation & Online - Content created during playtime & Offline - Content is either created separately, or during development.\\
-\hline
-Type of content & Necessary - The produced content is required to play the game. & Optional - The game is playable without the generated content.\\
-\hline
-Dimension of control & Random - The generator is not controllable by a user to any exten. & Parameterized - The user may set parameters which affect the generator's output.\\
-\hline
-Applicability & Generic - The generator's output can be used in many contexts, or is applied to many different conditions. & Adapative - The content of the genetor adapts to different conditions.\\
-\hline
-Reproducibility & Stochastic - Knowing the input conditions of the generator is not sufficient for prediciting the output. & Deterministic - Knowing the input conditions of the generator is sufficient to predict its output.\\
-\hline
-Level of authorship & Mixed - The generator may require or optionally use input from a user. & Automatic - The generator is capable of producing content autonomously.\\
-\hline
-Production approach & Generate and test - The generator constructs a large number of potential solutions and searches for an optimal selection. & Constructive - The generator sequentially constructs an acceptable solution.\\
-\hline
-
-\end{tabularx}
-\end{table}
+\SetCell[c=1]{c}{Property of generator} & \SetCell[c=2]{c}{Possible values of property} \\\hline
+Moment of content creation & Online - Content created during playtime & Offline - Content is either created separately, or during development. \\\hline
+Type of content & Necessary - The produced content is required to play the game. & Optional - The game is playable without the generated content. \\\hline
+Dimension of control & Random - The generator is not controllable by a user to any exten. & Parameterized - The user may set parameters which affect the generator's output. \\\hline
+Applicability & Generic - The generator's output can be used in many contexts, or is applied to many different conditions. & Adapative - The content of the genetor adapts to different conditions. \\\hline
+Reproducibility & Stochastic - Knowing the input conditions of the generator is not sufficient for prediciting the output. & Deterministic - Knowing the input conditions of the generator is sufficient to predict its output. \\\hline
+Level of authorship & Mixed - The generator may require or optionally use input from a user. & Automatic - The generator is capable of producing content autonomously. \\\hline
+Production approach & Generate and test - The generator constructs a large number of potential solutions and searches for an optimal selection. & Constructive - The generator sequentially constructs an acceptable solution. \\\hline
+\end{longtblr}
+%\end{table}
 
 Platformer games are often the subject of papers on level generation for video games. A
 platformer is a set of physics-based dexterity challenges that are viewed from the side
@@ -153,7 +147,7 @@ the most common chunk. Jumps, tubes, and cannons are considered by the generator
 difficult terrain, so these are added more often when it is desirable to increase the game's
 difficulty.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{img/fig2-notch-chunks.png}
     \caption{Possible chunk types in \emph{InfiniteTux}}
@@ -175,7 +169,7 @@ space of this generator. However, the generator is very reliable. Adjacent chunk
 generated more than a few blocks above or below the previous, and celings cannot extend to
 the last tile of a chunk, so each level is guaranteed to be winnable.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{img/fig3-notch-levels.png}
     \caption{Two levels generated with similar parameters in \emph{InfiniteTux}}
@@ -196,7 +190,7 @@ approximately 500 playthroughs of the game \cite{kazemi2009a}. An example annota
 level is provided in \autoref{fig:spelunky}, which has each chunk numbered by its type, 
 and a red line indicating a path to the end of level.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.8\linewidth]{img/fig4-spelunky.png}
     \caption{Level generated in \emph{Spelunky}. From \cite{kazemi2009a}}
@@ -224,7 +218,7 @@ when there is a change in the rhythm of a level, such as if the player has reach
 zone from a previously unsafe zone. In \autoref{fig:hk}, a cell of \emph{Hollow Knight} is
 shown with its rhythm groups represented by non-overlapping green regions.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{img/fig5-hk-rhythm.png}
     \caption{A single-cell level from \emph{Hollow Knight}}
