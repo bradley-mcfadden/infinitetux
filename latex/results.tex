@@ -94,32 +94,49 @@ the Notch generator. The maximum values are significantly higher than Notch's ge
 the minimum values are slightly lower. Therefore, in a limited number of cases, mORE was 
 able to produce a pair of levels that differ substantially from one another.
 
+% a5 table
+%\begin{table}[ht]
+%    \centering
+%\begin{tabular}{| c | c | c | c | c |}\hline
+%Generator and feature size & Min & $Q_1$ & Median & Mean \\\hline
+%Notch 2x2 & 1.779 & 7.220 & 8.982 & 9.431 \\\hline
+%mORE 2x2 & -2.502 & 4.830 & 7.276 & 9.768 \\\hline
+%Notch 4x4 & 9.778 & 12.507 & 13.253 & 13.394 \\\hline
+%mORE 4x4 & 6.431 & 10.211 & 11.419 & 12.282 \\\hline
+%Notch 6x6 & 11.990 & 13.950 & 14.450 & 14.540 \\\hline
+%mORE 6x6 & 10.210 & 14.080 & 15.030 & 15.510 \\\hline
+%\end{tabular}
+%
+%\begin{tabular}{| c | c | c | c |}\hline
+%Generator and feature size & $Q_3$ & Max & \emph{s} \\\hline
+%Notch 2x2 & 11.138 & 39.885 & 3.213\\\hline
+%mORE 2x2 & 10.641 & 344.329 & 14.680\\\hline
+%Notch 4x4 & 14.110 & 23.739 & 1.286\\\hline
+%mORE 4x4 & 12.972 & 163.866 & 6.162\\\hline
+%Notch 6x6 & 15.030 & 19.850 & 0.871\\\hline
+%mORE 6x6 & 16.190 & 117.890 & 4.119\\\hline
+%\end{tabular}
+%
+%\caption{Descriptive statistics for KL-Divergence of 10,000 pairs of 256x15 levels}
+%\label{table:more-ore-desc}
+%\end{table}
+
+% a4 table
 \begin{table}[ht]
-\begin{tabular}{| c | c | c | c | c |}\hline
-Generator and feature size & Min & $Q_1$ & Median & Mean \\\hline
-Notch 2x2 & 1.779 & 7.220 & 8.982 & 9.431 \\\hline
-mORE 2x2 & -2.502 & 4.830 & 7.276 & 9.768 \\\hline
-Notch 4x4 & 9.778 & 12.507 & 13.253 & 13.394 \\\hline
-mORE 4x4 & 6.431 & 10.211 & 11.419 & 12.282 \\\hline
-Notch 6x6 & 11.990 & 13.950 & 14.450 & 14.540 \\\hline
-mORE 6x6 & 10.210 & 14.080 & 15.030 & 15.510 \\\hline
-\end{tabular}
+    \centering
+    \begin{tabular}{| c | c | c | c | c | c | c | c | c |}\hline
+        Generator and feature size & Min & $Q_1$ & Median & Mean & $Q_3$ & Max & \emph{s} \\\hline
+        Notch 2x2 & 1.779 & 7.220 & 8.982 & 9.431 & 11.138 & 39.885 & 3.213\\\hline
+        mORE 2x2 & -2.502 & 4.830 & 7.276 & 9.768 & 10.641 & 344.329 & 14.680\\\hline
+        Notch 4x4 & 9.778 & 12.507 & 13.253 & 13.394 & 14.110 & 23.739 & 1.286\\\hline
+        mORE 4x4 & 6.431 & 10.211 & 11.419 & 12.282 & 12.972 & 163.866 & 6.162\\\hline
+        Notch 6x6 & 11.990 & 13.950 & 14.450 & 14.540 & 15.030 & 19.850 & 0.871\\\hline
+        mORE 6x6 & 10.210 & 14.080 & 15.030 & 15.510 & 16.190 & 117.890 & 4.119\\\hline
+    \end{tabular}
 
-
-\begin{tabular}{| c | c | c | c |}\hline
-Generator and feature size & $Q_3$ & Max & \emph{s} \\\hline
-Notch 2x2 & 11.138 & 39.885 & 3.213\\\hline
-mORE 2x2 & 10.641 & 344.329 & 14.680\\\hline
-Notch 4x4 & 14.110 & 23.739 & 1.286\\\hline
-mORE 4x4 & 12.972 & 163.866 & 6.162\\\hline
-Notch 6x6 & 15.030 & 19.850 & 0.871\\\hline
-mORE 6x6 & 16.190 & 117.890 & 4.119\\\hline
-\end{tabular}
-
-\caption{Descriptive statistics for KL-Divergence of 10,000 pairs of 256x15 levels}
-\label{table:more-ore-desc}
+    \caption{Descriptive statistics for KL-Divergence of 10,000 pairs of 256x15 levels}
+    \label{table:more-ore-desc}
 \end{table}
-
 
 \begin{table}[ht]
 \centering

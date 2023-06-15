@@ -1,0 +1,12 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {subsection}{\numberline {1.0.1}Procedural generation for platformers in a selection of games}{6}{subsection.1.0.1}%
+\contentsline {subsection}{\numberline {1.0.2}Computers in the creative process}{16}{subsection.1.0.2}%
+\contentsline {subsection}{\numberline {1.0.3}Functional and usability requirements}{18}{subsection.1.0.3}%
+\contentsline {chapter}{\numberline {2}Methodology}{24}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Improving the level editor}{24}{section.2.1}%
+\contentsline {section}{\numberline {2.2}A suitable level generator for an interactive system}{27}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Adding collaborative elements to level creation}{32}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Final system}{35}{section.2.4}%
+\contentsline {chapter}{\numberline {3}Results}{37}{chapter.3}%
+\contentsline {chapter}{\numberline {4}Conclusions \& Future Work}{46}{chapter.4}%
