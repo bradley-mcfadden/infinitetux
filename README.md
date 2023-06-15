@@ -40,7 +40,7 @@ level, like "this is a hard jump" or "this combination of enemies can be easily 
 ![chunk-library.png](chunk-library.png)
 
 ## Project paper (~45 pages)
-[bmcfadden_cosc4086_project.pdf](bmcfadden_cosc4086_project.pdf)
+[A4](bmcfadden_cosc4086_project_a4.pdf), [A5](bmcfadden_cosc4086_project_a5.pdf)
 
 ## Project presentation (~30 slides)
 [pcg_platformer.pptx](pcg_platformer.pptx)
